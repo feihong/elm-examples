@@ -1,0 +1,7 @@
+title: Hello World
+
+===
+-inherit example.plim
+
+-block desc
+  p A simple Hello World program
