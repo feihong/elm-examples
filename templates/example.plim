@@ -2,11 +2,12 @@
 
 -block scripts
   = parent.scripts()
-  = script('Main.js')
+  = script('Main.elm')
   script
     Elm.Main.embed(document.getElementById('app'))
 
 .container
   h1 = title
   -block desc
+  hr
   #app

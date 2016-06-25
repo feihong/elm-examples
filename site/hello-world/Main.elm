@@ -1,4 +1,8 @@
-import Html exposing (p, text)
+import Html exposing (div, p, text, button)
+import Html.Attributes exposing (class)
 
 main =
-  p [] [text "Hello World!"]
+  div [] [
+    p [] [text "Hello World!"],
+    button [class "btn btn-default"] [text "Click me!"]
+  ]

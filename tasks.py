@@ -1,5 +1,9 @@
+import os
+import subprocess
+
 from invoke import task
 from jingtai import Site
+from jingtai.transformers import SourceFileTransformer, register_transformer
 
 
 site = Site('/elm-examples/')
@@ -30,6 +34,26 @@ def clean(ctx):
 @task
 def publish(ctx):
     site.publish()
+
+
+@register_transformer
+class ElmTransformer(SourceFileTransformer):
+    input_ext = '.elm'
+    output_ext = '.js'
+    mime_type = 'text/javascript'
+
+    def transform(self, src):
+        dest_dir = src.parent
+        self.build(src, dest_dir)
+        return self.get_dest_file(src, dest_dir).read_text()
+
+    def build(self, src, dest_dir):
+        cmd = [
+            'elm-make', str(src),
+            '--yes',
+            '--output', str(self.get_dest_file(src, dest_dir))
+        ]
+        return subprocess.call(cmd, cwd=str(src.parent))
 
 
 NEW_PAGE_TEMPLATE = u"""\
