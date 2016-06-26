@@ -8,10 +8,13 @@ main = beginnerProgram { model = model, view = view, update = update }
 
 -- MODEL
 
+defaultValue = "Hello World"
+
 choices = [
-  ("English", "Hello World"),
+  ("English", defaultValue),
   ("German", "Hallo Welt"),
   ("Chinese", "你好世界") ]
+
 
 type alias Model =
   { greeting : String
@@ -20,7 +23,7 @@ type alias Model =
 
 model: Model
 model =
-  { greeting = "Hello World"
+  { greeting = defaultValue
   , choices = choices
   }
 
