@@ -43,12 +43,14 @@ update action model =
 
 view : Model -> Html Msg
 view model  =
-  div []
-    (p [] [ text model.greeting ] :: languageButtons model.greeting model.choices)
+  div [] [
+    p [] [ text model.greeting ],
+    div [] (languageButtons model.greeting model.choices)
+  ]
 
 languageButtons : String -> List (String, String) -> List (Html Msg)
 languageButtons greeting choices =
-  List.map (\choice -> languageButton greeting choice) choices
+  List.map (languageButton greeting) choices
 
 languageButton : String -> (String, String) -> Html Msg
 languageButton greeting (language, value) =
@@ -56,5 +58,5 @@ languageButton greeting (language, value) =
     classList [
       ("btn", True),
       ("btn-default", True),
-      ("btn-info", greeting == value) ],
-    onClick (CurrentGreeting value) ] [ text language ]
+      ("btn-info", greeting == value) ]
+    , onClick (CurrentGreeting value) ] [ text language ]
