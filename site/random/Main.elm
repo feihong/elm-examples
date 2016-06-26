@@ -12,13 +12,16 @@ main = App.program
   }
 
 
+generate = Random.generate NewNumber (Random.int 1 100)
+
+
 -- MODEL
 
 type alias Model = Int
 
 
 init : (Model, Cmd Msg)
-init = (1, Cmd.none)
+init = (0, generate)
 
 
 -- UPDATE
@@ -31,7 +34,7 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Generate -> (model, Random.generate NewNumber (Random.int 1 100))
+    Generate -> (model, generate)
 
     NewNumber num -> (num, Cmd.none)
 
