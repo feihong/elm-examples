@@ -1,0 +1,7 @@
+title: Random
+
+===
+-inherit example.plim
+
+-block desc
+  p How to use the Random module
