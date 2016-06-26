@@ -34,7 +34,11 @@ view : Model -> Html Msg
 view model  =
   div [] [
     p [] [text model],
-    button [ class "btn btn-default", onClick English ] [text "English"],
-    button [ class "btn btn-default", onClick German ] [text "German"],
-    button [ class "btn btn-default", onClick Chinese ] [text "Chinese"]
+    languageButton English "English",
+    languageButton German "German",
+    languageButton Chinese "Chinese"
   ]
+
+languageButton : Msg -> String -> Html Msg
+languageButton msg title =
+  button [ class "btn btn-default", onClick msg ] [ text title ]
