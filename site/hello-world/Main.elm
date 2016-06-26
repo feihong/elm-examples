@@ -10,17 +10,23 @@ main = beginnerProgram { model = model, view = view, update = update }
 type alias Model = String
 
 model: String
-model = "Hello World!"
+model = "Hello World"
 
 -- UPDATE
 
-type Msg = ChangeGreeting
+type Msg = English | German | Chinese
 
 update : Msg -> Model -> Model
 update action model =
   case action of
-    ChangeGreeting ->
-      "Goodbye Universe"
+    English ->
+      "Hello World"
+
+    German ->
+      "Hallo Welt"
+
+    Chinese ->
+      "你好世界"
 
 -- VIEW
 
@@ -28,5 +34,7 @@ view : Model -> Html Msg
 view model  =
   div [] [
     p [] [text model],
-    button [ class "btn btn-default", onClick ChangeGreeting ] [text "Click me!"]
+    button [ class "btn btn-default", onClick English ] [text "English"],
+    button [ class "btn btn-default", onClick German ] [text "German"],
+    button [ class "btn btn-default", onClick Chinese ] [text "Chinese"]
   ]
