@@ -3,42 +3,48 @@ import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Html.App exposing (beginnerProgram)
 
+
 main = beginnerProgram { model = model, view = view, update = update }
 
 -- MODEL
 
-type alias Model = String
+choices = [
+  ("English", "Hello World"),
+  ("German", "Hallo Welt"),
+  ("Chinese", "你好世界") ]
 
-model: String
-model = "Hello World"
+type alias Model =
+  { greeting : String
+  , choices : List (String, String)
+  }
+
+model: Model
+model =
+  { greeting = "Hello World"
+  , choices = choices
+  }
 
 -- UPDATE
 
-type Msg = English | German | Chinese
+type Msg = CurrentGreeting String
 
 update : Msg -> Model -> Model
 update action model =
   case action of
-    English ->
-      "Hello World"
-
-    German ->
-      "Hallo Welt"
-
-    Chinese ->
-      "你好世界"
+    CurrentGreeting greeting ->
+      { model | greeting = greeting }
 
 -- VIEW
 
 view : Model -> Html Msg
 view model  =
-  div [] [
-    p [] [text model],
-    languageButton English "English",
-    languageButton German "German",
-    languageButton Chinese "Chinese"
-  ]
+  div []
+    (p [] [ text model.greeting ] :: languageButtons model.choices)
 
-languageButton : Msg -> String -> Html Msg
-languageButton msg title =
-  button [ class "btn btn-default", onClick msg ] [ text title ]
+languageButtons : List (String, String) -> List (Html Msg)
+languageButtons choices =
+  List.map languageButton choices
+
+languageButton : (String, String) -> Html Msg
+languageButton (language, value) =
+  button [ class "btn btn-default", onClick (CurrentGreeting value) ] [ text language ]
