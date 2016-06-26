@@ -1,5 +1,6 @@
 import Html.App as App
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, p, text, button)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Random
 
@@ -12,10 +13,12 @@ main = App.program
   }
 
 
+generate : Cmd Msg
 generate = Random.generate NewNumber (Random.int 1 100)
 
 
 -- MODEL
+
 
 type alias Model = Int
 
@@ -25,6 +28,7 @@ init = (0, generate)
 
 
 -- UPDATE
+
 
 type Msg
   = Generate
@@ -43,8 +47,7 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-  Sub.none
+subscriptions model = Sub.none
 
 
 -- VIEW
@@ -52,4 +55,7 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-  div [] [ text (toString model) ]
+  div []
+    [ p [] [ text (toString model) ]
+    , button [ class "btn btn-default", onClick Generate ] [ text "Generate" ]
+    ]

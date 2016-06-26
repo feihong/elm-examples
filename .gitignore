@@ -2,4 +2,5 @@
 elm-stuff/packages
 elm-stuff/build-artifacts
 elm-stuff/exact-dependencies.json
+build
 Main.js
