@@ -13,7 +13,9 @@ defaultValue = "Hello World"
 choices = [
   ("English", defaultValue),
   ("German", "Hallo Welt"),
-  ("Chinese", "你好世界") ]
+  ("Chinese", "你好世界"),
+  ("Japanese", "こんにちは世界"),
+  ("Esperanto", "Saluton mondo") ]
 
 
 type alias Model =
