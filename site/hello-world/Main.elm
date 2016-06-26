@@ -1,5 +1,5 @@
 import Html exposing (Html, div, p, text, button)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (classList)
 import Html.Events exposing (onClick)
 import Html.App exposing (beginnerProgram)
 
@@ -42,12 +42,17 @@ update action model =
 view : Model -> Html Msg
 view model  =
   div []
-    (p [] [ text model.greeting ] :: languageButtons model.choices)
+    (p [] [ text model.greeting ] :: languageButtons model.greeting model.choices)
 
-languageButtons : List (String, String) -> List (Html Msg)
-languageButtons choices =
-  List.map languageButton choices
+languageButtons : String -> List (String, String) -> List (Html Msg)
+languageButtons greeting choices =
+  List.map (\choice -> languageButton greeting choice) choices
 
-languageButton : (String, String) -> Html Msg
-languageButton (language, value) =
-  button [ class "btn btn-default", onClick (CurrentGreeting value) ] [ text language ]
+languageButton : String -> (String, String) -> Html Msg
+languageButton greeting (language, value) =
+  button [
+    classList [
+      ("btn", True),
+      ("btn-default", True),
+      ("btn-info", greeting == value) ],
+    onClick (CurrentGreeting value) ] [ text language ]
