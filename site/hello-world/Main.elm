@@ -34,10 +34,8 @@ model =
 type Msg = CurrentGreeting String
 
 update : Msg -> Model -> Model
-update action model =
-  case action of
-    CurrentGreeting greeting ->
-      { model | greeting = greeting }
+update (CurrentGreeting greeting) model =
+  { model | greeting = greeting }
 
 -- VIEW
 
