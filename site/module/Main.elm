@@ -1,8 +1,6 @@
 import Html.App as App
 import Html exposing (Html, div, text)
 import Random
-import Char
-import String
 import Hanzi
 
 
@@ -12,13 +10,6 @@ main = App.program
   , update = update
   , subscriptions =  subscriptions
   }
-
-
-hanzi : Random.Generator String
-hanzi = Random.map (\x -> x |> Char.fromCode |> String.fromChar) (Random.int 0x4e00 0x9fff)
-
-generateHanzi : Cmd Msg
-generateHanzi = Random.generate NewHanzi hanzi
 
 
 -- MODEL
@@ -59,4 +50,11 @@ subscriptions model = Sub.none
 
 view : Model -> Html Msg
 view model =
-  div [] [ text (toString (Hanzi.add 3 9)) ]
+  div [] [ text model ]
+
+
+-- RANDOM
+
+
+generateHanzi : Cmd Msg
+generateHanzi = Random.generate NewHanzi Hanzi.hanzi
