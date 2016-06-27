@@ -59,6 +59,6 @@ view : Model -> Html Msg
 view model =
   div []
     [ p [] [ text (toString model) ]
-    , p [ class "hanzi" ] [ text (String.fromChar (Char.fromCode model)) ]
+    , p [ class "hanzi" ] [ text (model |> Char.fromCode |> String.fromChar) ]
     , button [ class "btn btn-default", onClick Generate ] [ text "Generate" ]
     ]
