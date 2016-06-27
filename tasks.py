@@ -48,6 +48,8 @@ class ElmTransformer(SourceFileTransformer):
         return self.get_dest_file(src, dest_dir).read_text()
 
     def build(self, src, dest_dir):
+        if src.name != 'Main.elm':
+            return
         cmd = [
             'elm-make', str(src),
             '--yes',
