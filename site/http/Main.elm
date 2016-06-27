@@ -1,5 +1,6 @@
 import Html.App
-import Html exposing (Html, div, p, pre, text, button)
+import Html exposing (Html, div, p, pre, text, button, code)
+import Html.Events exposing (onClick)
 import Http
 import Task
 
@@ -17,18 +18,19 @@ main = Html.App.program
 
 type alias Model =
   { content : String
-  , errorMesg : String }
+  , errorMsg : String
+  }
 
 
 init : (Model, Cmd Msg)
-init = (Model "" "", fetch)
+init = (Model "" "", fetch "elm-package.json")
 
 
 -- UPDATE
 
 
 type Msg
-  = Fetch
+  = Fetch String
   | Success String
   | Failure Http.Error
 
@@ -36,14 +38,14 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Fetch ->
-      (model, fetch)
+    Fetch url ->
+      (model, fetch url)
 
     Success result ->
       ({ model | content = result }, Cmd.none)
 
     Failure error ->
-      ({ model | errorMesg = toString error }, Cmd.none)
+      ({ model | errorMsg = toString error }, Cmd.none)
 
 
 -- SUBSCRIPTIONS
@@ -61,12 +63,17 @@ view model =
   div []
     [ p [] [ text "Contents of this program's elm-package.json:" ]
     , pre [] [ text model.content ]
+    , button [ onClick (Fetch "does-not-exist.json") ] [ text "Make failing request" ]
+    , p []
+      [ text "Error message:"
+      , code [] [ text model.errorMsg ]
+      ]
     ]
 
 
 -- HTTP
 
 
-fetch : Cmd Msg
-fetch =
-  Task.perform Failure Success (Http.getString "elm-package.json")
+fetch : String -> Cmd Msg
+fetch url =
+  Task.perform Failure Success (Http.getString url)
