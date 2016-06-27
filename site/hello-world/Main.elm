@@ -42,7 +42,7 @@ update (CurrentGreeting greeting) model =
 view : Model -> Html Msg
 view model  =
   let
-    languageButtons = List.map (languageButton greeting) choices
+    languageButtons = List.map (languageButton model.greeting) model.choices
   in
     div [] [
       p [] [ text model.greeting ],
