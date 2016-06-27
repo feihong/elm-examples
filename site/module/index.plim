@@ -1,0 +1,12 @@
+title: Module
+
+===
+-inherit example.plim
+
+-block desc
+  p How to create and import a module
+
+-block extrahead
+  = parent.extrahead()
+  style
+    #app { font-size: 4em; }
