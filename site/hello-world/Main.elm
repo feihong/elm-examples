@@ -41,14 +41,14 @@ update (CurrentGreeting greeting) model =
 
 view : Model -> Html Msg
 view model  =
-  div [] [
-    p [] [ text model.greeting ],
-    div [] (languageButtons model.greeting model.choices)
-  ]
+  let
+    languageButtons = List.map (languageButton greeting) choices
+  in
+    div [] [
+      p [] [ text model.greeting ],
+      div [] languageButtons
+    ]
 
-languageButtons : String -> List (String, String) -> List (Html Msg)
-languageButtons greeting choices =
-  List.map (languageButton greeting) choices
 
 languageButton : String -> (String, String) -> Html Msg
 languageButton greeting (language, value) =
@@ -56,5 +56,7 @@ languageButton greeting (language, value) =
     classList [
       ("btn", True),
       ("btn-default", True),
-      ("btn-info", greeting == value) ]
-    , onClick (CurrentGreeting value) ] [ text language ]
+      ("btn-info", greeting == value)
+    ]
+    , onClick (CurrentGreeting value)
+  ] [ text language ]
