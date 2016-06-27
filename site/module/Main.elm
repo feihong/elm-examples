@@ -3,6 +3,7 @@ import Html exposing (Html, div, text)
 import Random
 import Char
 import String
+import Hanzi
 
 
 main = App.program
@@ -58,4 +59,4 @@ subscriptions model = Sub.none
 
 view : Model -> Html Msg
 view model =
-  div [] [ text model ]
+  div [] [ text (toString (Hanzi.add 3 9)) ]
