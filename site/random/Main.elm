@@ -3,6 +3,8 @@ import Html exposing (Html, div, p, text, button)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Random
+import Char
+import String
 
 
 main = App.program
@@ -14,7 +16,7 @@ main = App.program
 
 
 generate : Cmd Msg
-generate = Random.generate NewNumber (Random.int 1 100)
+generate = Random.generate NewNumber (Random.int 0x4e00 0x9fff)
 
 
 -- MODEL
@@ -57,5 +59,6 @@ view : Model -> Html Msg
 view model =
   div []
     [ p [] [ text (toString model) ]
+    , p [ class "hanzi" ] [ text (String.fromChar (Char.fromCode model)) ]
     , button [ class "btn btn-default", onClick Generate ] [ text "Generate" ]
     ]
