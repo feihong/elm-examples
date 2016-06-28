@@ -1,0 +1,10 @@
+.grid .row {
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+.grid .row div:first-child {
+  background-color: #ffa500;
+}
+.grid .row div:nth-child(2) {
+  background-color: #fa8072;
+}
