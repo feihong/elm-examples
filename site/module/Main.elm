@@ -2,6 +2,7 @@ import Html.App as App
 import Html exposing (Html, div, text)
 import Random
 import Hanzi
+import Bootstrap exposing (button, input)
 
 
 main = App.program
@@ -50,7 +51,11 @@ subscriptions model = Sub.none
 
 view : Model -> Html Msg
 view model =
-  div [] [ text model ]
+  div []
+    [ div [] [ text model ]
+    , div [] [ button "A nice button!" ]
+    , div [] [ input "Enter something witty here" ]
+    ]
 
 
 -- RANDOM
