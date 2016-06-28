@@ -1,0 +1,11 @@
+title: elm-bootstrap-html
+
+===
+-inherit example.plim
+
+-block desc
+  p How to use the elm-bootstrap-html package
+
+-block extrahead
+  =parent.extrahead()
+  =stylesheet('styles.styl')

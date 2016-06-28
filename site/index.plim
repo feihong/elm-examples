@@ -15,4 +15,5 @@ title: Home
     - [Time](time/)
     - [Http](http/)
     - [Module](module/)
+    - [elm-bootstrap-html](bootstrap/)
     - [Meetup Calculator](meetup-calc/)
