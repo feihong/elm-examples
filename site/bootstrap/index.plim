@@ -4,7 +4,8 @@ title: elm-bootstrap-html
 -inherit example.plim
 
 -block desc
-  p How to use the elm-bootstrap-html package
+  -md
+    How to use the [elm-bootstrap-html](http://package.elm-lang.org/packages/circuithub/elm-bootstrap-html/7.0.0/Bootstrap-Html) package
 
 -block extrahead
   =parent.extrahead()
