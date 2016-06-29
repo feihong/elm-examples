@@ -1,29 +1,20 @@
-import Html.App as App
 import Html exposing (Html, div, p, text, button, ul, li, a)
-import Html.Attributes exposing (class, href, classList)
+import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Navigation exposing (Location)
 import RouteUrl exposing (UrlChange, HistoryEntry(NewEntry))
 
 
--- main : Program Never
--- main =
---     RouteUrl.program
---       { delta2url = delta2url
---       , location2messages = location2messages
---       , init = init
---       , update = update
---       , view = view
---       , subscriptions = subscriptions
---       }
-
-
-main = App.program
-  { init = init
-  , view = view
-  , update = update
-  , subscriptions =  subscriptions
-  }
+main : Program Never
+main =
+    RouteUrl.program
+      { delta2url = delta2url
+      , location2messages = location2messages
+      , init = init
+      , update = update
+      , view = view
+      , subscriptions = subscriptions
+      }
 
 
 -- ROUTING
@@ -33,16 +24,16 @@ delta2url : Model -> Model -> Maybe UrlChange
 delta2url previous current =
   case current.activePage of
     Home ->
-      Just <| UrlChange NewEntry "/#home"
+      Just <| UrlChange NewEntry "#home"
 
     Meat ->
-      Just <| UrlChange NewEntry "/#meat"
+      Just <| UrlChange NewEntry "#meat"
 
     FruitsAndVeggies ->
-      Just <| UrlChange NewEntry "/#fruitsandveggies"
+      Just <| UrlChange NewEntry "#fruitsandveggies"
 
     Grains ->
-      Just <| UrlChange NewEntry "/#grains"
+      Just <| UrlChange NewEntry "#grains"
 
 
 location2messages : Location -> List Msg
@@ -110,9 +101,7 @@ nav model =
           ("active", page == model.activePage)
         ]
       ]
-      [ a [ href "#"
-          , onClick <| SetActivePage page
-        ] [ text title ]
+      [ a [ onClick <| SetActivePage page ] [ text title ]
       ]
   in
     ul [ class "nav nav-tabs" ]
