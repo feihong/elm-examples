@@ -1,19 +1,29 @@
-import Html exposing (Html, div, p, text, button)
-import Html.Attributes exposing (class)
+import Html.App as App
+import Html exposing (Html, div, p, text, button, ul, li, a)
+import Html.Attributes exposing (class, href, classList)
+import Html.Events exposing (onClick)
 import Navigation exposing (Location)
 import RouteUrl exposing (UrlChange, HistoryEntry(NewEntry))
 
 
-main : Program Never
-main =
-    RouteUrl.program
-      { delta2url = delta2url
-      , location2messages = location2messages
-      , init = init
-      , update = update
-      , view = view
-      , subscriptions = subscriptions
-      }
+-- main : Program Never
+-- main =
+--     RouteUrl.program
+--       { delta2url = delta2url
+--       , location2messages = location2messages
+--       , init = init
+--       , update = update
+--       , view = view
+--       , subscriptions = subscriptions
+--       }
+
+
+main = App.program
+  { init = init
+  , view = view
+  , update = update
+  , subscriptions =  subscriptions
+  }
 
 
 -- ROUTING
@@ -87,7 +97,50 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div [] [ text "Hello" ]
+  div []
+    [ nav model
+    , mainContent model
+    ]
+
+
+nav model =
+  let
+    navli title page = li [
+        classList [
+          ("active", page == model.activePage)
+        ]
+      ]
+      [ a [ href "#"
+          , onClick <| SetActivePage page
+        ] [ text title ]
+      ]
+  in
+    ul [ class "nav nav-tabs" ]
+      [ navli "Home" Home
+      , navli "Meat" Meat
+      , navli "Fruits & Veggies" FruitsAndVeggies
+      , navli "Grains" Grains
+      ]
+
+
+mainContent : Model -> Html Msg
+mainContent model =
+  let
+    div_ dtext =
+      div [ class "main" ] [ text dtext ]
+  in
+    case model.activePage of
+      Home ->
+        div_ "This is the home page, y'all."
+
+      Meat ->
+        div_ "Doctors recommend you eat 5 lbs of meat every day."
+
+      FruitsAndVeggies ->
+        div_ "Eat fruits and vegetables until your stomatch explodes."
+
+      Grains ->
+        div_ "Meh, you don't really need to eat any grains."
 
 
 -- SUBSCRIPTIONS

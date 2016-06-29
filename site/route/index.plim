@@ -9,4 +9,5 @@ title: elm-route-url
 
 -block extrahead
   =parent.extrahead()
-  =stylesheet('styles.styl')
+  style
+    .main { padding: 1em; }
