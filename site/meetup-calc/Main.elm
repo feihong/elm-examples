@@ -1,7 +1,8 @@
 import Html.App as App
-import Html exposing (Html, div, p, text, button)
-import Html.Attributes exposing (class)
+import Html exposing (Html, div, p, text, button, form, label, input)
+import Html.Attributes exposing (class, type', name, value)
 import Html.Events exposing (onClick)
+import Bootstrap.Html exposing (colSm_, colSmOffset_, formGroup_)
 
 
 main = App.program
@@ -68,6 +69,21 @@ subscriptions model = Sub.none
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ p [] [ text "empty" ]    
+  form [ class "form-horizontal" ]
+    [ formGroup_
+        [ label_ "Number of attendees"
+        , rdiv <| input' { type' = "number", value = "6" }
+        ]
     ]
+
+
+label_ ltext =
+  label [ class "control-label col-sm-4" ] [ text ltext ]
+
+
+rdiv el =
+  div [ class "col-sm-8" ] [ el ]
+
+
+input' p =
+  input [ class "form-control", type' p.type', value p.value ] []
