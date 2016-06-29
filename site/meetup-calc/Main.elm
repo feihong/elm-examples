@@ -68,21 +68,44 @@ subscriptions model = Sub.none
 
 
 view : Model -> Html Msg
-view model =
-  form [ class "form-horizontal" ]
-    [ formGroup_
-        [ label_ "Number of attendees"
-        , rdiv <| input' { type' = "number", value = "6" }
+view model = div []
+  [ topForm
+  ]
+
+
+
+topForm = form [ class "form-horizontal" ]
+  [ formGroup_
+      [ label_ "Number of attendees"
+      , rdiv <| [ input' { type' = "number", value = "6" } ]
+      ]
+  , formGroup_
+      [ label_ "Tax percentage"
+      , rdiv
+        [ div [ class "input-group" ]
+            [ input' { type' = "text", value = "9.75" }
+            , div [ class "input-group-addon" ] [ text "%" ]
+            ]
         ]
-    ]
+      ]
+  , formGroup_
+      [ label_ "Tip percentage"
+      , rdiv
+        [ div [ class "input-group" ]
+            [ input' { type' = "text", value = "20" }
+            , div [ class "input-group-addon" ] [ text "%" ]
+            ]
+        ]
+      ]
+  ]
 
 
 label_ ltext =
   label [ class "control-label col-sm-4" ] [ text ltext ]
 
 
-rdiv el =
-  div [ class "col-sm-8" ] [ el ]
+rdiv =
+  div [ class "col-sm-8" ]
 
 
 input' p =
