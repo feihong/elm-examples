@@ -2,7 +2,7 @@
 
 ## Installation
 
-`npm install -g elm`
+`yarn global add elm`
 
 ## Compilation
 
