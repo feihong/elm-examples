@@ -1,7 +1,0 @@
-title: Http
-
-===
--inherit example.plim
-
--block desc
-  p How to use the Http module
