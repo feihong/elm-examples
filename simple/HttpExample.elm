@@ -2,12 +2,11 @@ module Main exposing (..)
 
 import Html exposing (Html, div, p, pre, text, button, code)
 import Html.Events exposing (onClick)
-import Html.Attributes exposing (class)
 import Http
-import Task
 import Json.Decode as Decode
 
 
+main : Program Never Model Msg
 main =
     Html.program
         { init = init
@@ -90,13 +89,13 @@ view model =
         , p []
             [ button [ onClick (FetchJson "elm-package.json") ]
                 [ text "Get Elm version" ]
-            , text "Elm version: "
+            , text " Elm version: "
             , code [] [ text model.version ]
             ]
         , p []
             [ button [ onClick (Fetch "does-not-exist.json") ]
                 [ text "Make failing request" ]
-            , text "Error message: "
+            , text " Error message: "
             , code [] [ text model.errorMsg ]
             ]
         ]
