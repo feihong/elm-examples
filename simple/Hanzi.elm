@@ -17,5 +17,6 @@ hanziGenerator =
         Random.map intToString generator
 
 
+intToString : Int -> String
 intToString num =
     num |> Char.fromCode |> String.fromChar
