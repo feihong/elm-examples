@@ -1,3 +1,6 @@
+-- This module will be imported in ModuleExample.elm
+
+
 module Hanzi exposing (hanziGenerator)
 
 import Random
