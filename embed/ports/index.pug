@@ -1,0 +1,16 @@
+extends /base.pug
+
+block title 
+  | Elm Ports
+
+block scripts
+  script(src='Main.elm')
+  script.
+    Elm.Main.embed(document.getElementById('main'))
+
+block content
+  h1 Elm Ports
+
+  p Ports allow your Elm program to communicate with JavaScript.
+
+  #main

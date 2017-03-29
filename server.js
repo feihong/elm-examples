@@ -1,15 +1,23 @@
 const fs = require('fs')
 const pathlib = require('path')
 const join = pathlib.join
+
+const promisify = require('es6-promisify')
+const _readFile = promisify(fs.readFile)
+const readFile = path => _readFile(path, 'utf8')
+const readdir = promisify(fs.readdir)
 const Koa = require('koa')
 const pug = require('pug')
 const stylus = require('stylus')
 const compiler = require('node-elm-compiler')
 
-const app = new Koa()
-const templateDir = join(__dirname, 'templates')
-const here = process.cwd()
 
+const app = new Koa()
+const rootDir = join(__dirname, 'embed')
+const templateDir = join(rootDir, 'templates')
+
+
+// Log each request to console.
 app.use(async (ctx, next) => {
   let req = ctx.request
   console.log(`${req.method} - ${ctx.url}`)
@@ -22,7 +30,7 @@ app.use(async (ctx, next) => {
   if (url === '/') {
     url = ''
   }
-  let path = join(here, url)
+  let path = join(rootDir, url)
 
   let stats = await getStats(path)
   if (stats === null) {
@@ -53,8 +61,7 @@ app.use(async (ctx, next) => {
       return
     }
 
-    ctx.response.status = 404
-    ctx.body = `Not found: "${path}" does not contain an index page`
+    ctx.body = await renderDirectory(ctx.url, path)
     return
   }
   await next()
@@ -103,19 +110,6 @@ function getStats(path) {
   })
 }
 
-function readFile(path) {
-  return new Promise((resolve, reject) => {
-    // Data will always be a string since we passed in an encoding.
-    fs.readFile(path, 'utf8', (err, data) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(data)
-      }
-    })
-  })
-}
-
 // Return true if path points to a file.
 async function isFile(path) {
   let stats = await getStats(path)
@@ -143,14 +137,33 @@ async function renderStylesheet(stylFile) {
 }
 
 async function compileElm(elmFile) {
-    try {
-      let data = await compiler.compileToString(
-        [elmFile], {yes: true, cwd: pathlib.dirname(elmFile)})
-      return data.toString()
-    } catch (err) {
-      let text = err.toString().replace(/`/g, '\\`')
-      return 'console.error(`' + text + '`)'
-    }
+  console.log('Compiling %s', elmFile)
+  try {
+    let data = await compiler.compileToString(
+      [elmFile], {yes: true, cwd: pathlib.dirname(elmFile)})
+    return data.toString()
+  } catch (err) {
+    let text = err.toString().replace(/`/g, '\\`')
+    return 'console.error(`' + text + '`)'
+  }
 }
+
+
+const directoryTemplate = pug.compile(`
+h1= title
+ul
+  each pair in files
+    li
+      - let [name, url] = pair
+      a(href=url + '/')= name
+`)
+
+async function renderDirectory(url, dirPath) {
+  let files = await readdir(dirPath)
+  files = files.filter(x => !x.startsWith('.'))
+  let pairs = files.map(name => [name, join(url, name)])
+  return directoryTemplate({title: dirPath, files: pairs})
+}
+
 
 app.listen(8000)
