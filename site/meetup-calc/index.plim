@@ -1,7 +1,0 @@
-title: Meetup Calculator
-
-===
--inherit example.plim
-
--block desc
-  p A calculator for splitting a bill at meetups

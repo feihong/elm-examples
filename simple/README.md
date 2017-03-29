@@ -1,5 +1,7 @@
 # Simple examples
 
+The programs in this directory are simple, full-screen Elm programs that can be run in Elm Reactor.
+
 ## Installation
 
 `elm package install`
