@@ -1,7 +1,0 @@
-title: Time
-
-===
--inherit example.plim
-
--block desc
-  p How to use the Time module
