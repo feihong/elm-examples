@@ -1,11 +1,17 @@
 -- This module will be imported in ModuleExample.elm
 
 
-module Hanzi exposing (hanziGenerator)
+module HanziGenerator exposing (hanziGenerator)
 
 import Random
 import Char
 import String
+
+
+{- Generate a random Chinese character. Usage:
+
+   Random.generate NewHanzi hanziGenerator
+-}
 
 
 hanziGenerator : Random.Generator String
