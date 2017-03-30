@@ -73,7 +73,7 @@ app.use(async (ctx, next) => {
   let ext = pathlib.extname(path)
   if (ext === '.styl') {
     ctx.response.type = 'css'
-    ctx.body = await renderStylesheet(path)
+    ctx.body = await compileStylesheet(path)
     return
   }
   await next()
@@ -116,12 +116,19 @@ async function isFile(path) {
   return (stats === null) ? false : stats.isFile()
 }
 
+// Return true if path points to a directory.
+async function isDirectory(path) {
+  let stats = await getStats(path)
+  return (stats === null) ? false : stats.isDirectory()
+}
+
 async function renderTemplate(pugFile) {
   let text = await readFile(pugFile)
   return pug.render(text, {filename: pugFile, basedir: templateDir})
 }
 
-async function renderStylesheet(stylFile) {
+async function compileStylesheet(stylFile) {
+  console.log('Compiling %s', stylFile)
   let text = await readFile(stylFile)
   return new Promise((resolve, reject) => {
     stylus(text)
@@ -151,17 +158,31 @@ async function compileElm(elmFile) {
 const directoryTemplate = pug.compile(`
 h1= title
 ul
-  each pair in pairs
+  each file in files
     li
-      - let [name, url] = pair
-      a(href=url)= name
+      a(href=file.url)= file.name
 `)
+
+const ignored_names = ['elm-stuff', 'node_modules']
 
 async function renderDirectory(url, dirPath) {
   let files = await readdir(dirPath)
-  files = files.filter(x => !x.startsWith('.'))  // ignore hidden files
-  let pairs = files.map(name => [name, join(url, name)])
-  return directoryTemplate({title: dirPath, pairs: pairs})
+  // Ignore hidden files and package directories.
+  files = files.filter(x => !x.startsWith('.') && !ignored_names.includes(x))
+  files = await Promise.all(
+    files.map(async (name) => {
+      let isDir = await isDirectory(join(dirPath, name))
+      let suffix = isDir ? '/' : ''
+      return {
+        isDir: isDir,
+        name: name + suffix,
+        url: join(url, name) + suffix,
+      }
+    })
+  )
+  // Directories should come first.
+  files.sort((a, b) => b.isDir - a.isDir)
+  return directoryTemplate({title: dirPath, files: files})
 }
 
 
