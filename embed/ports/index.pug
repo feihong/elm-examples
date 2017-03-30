@@ -12,7 +12,9 @@ block scripts
 
     app.ports.speak.subscribe(function(text) {
       let utterance = new SpeechSynthesisUtterance(text)
-      window.speechSynthesis.speak(utterance)
+      utterance.onstart = () => app.ports.speechStatus.send('start')
+      utterance.onend = () => app.ports.speechStatus.send('end')
+      speechSynthesis.speak(utterance)
     })
 
 block content

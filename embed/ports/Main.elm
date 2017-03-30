@@ -6,7 +6,17 @@ import Html.Events exposing (onClick, onInput, on, keyCode)
 import Json.Decode as Json
 
 
+-- Port for sendings strings to JS.
+
+
 port speak : String -> Cmd msg
+
+
+
+-- Port for getting speech statuses (as strings) from JS.
+
+
+port speechStatus : (String -> msg) -> Sub msg
 
 
 type alias Flags =
@@ -19,7 +29,7 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
 
@@ -27,9 +37,16 @@ main =
 -- MODEL
 
 
+type SpeechStatus
+    = None
+    | Started
+    | Ended
+
+
 type alias Model =
     { speechSynthesisSupported : Bool
     , text : String
+    , status : SpeechStatus
     }
 
 
@@ -37,6 +54,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { speechSynthesisSupported = flags.speechSynthesisSupported
       , text = "Hey hey we're the Monkees"
+      , status = None
       }
     , Cmd.none
     )
@@ -49,6 +67,7 @@ init flags =
 type Msg
     = Speak
     | ChangeText String
+    | UpdateStatus String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -60,6 +79,21 @@ update msg model =
         ChangeText text ->
             ( { model | text = text }, Cmd.none )
 
+        UpdateStatus text ->
+            let
+                status =
+                    case text of
+                        "start" ->
+                            Started
+
+                        "end" ->
+                            Ended
+
+                        _ ->
+                            None
+            in
+                ( { model | status = status }, Cmd.none )
+
 
 onKeyEnter msg =
     let
@@ -70,6 +104,15 @@ onKeyEnter msg =
                 Json.fail "not enter key"
     in
         on "keypress" (Json.andThen checkEnter keyCode)
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    speechStatus UpdateStatus
 
 
 
@@ -91,6 +134,7 @@ view model =
                 []
             , button [ onClick Speak ] [ text "Speak" ]
             ]
+        , statusView model
         ]
 
 
@@ -105,3 +149,19 @@ supportView model =
     in
         p []
             [ tag [] [ text msg ] ]
+
+
+statusView model =
+    let
+        status =
+            case model.status of
+                Started ->
+                    "Speech started"
+
+                Ended ->
+                    "Speech ended"
+
+                None ->
+                    ""
+    in
+        p [] [ text status ]
