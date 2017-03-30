@@ -6,8 +6,15 @@ block title
 block scripts
   script(src='Main.elm')
   script.
+    let isSupported = window.speechSynthesis !== undefined
+    let voices = isSupported ? window.speechSynthesis.getVoices() : []
+
     let app = Elm.Main.embed(document.getElementById('main'), {
-      speechSynthesisSupported: window.speechSynthesis !== undefined
+      isSupported: isSupported,
+      initialText: "Hey hey we're the Monkees, and we like to monkey around",
+      voices: voices.map(v => {
+        return {lang: v.lang, name: v.name}
+      })
     })
 
     app.ports.speak.subscribe(function(text) {

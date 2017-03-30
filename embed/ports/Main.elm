@@ -1,6 +1,6 @@
 port module Main exposing (..)
 
-import Html exposing (Html, div, p, em, strong, text, button, input)
+import Html exposing (..)
 import Html.Attributes exposing (value, size, autofocus)
 import Html.Events exposing (onClick, onInput, on, keyCode)
 import Json.Decode as Json
@@ -19,10 +19,6 @@ port speak : String -> Cmd msg
 port speechStatus : (String -> msg) -> Sub msg
 
 
-type alias Flags =
-    { speechSynthesisSupported : Bool }
-
-
 main : Program Flags Model Msg
 main =
     Html.programWithFlags
@@ -37,6 +33,19 @@ main =
 -- MODEL
 
 
+type alias Voice =
+    { lang : String
+    , name : String
+    }
+
+
+type alias Flags =
+    { isSupported : Bool
+    , initialText : String
+    , voices : List Voice
+    }
+
+
 type SpeechStatus
     = None
     | Started
@@ -44,16 +53,18 @@ type SpeechStatus
 
 
 type alias Model =
-    { speechSynthesisSupported : Bool
+    { isSupported : Bool
     , text : String
     , status : SpeechStatus
+    , voices : List Voice
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( { speechSynthesisSupported = flags.speechSynthesisSupported
-      , text = "Hey hey we're the Monkees"
+    ( { isSupported = flags.isSupported
+      , text = flags.initialText
+      , voices = (Debug.log "voices" flags.voices)
       , status = None
       }
     , Cmd.none
@@ -95,6 +106,7 @@ update msg model =
                 ( { model | status = status }, Cmd.none )
 
 
+onKeyEnter : a -> Html.Attribute a
 onKeyEnter msg =
     let
         checkEnter code =
@@ -141,16 +153,21 @@ view model =
 supportView : Model -> Html Msg
 supportView model =
     let
-        ( tag, msg ) =
-            if model.speechSynthesisSupported then
-                ( em, "Speech synthesis is supported." )
+        ( tag, answer ) =
+            if model.isSupported then
+                ( em, "Yes" )
             else
-                ( strong, "Warning: speech synthesis is not supported!" )
+                ( strong, "No" )
     in
         p []
-            [ tag [] [ text msg ] ]
+            [ text "Is speech synthesis supported? "
+            , tag
+                []
+                [ text answer ]
+            ]
 
 
+statusView : Model -> Html Msg
 statusView model =
     let
         status =
