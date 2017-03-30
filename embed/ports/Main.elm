@@ -2,7 +2,8 @@ port module Main exposing (..)
 
 import Html exposing (Html, div, p, em, strong, text, button, input)
 import Html.Attributes exposing (value, size, autofocus)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, on, keyCode)
+import Json.Decode as Json
 
 
 port speak : String -> Cmd msg
@@ -22,6 +23,10 @@ main =
         }
 
 
+
+-- MODEL
+
+
 type alias Model =
     { speechSynthesisSupported : Bool
     , text : String
@@ -31,10 +36,14 @@ type alias Model =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { speechSynthesisSupported = flags.speechSynthesisSupported
-      , text = "What am  I doing here?"
+      , text = "Hey hey we're the Monkees"
       }
     , Cmd.none
     )
+
+
+
+-- UPDATE
 
 
 type Msg
@@ -52,6 +61,21 @@ update msg model =
             ( { model | text = text }, Cmd.none )
 
 
+onKeyEnter msg =
+    let
+        checkEnter code =
+            if code == 13 then
+                Json.succeed msg
+            else
+                Json.fail "not enter key"
+    in
+        on "keypress" (Json.andThen checkEnter keyCode)
+
+
+
+-- VIEW
+
+
 view : Model -> Html Msg
 view model =
     div []
@@ -60,6 +84,7 @@ view model =
             [ input
                 [ value model.text
                 , onInput ChangeText
+                , onKeyEnter Speak
                 , size 40
                 , autofocus True
                 ]
