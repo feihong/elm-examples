@@ -4,13 +4,17 @@ block title
   | Elm Ports
 
 block scripts
+  script.
+    console.log('woo')
   script(src='Main.elm')
   script.
-    Elm.Main.embed(document.getElementById('main'))
+    Elm.Main.embed(document.getElementById('main'), {
+      speechSynthesisSupported: window.speechSynthesis !== undefined
+    })
 
 block content
   h1 Elm Ports
 
-  p Ports allow your Elm program to communicate with JavaScript.
+  p Ports are Elm's way of interoperating with JavaScript.
 
   #main
