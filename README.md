@@ -2,10 +2,5 @@
 
 ## Installation
 
-`yarn global add elm`
+[Instructions from elm-quickstart](https://github.com/feihong/elm-quickstart)
 
-## Compilation
-
-Go into one of the example directories, and run:
-
-`elm-make Main.elm --output Main.js`

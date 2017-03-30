@@ -13,7 +13,7 @@ const compiler = require('node-elm-compiler')
 
 
 const app = new Koa()
-const rootDir = join(__dirname, 'embed')
+const rootDir = __dirname
 const templateDir = join(rootDir, 'templates')
 
 
@@ -160,7 +160,7 @@ ul
 async function renderDirectory(url, dirPath) {
   let files = await readdir(dirPath)
   files = files.filter(x => !x.startsWith('.'))  // ignore hidden files
-  let pairs = files.map(name => [name, join(url, name) + '/'])
+  let pairs = files.map(name => [name, join(url, name)])
   return directoryTemplate({title: dirPath, pairs: pairs})
 }
 
