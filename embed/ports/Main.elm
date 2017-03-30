@@ -140,7 +140,7 @@ view model =
                 [ value model.text
                 , onInput ChangeText
                 , onKeyEnter Speak
-                , size 40
+                , size 50
                 , autofocus True
                 ]
                 []
