@@ -148,21 +148,20 @@ async function compileElm(elmFile) {
   }
 }
 
-
 const directoryTemplate = pug.compile(`
 h1= title
 ul
-  each pair in files
+  each pair in pairs
     li
       - let [name, url] = pair
-      a(href=url + '/')= name
+      a(href=url)= name
 `)
 
 async function renderDirectory(url, dirPath) {
   let files = await readdir(dirPath)
-  files = files.filter(x => !x.startsWith('.'))
-  let pairs = files.map(name => [name, join(url, name)])
-  return directoryTemplate({title: dirPath, files: pairs})
+  files = files.filter(x => !x.startsWith('.'))  // ignore hidden files
+  let pairs = files.map(name => [name, join(url, name) + '/'])
+  return directoryTemplate({title: dirPath, pairs: pairs})
 }
 
 
