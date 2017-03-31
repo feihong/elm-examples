@@ -64,17 +64,15 @@ subtotal model =
 
 
 total model =
-    let
-        x =
-            subtotal model
+    (subtotal model) + (tip model) + (tax model)
 
-        tip =
-            x * (model.tipPercent / 100)
 
-        tax =
-            x * (model.taxPercent / 100)
-    in
-        x + tip + tax
+tip model =
+    (subtotal model) * (model.tipPercent / 100)
+
+
+tax model =
+    (subtotal model) * (model.taxPercent / 100)
 
 
 sharedAmount model =
@@ -120,6 +118,8 @@ update msg model =
 view model =
     div []
         [ pairDiv "Subtotal amount" <| subtotal model
+        , pairDiv "Tax" <| tax model
+        , pairDiv "Tip" <| tip model
         , pairDiv "Total amount (after tip and tax)" <| total model
         , pairDiv "Everyone pays" <| sharedAmount model
         , div [] (otherPairDivs model)
