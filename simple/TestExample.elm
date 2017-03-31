@@ -17,6 +17,12 @@ fizzBuzz x =
         toString x
 
 
+fizzBuzz100 : () -> List String
+fizzBuzz100 () =
+    List.range 1 100
+        |> List.map fizzBuzz
+
+
 tests : Test
 tests =
     describe "FizzBuzz tests"
@@ -52,6 +58,31 @@ tests =
                 in
                     List.map fizzBuzz nums
                         |> Expect.equal (List.map toString nums)
+        , test "Does fizzBuzz100 return 100 numbers?" <|
+            \() ->
+                fizzBuzz100 ()
+                    |> List.length
+                    |> Expect.equal 100
+        , test "Are the first 15 elements correct?" <|
+            \() ->
+                let
+                    strings =
+                        "1,2,Fizz,4,Buzz,Fizz,7,8,Fizz,Buzz,11,Fizz,13,14,FizzBuzz"
+                            |> String.split ","
+                in
+                    fizzBuzz100 ()
+                        |> List.take 15
+                        |> Expect.equal strings
+        , test "Are the last 15 elements correct?" <|
+            \() ->
+                let
+                    strings =
+                        "86,Fizz,88,89,FizzBuzz,91,92,Fizz,94,Buzz,Fizz,97,98,Fizz,Buzz"
+                            |> String.split ","
+                in
+                    fizzBuzz100 ()
+                        |> List.drop 85
+                        |> Expect.equal strings
         ]
 
 
