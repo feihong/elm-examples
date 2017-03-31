@@ -6,7 +6,7 @@ import Html.Events exposing (onClick, onInput, on, keyCode, targetValue)
 import Json.Decode as Json
 
 
--- Port for sendings strings to JS.
+-- Port for sendings phrases and lang codes to JS.
 
 
 port speak : ( String, String ) -> Cmd msg
@@ -41,7 +41,7 @@ type alias Voice =
 
 type alias Flags =
     { isSupported : Bool
-    , initialText : String
+    , initialPhrase : String
     , voices : List Voice
     }
 
@@ -54,7 +54,7 @@ type SpeechStatus
 
 type alias Model =
     { isSupported : Bool
-    , text : String
+    , phrase : String
     , status : SpeechStatus
     , voices : List Voice
     , currentLang : String
@@ -64,7 +64,7 @@ type alias Model =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { isSupported = flags.isSupported
-      , text = flags.initialText
+      , phrase = flags.initialPhrase
       , voices = flags.voices
       , status = None
       , currentLang = "en-US"
@@ -79,7 +79,7 @@ init flags =
 
 type Msg
     = Speak
-    | ChangeText String
+    | ChangePhrase String
     | UpdateStatus String
     | SelectVoice String
 
@@ -88,10 +88,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Speak ->
-            model ! [ speak ( model.text, model.currentLang ) ]
+            model ! [ speak ( model.phrase, model.currentLang ) ]
 
-        ChangeText text ->
-            { model | text = text } ! []
+        ChangePhrase phrase ->
+            { model | phrase = phrase } ! []
 
         UpdateStatus text ->
             let
@@ -143,8 +143,8 @@ view model =
         [ supportView model
         , div []
             [ input
-                [ value model.text
-                , onInput ChangeText
+                [ value model.phrase
+                , onInput ChangePhrase
                 , onKeyEnter Speak
                 , size 50
                 , autofocus True
@@ -157,6 +157,7 @@ view model =
         ]
 
 
+onChange : (String -> value) -> Attribute value
 onChange msg =
     on "change" (Json.map msg targetValue)
 
@@ -178,7 +179,7 @@ supportView model =
             ]
 
 
-statusView : Model -> Html Msg
+statusView : Model -> Html msg
 statusView model =
     let
         status =
@@ -195,6 +196,7 @@ statusView model =
         p [] [ text status ]
 
 
+options : List Voice -> List (Html msg)
 options voices =
     let
         voiceOption voice =
