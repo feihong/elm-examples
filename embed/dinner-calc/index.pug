@@ -5,6 +5,8 @@ block title
 
 block scripts
   script(src='Main.elm')
+  script.
+    Elm.Main.embed(document.getElementById('main'))
     
 block content
   h1 Dinner Calculator

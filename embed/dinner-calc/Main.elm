@@ -31,6 +31,7 @@ type alias Item =
 type alias Model =
     { taxPercent : Float
     , tipPercent : Float
+    , groupSize : Int
     , items : List Item
     }
 
@@ -44,9 +45,41 @@ sampleItems =
 
 
 init =
-    ( { taxPercent = 9.75, tipPercent = 20, items = sampleItems }
+    ( { taxPercent = 9.75
+      , tipPercent = 20
+      , groupSize = 6
+      , items = sampleItems
+      }
     , Cmd.none
     )
+
+
+subtotal model =
+    model.items
+        |> List.map (\item -> item.amount)
+        |> List.sum
+
+
+total model =
+    let
+        x =
+            subtotal model
+
+        tip =
+            x * (model.tipPercent / 100)
+
+        tax =
+            x * (model.taxPercent / 100)
+    in
+        x + tip + tax
+
+
+individualAmount model =
+    model.items
+        |> List.filter (\item -> item.payer == Group)
+        |> List.map (\item -> item.amount)
+        |> List.sum
+        |> flip (/) model.groupSize
 
 
 
@@ -62,4 +95,15 @@ update msg model =
 
 
 view model =
-    text ""
+    div []
+        [ pairDiv "Subtotal amount" <| subtotal model
+        , pairDiv "Total amount" <| total model
+        , pairDiv "Everyone pays" <| individualAmount model
+        ]
+
+
+pairDiv label amount =
+    div []
+        [ text <| label ++ ": "
+        , text <| toString amount
+        ]
