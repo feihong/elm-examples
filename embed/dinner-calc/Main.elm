@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Dict
+import Dict exposing (Dict)
 import Html exposing (..)
 
 
@@ -83,24 +83,49 @@ sharedAmount model =
         |> flip (/) model.groupSize
 
 
-otherAmounts model =
-    let
-        -- Add a and b together, but have a default to 0
-        add a b =
-            Just <| (Maybe.withDefault 0 a) + b
+hasIndividualItem : List Item -> Bool
+hasIndividualItem items =
+    items
+        |> List.any
+            (\item ->
+                case item.payer of
+                    Attendee _ ->
+                        True
 
+                    Group ->
+                        False
+            )
+
+
+individualAmounts items =
+    let
         -- Incrementally add up amounts for each individual payer
         updateDict item dict =
             case item.payer of
+                Attendee name ->
+                    updateAdd name item.amount dict
+
                 Group ->
                     dict
-
-                Attendee name ->
-                    Dict.update name (\v -> add v item.amount) dict
     in
-        model.items
+        items
             |> List.foldl updateDict Dict.empty
             |> Dict.toList
+
+
+
+{- Update the value at the given key. If there is already a value there, add the
+   new value to the old value.
+-}
+
+
+updateAdd : String -> number -> Dict String number -> Dict String number
+updateAdd key newValue dict =
+    let
+        justAdd a b =
+            Just <| (Maybe.withDefault 0 a) + b
+    in
+        Dict.update key (\oldValue -> justAdd oldValue newValue) dict
 
 
 
@@ -121,8 +146,7 @@ view model =
         , pairDiv "Tax" <| tax model
         , pairDiv "Tip" <| tip model
         , pairDiv "Total amount" <| total model
-        , pairDiv "Everyone pays" <| sharedAmount model
-        , div [] (otherPairDivs model)
+        , breakdownView model
         ]
 
 
@@ -133,10 +157,18 @@ pairDiv label amount =
         ]
 
 
-otherPairDivs model =
+breakdownView model =
+    if hasIndividualItem model.items then
+        -- div [] (individualPairDivs model)
+        div [] [ text "todo" ]
+    else
+        pairDiv "Everyone pays" <| sharedAmount model
+
+
+individualPairDivs model =
     let
         pdiv ( k, v ) =
             pairDiv (k ++ " also pays") v
     in
-        otherAmounts model
+        individualAmounts model.items
             |> List.map pdiv
