@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Dict
 import Html exposing (..)
 
 
@@ -39,8 +40,10 @@ type alias Model =
 sampleItems =
     [ { payer = Group, name = "Chef Ping Platter", amount = 12.35 }
     , { payer = Group, name = "Green Bean Casserole", amount = 5.5 }
+    , { payer = Group, name = "Deep Dish Pizza", amount = 16.0 }
     , { payer = Attendee "Norman", name = "Maotai", amount = 15.0 }
-    , { payer = Attendee "Cameron", name = "Mojito", amount = 9.15 }
+    , { payer = Attendee "Cameron", name = "Mojito", amount = 5 }
+    , { payer = Attendee "Cameron", name = "Margarita", amount = 4.5 }
     ]
 
 
@@ -74,12 +77,32 @@ total model =
         x + tip + tax
 
 
-individualAmount model =
+sharedAmount model =
     model.items
         |> List.filter (\item -> item.payer == Group)
         |> List.map (\item -> item.amount)
         |> List.sum
         |> flip (/) model.groupSize
+
+
+otherAmounts model =
+    let
+        -- Add a and b together, but have a default to 0
+        add a b =
+            Just <| (Maybe.withDefault 0 a) + b
+
+        -- Incrementally add up amounts for each individual payer
+        updateDict item dict =
+            case item.payer of
+                Group ->
+                    dict
+
+                Attendee name ->
+                    Dict.update name (\v -> add v item.amount) dict
+    in
+        model.items
+            |> List.foldl updateDict Dict.empty
+            |> Dict.toList
 
 
 
@@ -97,8 +120,9 @@ update msg model =
 view model =
     div []
         [ pairDiv "Subtotal amount" <| subtotal model
-        , pairDiv "Total amount" <| total model
-        , pairDiv "Everyone pays" <| individualAmount model
+        , pairDiv "Total amount (after tip and tax)" <| total model
+        , pairDiv "Everyone pays" <| sharedAmount model
+        , div [] (otherPairDivs model)
         ]
 
 
@@ -107,3 +131,12 @@ pairDiv label amount =
         [ text <| label ++ ": "
         , text <| toString amount
         ]
+
+
+otherPairDivs model =
+    let
+        pdiv ( k, v ) =
+            pairDiv (k ++ " also pays") v
+    in
+        otherAmounts model
+            |> List.map pdiv
