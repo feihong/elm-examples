@@ -25,8 +25,10 @@ getVoices().then(voices => {
         voices: voices || []
     })
 
-    app.ports.speak.subscribe(function(text) {
+    app.ports.speak.subscribe(function(args) {
+        let [text, lang] = args
         let utterance = new SpeechSynthesisUtterance(text)
+        utterance.lang = lang
         utterance.onstart = () => app.ports.speechStatus.send('start')
         utterance.onend = () => app.ports.speechStatus.send('end')
         speechSynthesis.speak(utterance)

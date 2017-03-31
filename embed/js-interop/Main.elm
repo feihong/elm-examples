@@ -2,14 +2,14 @@ port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (value, size, autofocus)
-import Html.Events exposing (onClick, onInput, on, keyCode)
+import Html.Events exposing (onClick, onInput, on, keyCode, targetValue)
 import Json.Decode as Json
 
 
 -- Port for sendings strings to JS.
 
 
-port speak : String -> Cmd msg
+port speak : ( String, String ) -> Cmd msg
 
 
 
@@ -57,6 +57,7 @@ type alias Model =
     , text : String
     , status : SpeechStatus
     , voices : List Voice
+    , currentLang : String
     }
 
 
@@ -64,8 +65,9 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { isSupported = flags.isSupported
       , text = flags.initialText
-      , voices = (Debug.log "voices" flags.voices)
+      , voices = flags.voices
       , status = None
+      , currentLang = "en-US"
       }
     , Cmd.none
     )
@@ -79,16 +81,17 @@ type Msg
     = Speak
     | ChangeText String
     | UpdateStatus String
+    | SelectVoice String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Speak ->
-            ( model, speak model.text )
+            model ! [ speak ( model.text, model.currentLang ) ]
 
         ChangeText text ->
-            ( { model | text = text }, Cmd.none )
+            { model | text = text } ! []
 
         UpdateStatus text ->
             let
@@ -103,7 +106,10 @@ update msg model =
                         _ ->
                             None
             in
-                ( { model | status = status }, Cmd.none )
+                { model | status = status } ! []
+
+        SelectVoice lang ->
+            { model | currentLang = lang } ! []
 
 
 onKeyEnter : a -> Html.Attribute a
@@ -144,10 +150,15 @@ view model =
                 , autofocus True
                 ]
                 []
+            , select [ onChange SelectVoice ] (options model.voices)
             , button [ onClick Speak ] [ text "Speak" ]
             ]
         , statusView model
         ]
+
+
+onChange msg =
+    on "change" (Json.map msg targetValue)
 
 
 supportView : Model -> Html Msg
@@ -182,3 +193,13 @@ statusView model =
                     ""
     in
         p [] [ text status ]
+
+
+options voices =
+    let
+        voiceOption voice =
+            option [ value voice.lang ]
+                [ text <| voice.name ++ " (" ++ voice.lang ++ ")" ]
+    in
+        voices
+            |> List.map voiceOption
