@@ -120,7 +120,7 @@ view model =
         [ pairDiv "Subtotal amount" <| subtotal model
         , pairDiv "Tax" <| tax model
         , pairDiv "Tip" <| tip model
-        , pairDiv "Total amount (after tip and tax)" <| total model
+        , pairDiv "Total amount" <| total model
         , pairDiv "Everyone pays" <| sharedAmount model
         , div [] (otherPairDivs model)
         ]
