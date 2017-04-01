@@ -5,10 +5,64 @@ import Expect exposing (Expectation)
 import Test.Runner.Html as Runner
 import Dict
 import Json.Decode exposing (..)
+import Json.Decode.Pipeline exposing (decode, required, optional)
 
 
 type alias BoundingBox =
     { x : Int, y : Int, width : Int, height : Int }
+
+
+type alias Patient =
+    { fullName : String, phobia : String }
+
+
+createPatientFromVersion1 first last fear =
+    let
+        fearMap =
+            Dict.fromList
+                [ ( "spiders", "arachno" )
+                , ( "tight spaces", "claustro" )
+                , ( "heights", "acro" )
+                ]
+    in
+        { fullName = first ++ " " ++ last
+        , phobia =
+            case Dict.get fear fearMap of
+                Nothing ->
+                    "nonclinical: " ++ fear
+
+                Just name ->
+                    name
+        }
+
+
+decoder1 =
+    decode createPatientFromVersion1
+        |> required "first_name" string
+        |> required "last_name" string
+        |> required "fear" string
+
+
+decoder2 =
+    decode Patient
+        |> required "fullName" string
+        |> required "phobia" string
+
+
+patientDecoder =
+    field "version" int
+        |> andThen
+            (\version ->
+                case version of
+                    1 ->
+                        decoder1
+
+                    2 ->
+                        decoder2
+
+                    _ ->
+                        fail <| "Unsupported version: " ++ (toString version)
+            )
 
 
 tests : Test
@@ -106,7 +160,41 @@ tests =
                             (field "h" int)
                 in
                     decodeString decoder json
-                        |> Expect.equal (Ok { x = 110, y = 320, width = 50, height = 75 })
+                        |> Expect.equal
+                            (Ok { x = 110, y = 320, width = 50, height = 75 })
+        , test "andThen" <|
+            \() ->
+                let
+                    json =
+                        """{"version": 1,
+                        "first_name": "Billy",
+                        "last_name": "Poe",
+                        "fear": "spiders"}"""
+                in
+                    decodeString patientDecoder json
+                        |> Expect.equal (Ok { fullName = "Billy Poe", phobia = "arachno" })
+        , test "andThen" <|
+            \() ->
+                let
+                    json =
+                        """{"version": 2,
+                            "fullName": "Crabby Pants",
+                            "phobia": "acro"}"""
+                in
+                    decodeString patientDecoder json
+                        |> Expect.equal
+                            (Ok { fullName = "Crabby Pants", phobia = "acro" })
+        , test "andThen" <|
+            \() ->
+                let
+                    json =
+                        """{"version": 3,
+                            "fullName": "Crabby Pants",
+                            "phobia": "acro"}"""
+                in
+                    decodeString patientDecoder json
+                        |> Expect.equal
+                            (Err "I ran into a `fail` decoder: Unsupported version: 3")
         ]
 
 
