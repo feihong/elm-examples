@@ -1,10 +1,13 @@
 # Koans
 
-The programs in this directory are collections of koans, organized as collections of tests.
+The programs in this directory are collections of koans, organized as a series of test suites.
 
 ## Installation
 
-`elm package install`
+```
+yarn global add elm-test
+elm package install
+```
 
 ## Building and running
 
@@ -16,4 +19,4 @@ The programs in this directory are collections of koans, organized as collection
 
 ## On command line
 
-tbd
+`elm-test AllKoans`
