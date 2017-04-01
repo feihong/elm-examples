@@ -33,6 +33,43 @@ tests =
                                     Nothing
                             )
                         |> Expect.equal [ -11, -22, -33, -44 ]
+        , test "concatMap" <|
+            \() ->
+                let
+                    toChars x =
+                        x |> toString |> String.toList
+                in
+                    List.concatMap toChars [ 12, 45, 789 ]
+                        |> Expect.equal [ '1', '2', '4', '5', '7', '8', '9' ]
+        , test "indexedMap" <|
+            \() ->
+                List.indexedMap (\i v -> ( i + 1, v )) [ "cat", "in", "hat" ]
+                    |> Expect.equal [ ( 1, "cat" ), ( 2, "in" ), ( 3, "hat" ) ]
+        , test "foldl" <|
+            \() ->
+                let
+                    cat newValue accumulator =
+                        accumulator ++ "|" ++ newValue
+                in
+                    List.foldl cat "^" [ "a", "b", "c" ]
+                        |> Expect.equal "^|a|b|c"
+        , test "foldr" <|
+            \() ->
+                let
+                    cat newValue accumulator =
+                        accumulator ++ "|" ++ newValue
+                in
+                    List.foldr cat "^" [ "a", "b", "c" ]
+                        |> Expect.equal "^|c|b|a"
+        , test "scanl" <|
+            \() ->
+                let
+                    cat newValue accumulator =
+                        accumulator ++ "|" ++ newValue
+                in
+                    List.scanl cat "^" [ "a", "b", "c" ]
+                        |> Expect.equal
+                            [ "^", "^|a", "^|a|b", "^|a|b|c" ]
         ]
 
 
