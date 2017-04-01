@@ -119,6 +119,15 @@ tests =
                         |> List.map (\i -> decodeString (index i int) json)
                         |> Expect.equal
                             (List.map Ok [ 1, 2, 3, 4, 5, 6, 7, 8 ])
+        , test "nullable" <|
+            \() ->
+                let
+                    badInt =
+                        (nullable int)
+                in
+                    [ "4", "null" ]
+                        |> List.map (\str -> decodeString badInt str)
+                        |> Expect.equal [ Ok (Just 4), Ok Nothing ]
         , test "oneOf" <|
             \() ->
                 let
