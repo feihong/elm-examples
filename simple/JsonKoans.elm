@@ -1,10 +1,14 @@
-module MaybeKoans exposing (..)
+module JsonKoans exposing (..)
 
 import Test exposing (..)
 import Expect exposing (Expectation)
 import Test.Runner.Html as Runner
 import Dict
 import Json.Decode exposing (..)
+
+
+type alias BoundingBox =
+    { x : Int, y : Int, width : Int, height : Int }
 
 
 tests : Test
@@ -88,6 +92,21 @@ tests =
                 in
                     decodeString (map splitId string) json
                         |> Expect.equal (Ok ( "A112", "44Z" ))
+        , test "map4" <|
+            \() ->
+                let
+                    json =
+                        """{"x": 110, "y": 320, "w": 50, "h": 75}"""
+
+                    decoder =
+                        map4 BoundingBox
+                            (field "x" int)
+                            (field "y" int)
+                            (field "w" int)
+                            (field "h" int)
+                in
+                    decodeString decoder json
+                        |> Expect.equal (Ok { x = 110, y = 320, width = 50, height = 75 })
         ]
 
 
