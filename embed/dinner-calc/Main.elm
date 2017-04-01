@@ -97,8 +97,11 @@ hasIndividualItem items =
             )
 
 
-individualAmounts items =
+individualAmounts model =
     let
+        sharedAmt =
+            sharedAmount model
+
         -- Incrementally add up amounts for each individual payer
         updateDict item dict =
             case item.payer of
@@ -108,9 +111,10 @@ individualAmounts items =
                 Group ->
                     dict
     in
-        items
+        model.items
             |> List.foldl updateDict Dict.empty
             |> Dict.toList
+            |> List.map (\( name, val ) -> ( name, val + sharedAmt ))
 
 
 
@@ -159,16 +163,14 @@ pairDiv label amount =
 
 breakdownView model =
     if hasIndividualItem model.items then
-        -- div [] (individualPairDivs model)
-        div [] [ text "todo" ]
+        let
+            individualDivs =
+                individualAmounts model
+                    |> List.map (\( name, val ) -> pairDiv (name ++ " pays") val)
+
+            elseDiv =
+                pairDiv "Everyone else pays" (sharedAmount model)
+        in
+            div [] (individualDivs ++ [ elseDiv ])
     else
         pairDiv "Everyone pays" <| sharedAmount model
-
-
-individualPairDivs model =
-    let
-        pdiv ( k, v ) =
-            pairDiv (k ++ " also pays") v
-    in
-        individualAmounts model.items
-            |> List.map pdiv
