@@ -19,23 +19,28 @@ tests =
                 "😀😁😂"
                     |> String.toList
                     |> Expect.notEqual [ '😀', '😁', '😂' ]
+        , test "String.fromList" <|
+            \() ->
+                [ '😀', '😁', '😂' ]
+                    |> String.fromList
+                    |> Expect.equal "😀😁😂"
         , test "Char.toCode" <|
             \() ->
                 '算'
                     |> Char.toCode
                     |> Expect.equal 31639
+        , test "Char.toCode is unable to handle high code point characters" <|
+            \() ->
+                -- The underlying implementation uses String.charCodeAt()
+                -- instead of String.codePointAt().
+                '😀'
+                    |> Char.toCode
+                    |> Expect.notEqual 0x0001F600
         , test "Char.fromCode" <|
             \() ->
                 31639
                     |> Char.fromCode
                     |> Expect.equal '算'
-        , test "Char.toCode is unable to handle high code point characters" <|
-            \() ->
-                -- The underlying implementation uses String.charCodeAt()
-                -- instead
-                '😀'
-                    |> Char.toCode
-                    |> Expect.notEqual 0x0001F600
         ]
 
 
