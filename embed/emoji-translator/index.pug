@@ -1,0 +1,17 @@
+extends /base.pug
+
+block title 
+  | Emoji Translator
+
+block extrahead
+  link(rel='stylesheet' href='style.styl')
+
+block scripts
+  script(src='Main.elm')
+  script.
+    Elm.Main.embed(document.getElementById('main'))
+    
+block content
+  h1 Emoji Translator
+
+  #main
