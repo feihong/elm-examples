@@ -9,10 +9,13 @@ type alias Key =
     Char
 
 
-emojify text =
+emojify key text =
     let
+        emojis =
+            rotateEmojis key availableEmojis
+
         mapper =
-            List.Extra.zip letters availableEmojis
+            List.Extra.zip letters emojis
                 |> Dict.fromList
 
         lookup char =
@@ -25,15 +28,14 @@ emojify text =
             |> String.fromList
 
 
-
--- rotateEmojis : Key -> Array Char
--- rotateEmojis key emojis =
---     emojis
---         |> List.Extra.elemIndex key
---         |> Maybe.withDefault 0
---         |> \index ->
---             List.Extra.splitAt index emojis
---                 |> \( front, back ) -> List.append back front
+rotateEmojis : Key -> List Char -> List Char
+rotateEmojis key emojis =
+    emojis
+        |> List.Extra.elemIndex key
+        |> Maybe.withDefault 0
+        |> \index ->
+            List.Extra.splitAt index emojis
+                |> \( front, back ) -> List.append back front
 
 
 letters : List Char

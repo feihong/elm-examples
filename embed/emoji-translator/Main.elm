@@ -20,11 +20,17 @@ main =
 
 
 type alias Model =
-    { message : String, output : String }
+    { message : String
+    , key : Char
+    }
 
 
 init =
-    ( { message = "ABCD, WXYZ; abcd, wxyz!", output = "" }, Cmd.none )
+    ( { message = "ABCD, WXYZ; abcd, wxyz!"
+      , key = '😀'
+      }
+    , Cmd.none
+    )
 
 
 
@@ -33,16 +39,12 @@ init =
 
 type Msg
     = ChangeMessage String
-    | GotEmojiOutput String
 
 
 update msg model =
     case msg of
         ChangeMessage str ->
             { model | message = str } ! []
-
-        GotEmojiOutput str ->
-            { model | output = str } ! []
 
 
 
@@ -67,6 +69,6 @@ view model =
             ]
             []
         , div [ class "output" ]
-            [ text <| emojify model.message
+            [ text <| emojify model.key model.message
             ]
         ]
