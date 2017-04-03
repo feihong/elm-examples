@@ -1,85 +1,151 @@
 module Emojifier exposing (emojify)
 
 import Char
-import Array exposing (Array)
+import Dict
+import List.Extra
 
 
-emojify : String -> String
+type alias Key =
+    Char
+
+
 emojify text =
-    text
-        |> String.toList
-        |> List.map toEmoji
-        |> List.map (Maybe.withDefault '?')
-        |> String.fromList
-
-
-toEmoji c =
     let
-        code =
-            Char.toCode c
+        mapper =
+            List.Extra.zip letters availableEmojis
+                |> Dict.fromList
+
+        lookup char =
+            Dict.get char mapper
+                |> Maybe.withDefault char
     in
-        if c >= 'A' && c <= 'Z' then
-            Array.get (code - 65) availableEmojis
-        else if c >= 'a' && c <= 'z' then
-            Array.get (code - 71) availableEmojis
-        else
-            Just c
+        text
+            |> String.toList
+            |> List.map lookup
+            |> String.fromList
 
 
-availableEmojis : Array Char
+
+-- rotateEmojis : Key -> Array Char
+-- rotateEmojis key emojis =
+--     emojis
+--         |> List.Extra.elemIndex key
+--         |> Maybe.withDefault 0
+--         |> \index ->
+--             List.Extra.splitAt index emojis
+--                 |> \( front, back ) -> List.append back front
+
+
+letters : List Char
+letters =
+    List.append (List.range 65 90) (List.range 97 122)
+        |> List.map Char.fromCode
+
+
+availableEmojis : List Char
 availableEmojis =
-    Array.fromList
-        [ '😀'
-        , '😁'
-        , '😂'
-        , '😃'
-        , '😄'
-        , '😅'
-        , '😆'
-        , '😇'
-        , '😈'
-        , '😉'
-        , '😊'
-        , '😋'
-        , '😌'
-        , '😍'
-        , '😎'
-        , '😏'
-        , '😐'
-        , '😑'
-        , '😒'
-        , '😓'
-        , '😔'
-        , '😕'
-        , '😖'
-        , '😗'
-        , '😘'
-        , '😙'
-        , '😚'
-        , '😛'
-        , '😜'
-        , '😝'
-        , '😞'
-        , '😟'
-        , '😠'
-        , '😡'
-        , '😢'
-        , '😣'
-        , '😤'
-        , '😥'
-        , '😦'
-        , '😧'
-        , '😨'
-        , '😩'
-        , '😪'
-        , '😫'
-        , '😬'
-        , '😭'
-        , '😮'
-        , '😯'
-        , '😰'
-        , '😱'
-        , '😲'
-        , '😳'
-        , '😴'
-        ]
+    [ -- 1
+      '😀'
+      -- 2
+    , '😁'
+      -- 3
+    , '😂'
+      -- 4
+    , '😃'
+      -- 5
+    , '😄'
+      -- 6
+    , '😅'
+      -- 7
+    , '😆'
+      -- 8
+    , '😇'
+      -- 9
+    , '😈'
+      -- 10
+    , '😉'
+      -- 11
+    , '😊'
+      -- 12
+    , '😋'
+      -- 13
+    , '😌'
+      -- 14
+    , '😍'
+      -- 15
+    , '😎'
+      -- 16
+    , '😏'
+      -- 17
+    , '😐'
+      -- 18
+    , '😑'
+      -- 19
+    , '😒'
+      -- 20
+    , '😓'
+      -- 21
+    , '😔'
+      -- 22
+    , '😕'
+      -- 23
+    , '😖'
+      -- 24
+    , '😗'
+      -- 25
+    , '😘'
+      -- 26
+    , '😙'
+      -- 27
+    , '😚'
+      -- 28
+    , '😛'
+      -- 29
+    , '😜'
+      -- 30
+    , '😝'
+      -- 31
+    , '😞'
+      -- 32
+    , '😟'
+      -- 33
+    , '😠'
+      -- 34
+    , '😡'
+      -- 35
+    , '😢'
+      -- 36
+    , '😣'
+      -- 37
+    , '😤'
+      -- 38
+    , '😥'
+      -- 39
+    , '😦'
+      -- 40
+    , '😧'
+      -- 41
+    , '😨'
+      -- 42
+    , '😩'
+      -- 43
+    , '😪'
+      -- 44
+    , '😫'
+      -- 45
+    , '😬'
+      -- 46
+    , '😭'
+      -- 47
+    , '😮'
+      -- 48
+    , '😯'
+      -- 49
+    , '😰'
+      -- 50
+    , '😱'
+      -- 51
+    , '😲'
+      -- 52
+    , '😳'
+    ]

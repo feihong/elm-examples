@@ -5,6 +5,7 @@ generate this in Elm itself.
 """
 
 start = 0x1f600
-for i in range(start, start+53):
-    c = chr(i)
-    print("       , '{}'".format(c))
+chars = (chr(i) for i in range(start, start+52))
+for i, char in enumerate(chars, 1):
+    print("       -- {}".format(i))
+    print("       , '{}'".format(char))
