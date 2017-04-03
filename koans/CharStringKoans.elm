@@ -4,6 +4,25 @@ import Test exposing (..)
 import Expect exposing (Expectation)
 import Test.Runner.Html as Runner
 import Char
+import Regex
+
+
+{-| Due to JavaScript issues with splitting and unicode, we have to split using
+a regex.
+
+Source: https://mathiasbynens.be/notes/javascript-unicode
+-}
+splitRegex : Regex.Regex
+splitRegex =
+    Regex.regex "([\\uD800-\\uDBFF][\\uDC00-\\uDFFF])"
+
+
+unicodeSplit : String -> List String
+unicodeSplit text =
+    Regex.split Regex.All splitRegex text
+        -- Split produces some empty strings, which we filter out
+        |>
+            List.filter (String.isEmpty >> not)
 
 
 tests : Test
@@ -41,6 +60,11 @@ tests =
                 31639
                     |> Char.fromCode
                     |> Expect.equal '算'
+        , test "unicodeSplit" <|
+            \() ->
+                "😀😁😂"
+                    |> unicodeSplit
+                    |> Expect.equal [ "😀", "😁", "😂" ]
         ]
 
 
