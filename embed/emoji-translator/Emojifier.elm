@@ -1,8 +1,9 @@
-module Emojifier exposing (emojify)
+module Emojifier exposing (emojify, textify)
 
 import Char
 import Dict
 import List.Extra
+import Regex
 
 
 type alias Key =
@@ -10,17 +11,32 @@ type alias Key =
 
 
 emojify key text =
+    convert key True text
+
+
+textify key text =
+    convert key False text
+
+
+convert key toEmoji text =
     let
         emojis =
             rotateEmojis key availableEmojis
 
+        lists =
+            if toEmoji then
+                ( letters, emojis )
+            else
+                ( emojis, letters )
+
         mapper =
-            List.Extra.zip letters emojis
+            List.Extra.zip (Tuple.first lists) (Tuple.second lists)
                 |> Dict.fromList
+                |> Debug.log "mapper"
 
         lookup char =
             Dict.get char mapper
-                |> Maybe.withDefault char
+                |> Maybe.withDefault '?'
     in
         text
             |> String.toList
@@ -36,6 +52,15 @@ rotateEmojis key emojis =
         |> \index ->
             List.Extra.splitAt index emojis
                 |> \( front, back ) -> List.append back front
+
+
+unicodeSplit str =
+    let
+        splitter =
+            -- due to JavaScript issues with splitting and unicode, we maually split the string.
+            (Regex.regex "([\\uD800-\\uDBFF][\\uDC00-\\uDFFF])")
+    in
+        Regex.split Regex.All splitter
 
 
 letters : List Char
