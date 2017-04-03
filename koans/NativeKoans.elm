@@ -13,10 +13,10 @@ tests =
             \() ->
                 MyModule.add 3 4 5
                     |> Expect.equal 12
-        , test "toList" <|
+        , test "unicodeStringToList" <|
             \() ->
                 "😀😁😂"
-                    |> MyModule.stringToList
+                    |> MyModule.unicodeStringToList
                     |> Expect.equal [ '😀', '😁', '😂' ]
         ]
 

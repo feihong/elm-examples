@@ -8,6 +8,6 @@ add a b c =
     Native.MyModule.add a b c
 
 
-stringToList : String -> List Char
-stringToList =
-    Native.MyModule.stringToList
+unicodeStringToList : String -> List Char
+unicodeStringToList =
+    Native.MyModule.unicodeStringToList

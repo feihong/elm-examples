@@ -17,15 +17,23 @@ function add(a, b, c) {
     return a + b + c;
 }
 
-// Based on String.toList defined in:
-// https://github.com/elm-lang/core/blob/4.0.1/src/Native/String.js
-function stringToList(str) {
+/* 
+
+Same as String.toList except that it correctly splits strings containing 
+characters outside of BMP.
+
+Based on the toList function defined in:
+
+https://github.com/elm-lang/core/blob/4.0.1/src/Native/String.js
+
+*/
+function unicodeStringToList(str) {
     return _elm_lang$core$Native_List.fromArray(Array.from(str).map(_elm_lang$core$Native_Utils.chr));
 }
 
 return {
     add: F3(add),
-    stringToList: stringToList
+    unicodeStringToList: unicodeStringToList
 };
 
 }();
