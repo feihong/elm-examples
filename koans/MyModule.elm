@@ -1,3 +1,6 @@
+{- This module serves as an interface for a native module. -}
+
+
 module MyModule exposing (..)
 
 import Native.MyModule
