@@ -5,21 +5,22 @@ import Expect exposing (Expectation)
 import Test.Runner.Html as Runner
 
 
+last : List a -> Maybe a
 last list =
     case list of
         [] ->
             Nothing
 
-        hd :: [] ->
-            Just hd
+        head :: [] ->
+            Just head
 
-        hd :: tail ->
+        _ :: tail ->
             last tail
 
 
 tests : Test
 tests =
-    describe "hello"
+    describe "last"
         [ test "last [] returns Nothing" <|
             \() ->
                 last []
