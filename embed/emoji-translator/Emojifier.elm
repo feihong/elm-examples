@@ -4,6 +4,7 @@ import Char
 import Dict
 import List.Extra
 import Regex
+import Unicode
 
 
 type alias Key =
@@ -39,7 +40,7 @@ convert key toEmoji text =
                 |> Maybe.withDefault '?'
     in
         text
-            |> String.toList
+            |> Unicode.stringToList
             |> List.map lookup
             |> String.fromList
 
