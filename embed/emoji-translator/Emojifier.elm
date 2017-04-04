@@ -3,7 +3,6 @@ module Emojifier exposing (emojify, textify)
 import Char
 import Dict
 import List.Extra
-import Regex
 import Unicode
 
 
@@ -33,11 +32,10 @@ convert key toEmoji text =
         mapper =
             List.Extra.zip (Tuple.first lists) (Tuple.second lists)
                 |> Dict.fromList
-                |> Debug.log "mapper"
 
         lookup char =
             Dict.get char mapper
-                |> Maybe.withDefault '?'
+                |> Maybe.withDefault char
     in
         text
             |> Unicode.stringToList
@@ -53,15 +51,6 @@ rotateEmojis key emojis =
         |> \index ->
             List.Extra.splitAt index emojis
                 |> \( front, back ) -> List.append back front
-
-
-unicodeSplit str =
-    let
-        splitter =
-            -- due to JavaScript issues with splitting and unicode, we maually split the string.
-            (Regex.regex "([\\uD800-\\uDBFF][\\uDC00-\\uDFFF])")
-    in
-        Regex.split Regex.All splitter
 
 
 letters : List Char

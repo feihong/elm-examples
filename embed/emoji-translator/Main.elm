@@ -32,8 +32,9 @@ type alias Model =
 
 
 init =
-    ( -- { message = "ABCD, WXYZ; abcd, wxyz!"
-      { message = "😀😁😂😃"
+    ( { message =
+            "ABCD, WXYZ; abcd, wxyz!"
+            --   { message = "😀😁😂😃"
       , key = '😀'
       , mode = TextToEmoji
       }
@@ -78,6 +79,7 @@ view model =
             , placeholder "Let's translate!"
             , value model.message
             , onInput ChangeMessage
+            , autofocus True
             ]
             []
         , choiceView model
@@ -87,15 +89,21 @@ view model =
 
 choiceView model =
     div []
-        [ radio "Text to emoji" (SwitchMode TextToEmoji)
-        , radio "Emoji to text" (SwitchMode EmojiToText)
+        [ radio "Text to emoji" TextToEmoji model
+        , radio "Emoji to text" EmojiToText model
         ]
 
 
-radio title msg =
+radio title mode model =
     label
         []
-        [ input [ type_ "radio", name "translation-mode", onClick msg ] []
+        [ input
+            [ type_ "radio"
+            , name "translation-mode"
+            , checked <| model.mode == mode
+            , onClick <| SwitchMode mode
+            ]
+            []
         , text title
         ]
 
