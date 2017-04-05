@@ -38,7 +38,9 @@ convert key toEmoji text =
                 |> Maybe.withDefault char
     in
         text
-            |> Unicode.stringToList
+            -- Cannot use String.toList here!
+            |>
+                Unicode.stringToList
             |> List.map lookup
             |> String.fromList
 

@@ -1,3 +1,17 @@
+{- This is my implementation of the Emoji Translator from the ElmBridge
+   tutorial:
+
+   https://elmbridge.github.io/curriculum/
+
+   It roughly implements the same program, but I didn't use any of their code
+   and built my version pretty much from scratch. Another difference is that I
+   used a native module to get around the problem in 0.18 where String.toList
+   doesn't return the right result for strings containing characters outside
+   of the BMP.
+
+-}
+
+
 module Main exposing (..)
 
 import Html exposing (..)

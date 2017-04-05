@@ -44,7 +44,8 @@ app.use(async (ctx, next) => {
   await next()
 })
 
-// If path points to directory, try to render an index page.
+// If path points to directory, try to render an index page. If there is no
+// index page, just show the contents of the directory.
 app.use(async (ctx, next) => {
   let {path, stats} = ctx.state
 
