@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
-import Emojifier exposing (emojify, textify)
+import Emojifier exposing (emojify, textify, availableEmojis)
 
 
 main =
@@ -49,6 +49,7 @@ init =
 type Msg
     = ChangeMessage String
     | SwitchMode TranslationMode
+    | ChangeKey Char
 
 
 update msg model =
@@ -58,6 +59,9 @@ update msg model =
 
         SwitchMode mode ->
             { model | mode = mode } ! []
+
+        ChangeKey char ->
+            { model | key = char } ! []
 
 
 
@@ -84,11 +88,14 @@ view model =
             []
         , choiceView model
         , outputView model
+        , hr [] []
+        , h2 [] [ text "Select your key" ]
+        , emojiSelector model
         ]
 
 
 choiceView model =
-    div []
+    div [ class "radiogroup" ]
         [ radio "Text to emoji" TextToEmoji model
         , radio "Emoji to text" EmojiToText model
         ]
@@ -119,3 +126,21 @@ outputView model =
                     textify model.key model.message
     in
         div [ class "output" ] [ text output ]
+
+
+emojiSelector model =
+    let
+        emojiEl char =
+            div
+                [ classList
+                    [ ( "selected", model.key == char )
+                    ]
+                , onClick <| ChangeKey char
+                ]
+                [ text <| String.fromList [ char ] ]
+
+        emojiEls =
+            availableEmojis
+                |> List.map emojiEl
+    in
+        div [ class "emojis" ] emojiEls

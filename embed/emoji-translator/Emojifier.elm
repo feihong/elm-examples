@@ -1,4 +1,4 @@
-module Emojifier exposing (emojify, textify)
+module Emojifier exposing (emojify, textify, availableEmojis)
 
 import Char
 import Dict
