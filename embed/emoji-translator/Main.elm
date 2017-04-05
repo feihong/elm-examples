@@ -6,12 +6,13 @@ import Html.Events exposing (onInput, onClick)
 import Emojifier exposing (emojify, textify, availableEmojis)
 
 
+main : Program Never Model Msg
 main =
     Html.program
         { init = init
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -31,6 +32,7 @@ type alias Model =
     }
 
 
+init : ( Model, Cmd Msg )
 init =
     ( { message =
             "ABCD, WXYZ; abcd, wxyz!"
@@ -52,6 +54,7 @@ type Msg
     | ChangeKey Char
 
 
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeMessage str ->
@@ -65,17 +68,10 @@ update msg model =
 
 
 
--- SUBSCRIPTIONS
-
-
-subscriptions model =
-    Sub.none
-
-
-
 -- VIEW
 
 
+view : Model -> Html Msg
 view model =
     div []
         [ input
@@ -94,27 +90,29 @@ view model =
         ]
 
 
+choiceView : Model -> Html Msg
 choiceView model =
-    div [ class "radiogroup" ]
-        [ radio "Text to emoji" TextToEmoji model
-        , radio "Emoji to text" EmojiToText model
-        ]
-
-
-radio title mode model =
-    label
-        []
-        [ input
-            [ type_ "radio"
-            , name "translation-mode"
-            , checked <| model.mode == mode
-            , onClick <| SwitchMode mode
+    let
+        radio title mode =
+            label
+                []
+                [ input
+                    [ type_ "radio"
+                    , name "translation-mode"
+                    , checked <| model.mode == mode
+                    , onClick <| SwitchMode mode
+                    ]
+                    []
+                , text title
+                ]
+    in
+        div [ class "radiogroup" ]
+            [ radio "Text to emoji" TextToEmoji
+            , radio "Emoji to text" EmojiToText
             ]
-            []
-        , text title
-        ]
 
 
+outputView : Model -> Html Msg
 outputView model =
     let
         output =
@@ -128,6 +126,7 @@ outputView model =
         div [ class "output" ] [ text output ]
 
 
+emojiSelector : Model -> Html Msg
 emojiSelector model =
     let
         emojiEl char =
@@ -138,9 +137,6 @@ emojiSelector model =
                 , onClick <| ChangeKey char
                 ]
                 [ text <| String.fromList [ char ] ]
-
-        emojiEls =
-            availableEmojis
-                |> List.map emojiEl
     in
-        div [ class "emojis" ] emojiEls
+        div [ class "emojis" ]
+            (availableEmojis |> List.map emojiEl)
