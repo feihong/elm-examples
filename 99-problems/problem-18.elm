@@ -42,7 +42,7 @@ slice start end list =
 
 tests : Test
 tests =
-    describe "dropNth"
+    describe "slice"
         [ test "Empty list" <|
             \() ->
                 slice 1 2 []
