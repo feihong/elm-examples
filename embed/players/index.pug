@@ -1,14 +1,21 @@
-extends /base.pug
+extends /bootstrap.pug
 
 block title 
   | Players
 
-block scripts
+block extrahead 
+  link(rel='stylesheet', href='style.styl')
+
+block extrascript
   script(src='Main.elm')
   script.
     Elm.Main.embed(document.getElementById('main'))
     
 block content
   h1 Players
+
+  p Based on the sporto's #[a(href="https://www.elm-tutorial.org/") Elm Tutorial].
+
+  hr
 
   #main
