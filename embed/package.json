@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "es6-promisify": "^5.0.0",
+    "json-server": "^0.9.6",
     "jstransformer-markdown-it": "^2.0.0",
     "koa": "^2.2.0",
     "node-elm-compiler": "^4.3.0",

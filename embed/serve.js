@@ -10,11 +10,12 @@ const Koa = require('koa')
 const pug = require('pug')
 const stylus = require('stylus')
 const compiler = require('node-elm-compiler')
+const jsonServer = require('json-server')
 
 
 const app = new Koa()
-const rootDir = __dirname
-const templateDir = join(rootDir, 'templates')
+const rootDir = process.cwd()
+const templateDir = join(__dirname, 'templates')
 
 
 // Log each request to console.
@@ -187,4 +188,21 @@ async function renderDirectory(url, dirPath) {
 }
 
 
-app.listen(8000)
+async function main() {
+  let dbFile = pathlib.join(rootDir, 'db.json')
+
+  if (await isFile(dbFile)) {
+    let server = jsonServer.create()
+    server.use('/api', jsonServer.router(dbFile))
+    server.use(app.callback())
+    server.listen(8000, () => {
+      console.log('Launched JSON Server')
+    })
+  } else {
+    app.listen(8000, () => {
+      console.log('Launched Koa')
+    })
+  }
+}
+
+main()

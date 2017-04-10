@@ -1,0 +1,14 @@
+extends /base.pug
+
+block title 
+  | Players
+
+block scripts
+  script(src='Main.elm')
+  script.
+    Elm.Main.embed(document.getElementById('main'))
+    
+block content
+  h1 Players
+
+  #main
