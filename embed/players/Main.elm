@@ -1,17 +1,14 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class)
-import Http
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required)
-import RemoteData exposing (WebData)
 import Navigation exposing (Location)
 import Models exposing (..)
 import Msgs exposing (..)
 import Routing exposing (parseLocation)
+import RemoteData
 import Views.PlayersPage
 import Views.PlayerPage
+import Commands
 
 
 main : Program Never Model Msg
@@ -34,30 +31,11 @@ init location =
         currentRoute =
             Routing.parseLocation location
     in
-        initialModel currentRoute ! [ fetchPlayers ]
+        initialModel currentRoute ! [ Commands.fetchPlayers ]
 
 
 
 -- UPDATE
-
-
-fetchPlayers : Cmd Msg
-fetchPlayers =
-    Http.get "/api/players/" playersDecoder
-        |> RemoteData.sendRequest
-        |> Cmd.map OnFetchPlayers
-
-
-playersDecoder : Decode.Decoder (List Player)
-playersDecoder =
-    let
-        playerDecoder =
-            decode Player
-                |> required "id" Decode.string
-                |> required "name" Decode.string
-                |> required "level" Decode.int
-    in
-        Decode.list playerDecoder
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -68,6 +46,35 @@ update msg model =
 
         OnLocationChange location ->
             { model | route = parseLocation location } ! []
+
+        ChangeLevel player howMuch ->
+            let
+                updatedPlayer =
+                    { player | level = player.level + howMuch }
+            in
+                model ! [ Commands.savePlayerCmd updatedPlayer ]
+
+        OnPlayerSave (Ok player) ->
+            { model | response = updatePlayer model player } ! []
+
+        OnPlayerSave (Err error) ->
+            model ! []
+
+
+updatePlayer model updatedPlayer =
+    let
+        updatePlayerList players =
+            players
+                |> List.map
+                    (\player ->
+                        if player.id == updatedPlayer.id then
+                            updatedPlayer
+                        else
+                            player
+                    )
+    in
+        model.response
+            |> RemoteData.map updatePlayerList
 
 
 
@@ -95,5 +102,6 @@ page model =
             notFoundView
 
 
+notFoundView : Html msg
 notFoundView =
     div [] [ text "Not found" ]

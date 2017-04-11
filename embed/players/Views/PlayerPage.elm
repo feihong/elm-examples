@@ -2,6 +2,7 @@ module Views.PlayerPage exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, href)
+import Html.Events exposing (onClick)
 import RemoteData exposing (WebData)
 import Models exposing (Player, PlayerId)
 import Msgs exposing (..)
@@ -41,17 +42,17 @@ page response playerId =
                             [ text <| "Player " ++ playerId ++ " was not found" ]
 
 
-view : Player -> Html msg
+view : Player -> Html Msg
 view player =
     div [ class "player" ]
-        [ h3 [] [ backBtn, text player.name ]
+        [ div [ class "nav" ] [ backBtn, text player.name ]
         , div [ class "edit" ]
             [ span [ class "level" ]
                 [ text "Level "
                 , text <| toString player.level
                 ]
-            , levelButton Decrement
-            , levelButton Increment
+            , levelButton Decrement player
+            , levelButton Increment player
             ]
         ]
 
@@ -65,14 +66,18 @@ backBtn =
         ]
 
 
-levelButton buttonType =
+levelButton buttonType player =
     let
-        label =
+        ( icon, value ) =
             case buttonType of
                 Decrement ->
-                    "-"
+                    ( "minus-sign", -1 )
 
                 Increment ->
-                    "+"
+                    ( "plus-sign", 1 )
     in
-        button [ class "btn btn-default" ] [ text label ]
+        button
+            [ class "btn btn-default"
+            , onClick <| ChangeLevel player value
+            ]
+            [ span [ class <| "glyphicon glyphicon-" ++ icon ] [] ]
