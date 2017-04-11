@@ -4,13 +4,14 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 import Http
 import Json.Decode as Decode
+import Json.Decode.Pipeline exposing (decode, required)
 import RemoteData exposing (WebData)
 
 
 main : Program Never Model Msg
 main =
     Html.program
-        { init = ( initialModel, Cmd.none )
+        { init = ( initialModel, fetchPlayers )
         , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -33,15 +34,12 @@ type alias Player =
 
 
 type alias Model =
-    { players : List Player
+    { response : WebData (List Player)
     }
 
 
 initialModel =
-    { players =
-        [ Player "1" "Sam" 5
-        , Player "2" "Ellie" 6
-        ]
+    { response = RemoteData.Loading
     }
 
 
@@ -53,12 +51,28 @@ type Msg
     = OnFetchPlayers (WebData (List Player))
 
 
-fetchPlayers url =
-    url
+fetchPlayers =
+    Http.get "/api/players/" playersDecoder
+        |> RemoteData.sendRequest
+        |> Cmd.map OnFetchPlayers
 
 
+playersDecoder =
+    let
+        playerDecoder =
+            decode Player
+                |> required "id" Decode.string
+                |> required "name" Decode.string
+                |> required "level" Decode.int
+    in
+        Decode.list playerDecoder
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    model ! []
+    case msg of
+        OnFetchPlayers response ->
+            { model | response = response } ! []
 
 
 
@@ -69,12 +83,27 @@ view : Model -> Html Msg
 view model =
     div []
         [ nav
-        , playerList model.players
+        , maybeList model.response
         ]
 
 
 nav =
     div [ class "nav" ] [ text "Players" ]
+
+
+maybeList response =
+    case response of
+        RemoteData.NotAsked ->
+            text ""
+
+        RemoteData.Loading ->
+            text "Loading..."
+
+        RemoteData.Success players ->
+            playerList players
+
+        RemoteData.Failure error ->
+            text <| toString error
 
 
 playerList : List Player -> Html Msg
