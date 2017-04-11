@@ -55,12 +55,13 @@ update msg model =
                 model ! [ Commands.savePlayerCmd updatedPlayer ]
 
         OnPlayerSave (Ok player) ->
-            { model | response = updatePlayer model player } ! []
+            updatePlayer model player ! []
 
         OnPlayerSave (Err error) ->
             model ! []
 
 
+updatePlayer : Model -> Player -> Model
 updatePlayer model updatedPlayer =
     let
         updatePlayerList players =
@@ -73,8 +74,9 @@ updatePlayer model updatedPlayer =
                             player
                     )
     in
-        model.response
-            |> RemoteData.map updatePlayerList
+        { model
+            | response = model.response |> RemoteData.map updatePlayerList
+        }
 
 
 

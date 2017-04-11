@@ -29,6 +29,7 @@ playersDecoder =
     Decode.list playerDecoder
 
 
+playerEncoder : Player -> Encode.Value
 playerEncoder player =
     [ ( "id", Encode.string player.id )
     , ( "name", Encode.string player.name )
@@ -37,24 +38,25 @@ playerEncoder player =
         |> Encode.object
 
 
+savePlayerUrl : PlayerId -> String
 savePlayerUrl playerId =
     "/api/players/" ++ playerId
 
 
-savePlayerRequest : Player -> Http.Request Player
-savePlayerRequest player =
-    Http.request
-        { body = playerEncoder player |> Http.jsonBody
-        , expect = Http.expectJson playerDecoder
-        , headers = []
-        , method = "PATCH"
-        , timeout = Nothing
-        , url = savePlayerUrl player.id
-        , withCredentials = False
-        }
-
-
+savePlayerCmd : Player -> Cmd Msg
 savePlayerCmd player =
-    player
-        |> savePlayerRequest
-        |> Http.send Msgs.OnPlayerSave
+    let
+        savePlayerRequest player =
+            Http.request
+                { body = playerEncoder player |> Http.jsonBody
+                , expect = Http.expectJson playerDecoder
+                , headers = []
+                , method = "PATCH"
+                , timeout = Nothing
+                , url = savePlayerUrl player.id
+                , withCredentials = False
+                }
+    in
+        player
+            |> savePlayerRequest
+            |> Http.send Msgs.OnPlayerSave

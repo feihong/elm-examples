@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, href)
 import Html.Events exposing (onClick)
 import RemoteData exposing (WebData)
 import Models exposing (Player, PlayerId)
-import Msgs exposing (..)
+import Msgs exposing (Msg)
 import Routing exposing (playersPath)
 
 
@@ -51,12 +51,13 @@ view player =
                 [ text "Level "
                 , text <| toString player.level
                 ]
-            , levelButton Decrement player
-            , levelButton Increment player
+            , levelBtn Decrement player
+            , levelBtn Increment player
             ]
         ]
 
 
+backBtn : Html msg
 backBtn =
     a
         [ class "btn btn-default back"
@@ -66,7 +67,8 @@ backBtn =
         ]
 
 
-levelButton buttonType player =
+levelBtn : ButtonType -> Player -> Html Msg
+levelBtn buttonType player =
     let
         ( icon, value ) =
             case buttonType of
@@ -78,6 +80,6 @@ levelButton buttonType player =
     in
         button
             [ class "btn btn-default"
-            , onClick <| ChangeLevel player value
+            , onClick <| Msgs.ChangeLevel player value
             ]
             [ span [ class <| "glyphicon glyphicon-" ++ icon ] [] ]
