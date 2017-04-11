@@ -16,6 +16,7 @@ type alias Player =
 
 type alias Model =
     { response : WebData (List Player)
+    , route : Route
     }
 
 
@@ -25,7 +26,8 @@ type Route
     | NotFoundRoute
 
 
-initialModel : Model
-initialModel =
+initialModel : Route -> Model
+initialModel route =
     { response = RemoteData.Loading
+    , route = route
     }

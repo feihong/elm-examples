@@ -6,13 +6,17 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (decode, required)
 import RemoteData exposing (WebData)
+import Navigation exposing (Location)
 import Models exposing (..)
+import Msgs exposing (..)
+import Routing exposing (parseLocation)
+import PlayerEditView
 
 
 main : Program Never Model Msg
 main =
-    Html.program
-        { init = ( initialModel, fetchPlayers )
+    Navigation.program OnLocationChange
+        { init = init
         , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -20,11 +24,19 @@ main =
 
 
 
+-- INIT
+
+
+init location =
+    let
+        currentRoute =
+            Routing.parseLocation location
+    in
+        initialModel currentRoute ! [ fetchPlayers ]
+
+
+
 -- UPDATE
-
-
-type Msg
-    = OnFetchPlayers (WebData (List Player))
 
 
 fetchPlayers : Cmd Msg
@@ -52,6 +64,9 @@ update msg model =
         OnFetchPlayers response ->
             { model | response = response } ! []
 
+        OnLocationChange location ->
+            { model | route = parseLocation location } ! []
+
 
 
 -- VIEW
@@ -60,17 +75,26 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ nav
-        , maybeList model.response
+        [ div [ class "nav" ] [ text "Players" ]
+        , page model
         ]
 
 
-nav =
-    div [ class "nav" ] [ text "Players" ]
+page : Model -> Html Msg
+page model =
+    case model.route of
+        PlayersRoute ->
+            playersListPage model.response
+
+        PlayerRoute id ->
+            playerEditPage model.response id
+
+        NotFoundRoute ->
+            notFoundView
 
 
-maybeList : WebData (List Player) -> Html Msg
-maybeList response =
+playerEditPage : WebData (List Player) -> PlayerId -> Html Msg
+playerEditPage response playerId =
     case response of
         RemoteData.NotAsked ->
             text ""
@@ -78,15 +102,46 @@ maybeList response =
         RemoteData.Loading ->
             text "Loading..."
 
+        RemoteData.Failure err ->
+            text <| toString err
+
         RemoteData.Success players ->
-            playerList players
+            let
+                maybePlayer =
+                    players
+                        |> List.filter (\player -> player.id == playerId)
+                        |> List.head
+            in
+                case maybePlayer of
+                    Just player ->
+                        PlayerEditView.view player
+
+                    Nothing ->
+                        notFoundView
+
+
+notFoundView =
+    div [] [ text "Not found" ]
+
+
+playersListPage : WebData (List Player) -> Html Msg
+playersListPage response =
+    case response of
+        RemoteData.NotAsked ->
+            text ""
+
+        RemoteData.Loading ->
+            text "Loading..."
 
         RemoteData.Failure error ->
             text <| toString error
 
+        RemoteData.Success players ->
+            playersList players
 
-playerList : List Player -> Html Msg
-playerList players =
+
+playersList : List Player -> Html Msg
+playersList players =
     table [ class "table table-striped table-hover players" ]
         [ thead []
             ([ "ID", "Name", "Level", "Actions" ]
