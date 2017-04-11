@@ -2,7 +2,7 @@ module Msgs exposing (..)
 
 import RemoteData exposing (WebData)
 import Navigation exposing (Location)
-import Models exposing (..)
+import Models exposing (Player)
 
 
 type Msg

@@ -10,7 +10,8 @@ import Navigation exposing (Location)
 import Models exposing (..)
 import Msgs exposing (..)
 import Routing exposing (parseLocation)
-import PlayerEditView
+import Views.PlayersPage
+import Views.PlayerPage
 
 
 main : Program Never Model Msg
@@ -27,6 +28,7 @@ main =
 -- INIT
 
 
+init : Location -> ( Model, Cmd Msg )
 init location =
     let
         currentRoute =
@@ -84,79 +86,14 @@ page : Model -> Html Msg
 page model =
     case model.route of
         PlayersRoute ->
-            playersListPage model.response
+            Views.PlayersPage.page model.response
 
         PlayerRoute id ->
-            playerEditPage model.response id
+            Views.PlayerPage.page model.response id
 
         NotFoundRoute ->
             notFoundView
 
 
-playerEditPage : WebData (List Player) -> PlayerId -> Html Msg
-playerEditPage response playerId =
-    case response of
-        RemoteData.NotAsked ->
-            text ""
-
-        RemoteData.Loading ->
-            text "Loading..."
-
-        RemoteData.Failure err ->
-            text <| toString err
-
-        RemoteData.Success players ->
-            let
-                maybePlayer =
-                    players
-                        |> List.filter (\player -> player.id == playerId)
-                        |> List.head
-            in
-                case maybePlayer of
-                    Just player ->
-                        PlayerEditView.view player
-
-                    Nothing ->
-                        notFoundView
-
-
 notFoundView =
     div [] [ text "Not found" ]
-
-
-playersListPage : WebData (List Player) -> Html Msg
-playersListPage response =
-    case response of
-        RemoteData.NotAsked ->
-            text ""
-
-        RemoteData.Loading ->
-            text "Loading..."
-
-        RemoteData.Failure error ->
-            text <| toString error
-
-        RemoteData.Success players ->
-            playersList players
-
-
-playersList : List Player -> Html Msg
-playersList players =
-    table [ class "table table-striped table-hover players" ]
-        [ thead []
-            ([ "ID", "Name", "Level", "Actions" ]
-                |> List.map (\name -> th [] [ text name ])
-            )
-        , tbody []
-            (players
-                |> List.map
-                    (\player ->
-                        tr []
-                            [ td [] [ text player.id ]
-                            , td [] [ text player.name ]
-                            , td [] [ text <| toString player.level ]
-                            , td [] [ text "?" ]
-                            ]
-                    )
-            )
-        ]
