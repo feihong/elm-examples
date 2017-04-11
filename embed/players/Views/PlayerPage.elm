@@ -1,10 +1,11 @@
 module Views.PlayerPage exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, href)
 import RemoteData exposing (WebData)
 import Models exposing (Player, PlayerId)
 import Msgs exposing (..)
+import Routing exposing (playersPath)
 
 
 type ButtonType
@@ -43,8 +44,8 @@ page response playerId =
 view : Player -> Html msg
 view player =
     div [ class "player" ]
-        [ h3 [] [ text player.name ]
-        , div []
+        [ h3 [] [ backBtn, text player.name ]
+        , div [ class "edit" ]
             [ span [ class "level" ]
                 [ text "Level "
                 , text <| toString player.level
@@ -52,6 +53,15 @@ view player =
             , levelButton Decrement
             , levelButton Increment
             ]
+        ]
+
+
+backBtn =
+    a
+        [ class "btn btn-default back"
+        , href playersPath
+        ]
+        [ span [ class "glyphicon glyphicon-chevron-left" ] []
         ]
 
 

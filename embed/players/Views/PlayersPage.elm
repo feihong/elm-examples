@@ -1,10 +1,11 @@
 module Views.PlayersPage exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, href)
 import RemoteData exposing (WebData)
 import Models exposing (Player)
 import Msgs exposing (..)
+import Routing exposing (playerPath)
 
 
 page : WebData (List Player) -> Html Msg
@@ -38,8 +39,14 @@ playersList players =
                             [ td [] [ text player.id ]
                             , td [] [ text player.name ]
                             , td [] [ text <| toString player.level ]
-                            , td [] [ text "?" ]
+                            , td [] [ editBtn player ]
                             ]
                     )
             )
+        ]
+
+
+editBtn player =
+    a [ href <| playerPath player.id ]
+        [ span [ class "glyphicon glyphicon-pencil" ] []
         ]
