@@ -4,11 +4,10 @@ import Html exposing (..)
 import Html.Attributes exposing (class, href)
 import RemoteData exposing (WebData)
 import Models exposing (Player)
-import Msgs exposing (..)
 import Routing exposing (playerPath)
 
 
-page : WebData (List Player) -> Html Msg
+page : WebData (List Player) -> Html msg
 page response =
     case response of
         RemoteData.NotAsked ->
@@ -24,7 +23,7 @@ page response =
             playersList players
 
 
-playersList : List Player -> Html Msg
+playersList : List Player -> Html msg
 playersList players =
     table [ class "table table-striped table-hover players" ]
         [ thead []
@@ -46,6 +45,7 @@ playersList players =
         ]
 
 
+editBtn : Player -> Html msg
 editBtn player =
     a [ href <| playerPath player.id ]
         [ span [ class "glyphicon glyphicon-pencil" ] []
