@@ -1,7 +1,10 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class)
+import Http
+import Json.Decode as Decode
+import RemoteData exposing (WebData)
 
 
 main : Program Never Model Msg
@@ -35,7 +38,10 @@ type alias Model =
 
 
 initialModel =
-    { players = [ Player "1" "Sam" 5 ]
+    { players =
+        [ Player "1" "Sam" 5
+        , Player "2" "Ellie" 6
+        ]
     }
 
 
@@ -44,7 +50,11 @@ initialModel =
 
 
 type Msg
-    = What
+    = OnFetchPlayers (WebData (List Player))
+
+
+fetchPlayers url =
+    url
 
 
 update msg model =
@@ -69,7 +79,7 @@ nav =
 
 playerList : List Player -> Html Msg
 playerList players =
-    table [ class "table table-border table-striped" ]
+    table [ class "table table-striped table-hover players" ]
         [ thead []
             ([ "ID", "Name", "Level", "Actions" ]
                 |> List.map (\name -> th [] [ text name ])
