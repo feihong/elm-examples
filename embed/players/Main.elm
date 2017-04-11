@@ -6,6 +6,7 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline exposing (decode, required)
 import RemoteData exposing (WebData)
+import Models exposing (..)
 
 
 main : Program Never Model Msg
@@ -19,31 +20,6 @@ main =
 
 
 
--- MODEL
-
-
-type alias PlayerId =
-    String
-
-
-type alias Player =
-    { id : PlayerId
-    , name : String
-    , level : Int
-    }
-
-
-type alias Model =
-    { response : WebData (List Player)
-    }
-
-
-initialModel =
-    { response = RemoteData.Loading
-    }
-
-
-
 -- UPDATE
 
 
@@ -51,12 +27,14 @@ type Msg
     = OnFetchPlayers (WebData (List Player))
 
 
+fetchPlayers : Cmd Msg
 fetchPlayers =
     Http.get "/api/players/" playersDecoder
         |> RemoteData.sendRequest
         |> Cmd.map OnFetchPlayers
 
 
+playersDecoder : Decode.Decoder (List Player)
 playersDecoder =
     let
         playerDecoder =
@@ -91,6 +69,7 @@ nav =
     div [ class "nav" ] [ text "Players" ]
 
 
+maybeList : WebData (List Player) -> Html Msg
 maybeList response =
     case response of
         RemoteData.NotAsked ->
