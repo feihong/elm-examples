@@ -42,13 +42,18 @@ type alias Emoji =
 
 
 type alias Model =
-    Emoji
+    { emoji : Emoji
+    , displaySize : Int
+    }
 
 
 initialModel =
-    { shortname = ""
-    , unicode = ""
-    , url = ""
+    { emoji =
+        { shortname = ""
+        , unicode = ""
+        , url = ""
+        }
+    , displaySize = 64
     }
 
 
@@ -77,7 +82,7 @@ update msg model =
                 newModel =
                     case result of
                         Ok emoji ->
-                            emoji
+                            { model | emoji = emoji }
 
                         Err _ ->
                             model
@@ -87,8 +92,11 @@ update msg model =
         Generate ->
             model ! [ requestEmoji () ]
 
-        _ ->
-            model ! []
+        Embiggen ->
+            { model | displaySize = model.displaySize + 1 } ! []
+
+        Emsmallen ->
+            { model | displaySize = model.displaySize - 1 } ! []
 
 
 emojiDecoder =
@@ -116,24 +124,35 @@ view model =
         , div []
             [ button [ class "btn btn-primary generate", onClick Generate ]
                 [ text "Generate" ]
-            , button [ class "btn btn-default" ] [ text "-" ]
-            , button [ class "btn btn-default" ] [ text "+" ]
+            , button [ class "btn btn-default", onClick Emsmallen ]
+                [ text "-" ]
+            , span [] [ text <| toString model.displaySize ]
+            , button [ class "btn btn-default", onClick Embiggen ]
+                [ text "+" ]
             ]
         ]
 
 
-emojiView emoji =
-    div [ class "emoji" ]
-        [ div []
-            [ text "Shortname: "
-            , span [ class "shortname" ] [ text emoji.shortname ]
+emojiView model =
+    let
+        emoji =
+            model.emoji
+    in
+        div [ class "emoji" ]
+            [ div []
+                [ text "Shortname: "
+                , span [ class "shortname" ] [ text emoji.shortname ]
+                ]
+            , div []
+                [ text "Unicode: "
+                , span
+                    [ class "unicode"
+                    , style [ ( "fontSize", (toString model.displaySize) ++ "px" ) ]
+                    ]
+                    [ text emoji.unicode ]
+                ]
+            , div []
+                [ text "Image: "
+                , img [ src emoji.url, width model.displaySize ] []
+                ]
             ]
-        , div []
-            [ text "Unicode: "
-            , span [ class "unicode" ] [ text emoji.unicode ]
-            ]
-        , div []
-            [ text "Image: "
-            , img [ src emoji.url ] []
-            ]
-        ]
