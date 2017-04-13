@@ -30,20 +30,30 @@ main =
 -- MODEL
 
 
-type alias EmojiEntry =
+type alias Flags =
+    { initialEmoji : String }
+
+
+type alias Emoji =
     { shortname : String
     , unicode : String
     , url : String
     }
 
 
-type Model
-    = Empty
-    | Emoji EmojiEntry
+type alias Model =
+    Emoji
+
+
+initialModel =
+    { shortname = ""
+    , unicode = ""
+    , url = ""
+    }
 
 
 init =
-    Empty ! [ requestEmoji () ]
+    initialModel ! [ requestEmoji () ]
 
 
 
@@ -53,6 +63,8 @@ init =
 type Msg
     = GotEmoji String
     | Generate
+    | Embiggen
+    | Emsmallen
 
 
 update msg model =
@@ -62,22 +74,25 @@ update msg model =
                 result =
                     decodeString emojiDecoder json
 
-                model =
+                newModel =
                     case result of
                         Ok emoji ->
-                            Emoji emoji
+                            emoji
 
                         Err _ ->
-                            Empty
+                            model
             in
-                model ! []
+                newModel ! []
 
         Generate ->
             model ! [ requestEmoji () ]
 
+        _ ->
+            model ! []
+
 
 emojiDecoder =
-    map3 EmojiEntry
+    map3 Emoji
         (field "shortname" string)
         (field "unicode" string)
         (field "url" string)
@@ -97,29 +112,28 @@ subscriptions model =
 
 view model =
     div []
-        [ case model of
-            Empty ->
-                div [] []
-
-            Emoji entry ->
-                emojiView entry
-        , button [ class "btn btn-primary", onClick Generate ]
-            [ text "Generate" ]
+        [ emojiView model
+        , div []
+            [ button [ class "btn btn-primary generate", onClick Generate ]
+                [ text "Generate" ]
+            , button [ class "btn btn-default" ] [ text "-" ]
+            , button [ class "btn btn-default" ] [ text "+" ]
+            ]
         ]
 
 
-emojiView entry =
+emojiView emoji =
     div [ class "emoji" ]
         [ div []
             [ text "Shortname: "
-            , span [ class "shortname" ] [ text entry.shortname ]
+            , span [ class "shortname" ] [ text emoji.shortname ]
             ]
         , div []
             [ text "Unicode: "
-            , span [ class "unicode" ] [ text entry.unicode ]
+            , span [ class "unicode" ] [ text emoji.unicode ]
             ]
         , div []
             [ text "Image: "
-            , img [ src entry.url ] []
+            , img [ src emoji.url ] []
             ]
         ]
