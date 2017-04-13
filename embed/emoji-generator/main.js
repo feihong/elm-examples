@@ -1,3 +1,4 @@
+emojione.imageType = 'svg'
 let shortnames = emojione.shortnames.split('|')
 
 // Use the EmojiOne library to generate a random emoji entry.
@@ -7,11 +8,11 @@ function getRandomEmoji() {
     let shortname = shortnames[index]
     let div = document.createElement('div')
     div.innerHTML = emojione.shortnameToImage(shortname)
-    let img = div.firstChild
+    let obj = div.firstChild
     let result =  {
-        unicode: img.alt,
-        shortname: img.title,
-        url: img.src
+        unicode: obj.standby,
+        shortname: shortname,
+        url: obj.data
     }
     return JSON.stringify(result)
 }
