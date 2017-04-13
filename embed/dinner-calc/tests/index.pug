@@ -1,0 +1,12 @@
+extends /base.pug
+
+block title 
+  | Dinner Calculator Tests
+
+block scripts
+  script(src='../Tests.elm')
+  script.
+    Elm.Tests.embed(document.getElementById('main'))
+    
+block content
+  #main
