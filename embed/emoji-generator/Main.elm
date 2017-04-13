@@ -53,7 +53,7 @@ initialModel =
         , unicode = ""
         , url = ""
         }
-    , displaySize = 64
+    , displaySize = 100
     }
 
 
@@ -68,8 +68,7 @@ init =
 type Msg
     = GotEmoji String
     | Generate
-    | Embiggen
-    | Emsmallen
+    | ChangeDisplaySize Int
 
 
 update msg model =
@@ -92,11 +91,8 @@ update msg model =
         Generate ->
             model ! [ requestEmoji () ]
 
-        Embiggen ->
-            { model | displaySize = model.displaySize + 1 } ! []
-
-        Emsmallen ->
-            { model | displaySize = model.displaySize - 1 } ! []
+        ChangeDisplaySize delta ->
+            { model | displaySize = model.displaySize + delta } ! []
 
 
 emojiDecoder =
@@ -124,11 +120,11 @@ view model =
         , div []
             [ button [ class "btn btn-primary generate", onClick Generate ]
                 [ text "Generate" ]
-            , button [ class "btn btn-default", onClick Emsmallen ]
-                [ text "-" ]
+            , sizeBtn "-10" -10
+            , sizeBtn "-1" -1
             , span [] [ text <| toString model.displaySize ]
-            , button [ class "btn btn-default", onClick Embiggen ]
-                [ text "+" ]
+            , sizeBtn "+1" 1
+            , sizeBtn "+10" 10
             ]
         ]
 
@@ -156,3 +152,8 @@ emojiView model =
                 , img [ src emoji.url, width model.displaySize ] []
                 ]
             ]
+
+
+sizeBtn label delta =
+    button [ class "btn btn-default", onClick <| ChangeDisplaySize delta ]
+        [ text label ]
