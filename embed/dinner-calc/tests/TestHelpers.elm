@@ -23,6 +23,14 @@ mixedItems =
            ]
 
 
+simpleModel =
+    { taxPercent = 9.75
+    , tipPercent = 20.0
+    , groupSize = 7
+    , items = groupItems
+    }
+
+
 model =
     { taxPercent = 9.75
     , tipPercent = 20.0
@@ -57,5 +65,28 @@ tests =
                 \() ->
                     calculateBasics model
                         |> Expect.equal ( 5435, 1087, 530, 7052 )
+            , test "calculate, simple" <|
+                \() ->
+                    calculate simpleModel
+                        |> Expect.equal
+                            { subtotal = 3400
+                            , tax = 332
+                            , tip = 680
+                            , total = 4412
+                            , breakdown = EveryonePays 631
+                            }
+            , test "calculate, complex" <|
+                \() ->
+                    calculate model
+                        |> Expect.equal
+                            { subtotal = 5435
+                            , tax = 1087
+                            , tip = 530
+                            , total = 7052
+                            , breakdown =
+                                ComplexBreakdown
+                                    [ ( "Evan", 1837 ), ( "Murphy", 2064 ) ]
+                                    631
+                            }
             ]
         ]

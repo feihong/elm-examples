@@ -30,14 +30,14 @@ centsToString value =
 calculate : Model -> Calculation
 calculate model =
     let
-        isSimple =
+        isComplex =
             model.items
                 |> List.any (\item -> item.payer /= Group)
     in
-        if isSimple then
-            calculateSimple model
-        else
+        if isComplex then
             calculateComplex model
+        else
+            calculateSimple model
 
 
 calculateBasics : Model -> ( Money, Money, Money, Money )
@@ -99,7 +99,7 @@ calculateComplex model =
         }
 
 
-calculateComplexBreakdown : Model -> Int -> Int -> Breakdown
+calculateComplexBreakdown : Model -> Money -> Money -> Breakdown
 calculateComplexBreakdown model subtotal total =
     let
         scalingFactor =
@@ -111,6 +111,7 @@ calculateComplexBreakdown model subtotal total =
                 |> List.map .amount
                 |> List.sum
                 |> toFloat
+                |> flip (/) (toFloat model.groupSize)
                 |> (*) scalingFactor
 
         -- Incrementally add up amounts for each individual payer
