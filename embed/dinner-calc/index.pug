@@ -1,9 +1,9 @@
-extends /base.pug
+extends /bootstrap.pug
 
 block title 
   | Dinner Calculator
 
-block scripts
+block extrascript
   script(src='Main.elm')
   script.
     Elm.Main.embed(document.getElementById('main'))

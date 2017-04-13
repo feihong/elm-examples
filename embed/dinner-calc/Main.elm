@@ -2,6 +2,9 @@ module Main exposing (..)
 
 import Dict exposing (Dict)
 import Html exposing (..)
+import Html.Attributes exposing (..)
+import Models exposing (..)
+import Helpers exposing (..)
 
 
 main =
@@ -9,7 +12,7 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = always Sub.none
         }
 
 
@@ -17,119 +20,23 @@ main =
 -- MODEL
 
 
-type Payer
-    = Group
-    | Attendee String
-
-
-type alias Item =
-    { payer : Payer
-    , name : String
-    , amount : Float
-    }
-
-
-type alias Model =
-    { taxPercent : Float
-    , tipPercent : Float
-    , groupSize : Int
-    , items : List Item
-    }
-
-
 sampleItems =
-    [ { payer = Group, name = "Chef Ping Platter", amount = 12.35 }
-    , { payer = Group, name = "Green Bean Casserole", amount = 5.5 }
-    , { payer = Group, name = "Deep Dish Pizza", amount = 16.0 }
-    , { payer = Attendee "Norman", name = "Maotai", amount = 15.0 }
-    , { payer = Attendee "Cameron", name = "Mojito", amount = 5 }
-    , { payer = Attendee "Cameron", name = "Margarita", amount = 4.5 }
+    [ { payer = Group, name = "Chef Ping Platter", amount = 1235 }
+    , { payer = Group, name = "Green Bean Casserole", amount = 550 }
+    , { payer = Group, name = "Deep Dish Pizza", amount = 1600 }
+    , { payer = Attendee "Norman", name = "Maotai", amount = 1500 }
+    , { payer = Attendee "Cameron", name = "Mojito", amount = 500 }
+    , { payer = Attendee "Cameron", name = "Margarita", amount = 450 }
     ]
 
 
 init =
-    ( { taxPercent = 9.75
-      , tipPercent = 20
-      , groupSize = 6
-      , items = sampleItems
-      }
-    , Cmd.none
-    )
-
-
-subtotal model =
-    model.items
-        |> List.map (\item -> item.amount)
-        |> List.sum
-
-
-total model =
-    (subtotal model) + (tip model) + (tax model)
-
-
-tip model =
-    (subtotal model) * (model.tipPercent / 100)
-
-
-tax model =
-    (subtotal model) * (model.taxPercent / 100)
-
-
-sharedAmount model =
-    model.items
-        |> List.filter (\item -> item.payer == Group)
-        |> List.map (\item -> item.amount)
-        |> List.sum
-        |> flip (/) model.groupSize
-
-
-hasIndividualItem : List Item -> Bool
-hasIndividualItem items =
-    items
-        |> List.any
-            (\item ->
-                case item.payer of
-                    Attendee _ ->
-                        True
-
-                    Group ->
-                        False
-            )
-
-
-individualAmounts model =
-    let
-        sharedAmt =
-            sharedAmount model
-
-        -- Incrementally add up amounts for each individual payer
-        updateDict item dict =
-            case item.payer of
-                Attendee name ->
-                    updateAdd name item.amount dict
-
-                Group ->
-                    dict
-    in
-        model.items
-            |> List.foldl updateDict Dict.empty
-            |> Dict.toList
-            |> List.map (\( name, val ) -> ( name, val + sharedAmt ))
-
-
-
-{- Update the value at the given key. If there is already a value there, add the
-   new value to the old value.
--}
-
-
-updateAdd : String -> number -> Dict String number -> Dict String number
-updateAdd key newValue dict =
-    let
-        justAdd a b =
-            Just <| (Maybe.withDefault 0 a) + b
-    in
-        Dict.update key (\oldValue -> justAdd oldValue newValue) dict
+    { taxPercent = 9.75
+    , tipPercent = 20.0
+    , groupSize = 6
+    , items = sampleItems
+    }
+        ! []
 
 
 
@@ -137,7 +44,7 @@ updateAdd key newValue dict =
 
 
 update msg model =
-    ( model, Cmd.none )
+    model ! []
 
 
 
@@ -146,12 +53,23 @@ update msg model =
 
 view model =
     div []
-        [ pairDiv "Subtotal amount" <| subtotal model
-        , pairDiv "Tax" <| tax model
-        , pairDiv "Tip" <| tip model
-        , pairDiv "Total amount" <| total model
-        , breakdownView model
+        [ numInput "Tax %" model.taxPercent
+        , numInput "Tip %" model.tipPercent
+        , numInput "Group size" model.groupSize
+        , h2 [] [ text "Items" ]
+        , itemsView model.items
         ]
+
+
+numInput label_ value_ =
+    div [ class "form-group" ]
+        [ label [] [ text label_ ]
+        , input [ type_ "number", class "form-control", value <| toString value_ ] []
+        ]
+
+
+itemsView items =
+    text ""
 
 
 pairDiv label amount =
@@ -159,18 +77,3 @@ pairDiv label amount =
         [ text <| label ++ ": "
         , text <| toString amount
         ]
-
-
-breakdownView model =
-    if hasIndividualItem model.items then
-        let
-            individualDivs =
-                individualAmounts model
-                    |> List.map (\( name, val ) -> pairDiv (name ++ " pays") val)
-
-            elseDiv =
-                pairDiv "Everyone else pays" (sharedAmount model)
-        in
-            div [] (individualDivs ++ [ elseDiv ])
-    else
-        pairDiv "Everyone pays" <| sharedAmount model
