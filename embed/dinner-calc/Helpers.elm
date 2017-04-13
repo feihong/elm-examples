@@ -8,11 +8,6 @@ type alias Money =
     Int
 
 
-($) : ( Int, Int ) -> Int
-($) ( dollars, cents ) =
-    dollars * 100 + cents
-
-
 centsToString : Money -> String
 centsToString value =
     let
@@ -22,8 +17,8 @@ centsToString value =
         cents =
             rem value 100
     in
-        (toString dollars)
-            ++ "."
+        toString dollars
+            |> flip (++) "."
             |> flip String.append
                 (if cents < 10 then
                     "0" ++ toString cents
@@ -45,7 +40,7 @@ calculate model =
             calculateComplex model
 
 
-calculateBasics : Model -> ( Int, Int, Int, Int )
+calculateBasics : Model -> ( Money, Money, Money, Money )
 calculateBasics model =
     let
         subtotal =
