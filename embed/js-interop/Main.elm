@@ -6,16 +6,13 @@ import Html.Events exposing (onClick, onInput, on, keyCode, targetValue)
 import Json.Decode as Json
 
 
--- Port for sendings phrases and lang codes to JS.
-
-
+{-| Port for sendings phrases and lang codes to JS.
+-}
 port speak : ( String, String ) -> Cmd msg
 
 
-
--- Port for getting speech statuses (as strings) from JS.
-
-
+{-| Port for getting speech statuses (as strings) from JS.
+-}
 port speechStatus : (String -> msg) -> Sub msg
 
 

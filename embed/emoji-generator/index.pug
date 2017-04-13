@@ -1,0 +1,20 @@
+extends /bootstrap.pug
+
+block title 
+  | Emoji Generator
+
+block extrahead
+  style.
+    .emoji { margin-bottom: 2rem; }
+    .shortname { font-weight: bold; color: firebrick; }
+    .unicode { font-size: 6rem; }
+
+block extrascript
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/lib/js/emojione.min.js')
+  script(src='Main.elm')
+  script(src='main.js')    
+    
+block content
+  h1 Emoji Generator
+
+  #main
