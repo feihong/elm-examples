@@ -147,14 +147,30 @@ async function compileStylesheet(stylFile) {
 
 async function compileElm(elmFile) {
   console.log('Compiling %s', elmFile)
+
+  let dirname = await findElmDirectory(elmFile)
   try {
     let data = await compiler.compileToString(
-      [elmFile], {yes: true, cwd: pathlib.dirname(elmFile)})
+      [elmFile], {yes: true, cwd: dirname})
     return data.toString()
   } catch (err) {
     let text = err.toString().replace(/`/g, '\\`')
     return 'console.error(`' + text + '`)'
   }
+}
+
+async function findElmDirectory(elmFile) {
+  let dirname = pathlib.dirname(elmFile)
+  if (await isFile(pathlib.join(dirname, 'elm-package.json'))) {
+    return dirname
+  }
+  // If elm-package.json wasn't found, try the parent directory
+  let parent = pathlib.dirname(dirname)
+  if (await isFile(pathlib.join(parent, 'elm-package.json'))) {
+    return parent
+  }
+
+  return dirname
 }
 
 const directoryTemplate = pug.compile(`
