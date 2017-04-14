@@ -1,6 +1,5 @@
 module Main exposing (..)
 
-import Dict exposing (Dict)
 import Html exposing (..)
 import Models exposing (..)
 import Views
@@ -34,8 +33,10 @@ init =
     { taxPercent = 9.75
     , tipPercent = 20.0
     , groupSize = 6
+    , taxPercentErr = ""
+    , tipPercentErr = ""
+    , groupSizeErr = ""
     , items = sampleItems
-    , errors = Dict.empty
     , newItemForm = ItemForm "" "" ""
     }
         ! []
@@ -51,26 +52,26 @@ update msg model =
         ChangeTaxPercent str ->
             case stringToPercent str of
                 Ok value ->
-                    { model | taxPercent = value } |> removeError "tax" |> noCmd
+                    { model | taxPercent = value, taxPercentErr = "" } |> noCmd
 
                 Err err ->
-                    model |> addError "tax" err |> noCmd
+                    { model | taxPercentErr = err } |> noCmd
 
         ChangeTipPercent str ->
             case stringToPercent str of
                 Ok value ->
-                    { model | tipPercent = value } |> removeError "tip" |> noCmd
+                    { model | tipPercent = value, tipPercentErr = "" } |> noCmd
 
                 Err err ->
-                    model |> addError "tip" err |> noCmd
+                    { model | tipPercentErr = err } |> noCmd
 
         ChangeGroupSize str ->
             case stringToInt str of
                 Ok value ->
-                    { model | groupSize = value } |> removeError "groupSize" |> noCmd
+                    { model | groupSize = value, groupSizeErr = "" } |> noCmd
 
                 Err err ->
-                    model |> addError "groupSize" err |> noCmd
+                    { model | groupSizeErr = err } |> noCmd
 
         ChangeNewItemName str ->
             let
@@ -87,14 +88,6 @@ update msg model =
 
         _ ->
             model ! []
-
-
-addError key value model =
-    { model | errors = Dict.insert key value model.errors }
-
-
-removeError key model =
-    { model | errors = Dict.remove key model.errors }
 
 
 noCmd model =

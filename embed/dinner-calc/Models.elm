@@ -25,8 +25,10 @@ type alias Model =
     { taxPercent : Float
     , tipPercent : Float
     , groupSize : Int
+    , taxPercentErr : String
+    , tipPercentErr : String
+    , groupSizeErr : String
     , items : List Item
-    , errors : Dict String String
     , newItemForm : ItemForm
     }
 
@@ -50,6 +52,7 @@ type Msg
     | ChangeTaxPercent String
     | ChangeTipPercent String
     | ChangeGroupSize String
+    | ChangeNewItemPayer String
     | ChangeNewItemName String
     | ChangeNewItemAmount String
     | NewItem

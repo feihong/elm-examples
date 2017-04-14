@@ -1,6 +1,5 @@
 module Views exposing (..)
 
-import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, on, keyCode)
@@ -8,38 +7,34 @@ import Json.Decode as Decode
 import Models exposing (..)
 
 
-view ({ errors } as model) =
+view model =
     div []
-        [ numInput "tax" "Tax %" model.taxPercent ChangeTaxPercent errors
-        , numInput "tip" "Tip %" model.tipPercent ChangeTipPercent errors
-        , numInput "groupSize" "Group size" model.groupSize ChangeGroupSize errors
+        [ numInput "tax" "Tax %" model.taxPercent model.taxPercentErr ChangeTaxPercent
+        , numInput "tip" "Tip %" model.tipPercent model.tipPercentErr ChangeTipPercent
+        , numInput "groupSize" "Group size" model.groupSize model.groupSizeErr ChangeGroupSize
         , h2 [] [ text "Items" ]
         , itemsView model
         ]
 
 
-numInput id_ label_ defaultValue_ msg errors =
-    let
-        errMsg =
-            Dict.get id_ errors
-    in
-        div
-            [ classList
-                [ ( "form-group", True )
-                , ( "has-error", errMsg /= Nothing )
-                ]
+numInput id_ label_ defaultValue_ errMsg msg =
+    div
+        [ classList
+            [ ( "form-group", True )
+            , ( "has-error", not <| String.isEmpty errMsg )
             ]
-            [ label [ for id_, class "control-label" ] [ text label_ ]
-            , input
-                [ id id_
-                , type_ "number"
-                , class "form-control"
-                , defaultValue <| toString defaultValue_
-                , onInput msg
-                ]
-                []
-            , div [ class "help-block" ] [ text <| Maybe.withDefault "" errMsg ]
+        ]
+        [ label [ for id_, class "control-label" ] [ text label_ ]
+        , input
+            [ id id_
+            , type_ "number"
+            , class "form-control"
+            , defaultValue <| toString defaultValue_
+            , onInput msg
             ]
+            []
+        , div [ class "help-block" ] [ text errMsg ]
+        ]
 
 
 itemsView model =
