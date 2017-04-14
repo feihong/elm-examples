@@ -14,7 +14,7 @@ function getRandomEmoji() {
         shortname: shortname,
         url: obj.data
     }
-    return JSON.stringify(result)
+    return result
 }
 
 let app = Elm.Main.embed(document.getElementById('main'))

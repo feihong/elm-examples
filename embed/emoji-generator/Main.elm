@@ -3,7 +3,6 @@ port module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import Json.Decode exposing (..)
 
 
 {-| Port for requesting random emojis.
@@ -11,9 +10,9 @@ import Json.Decode exposing (..)
 port requestEmoji : () -> Cmd msg
 
 
-{-| Port for receive random emojis.
+{-| Port for receiving random emojis.
 -}
-port receivedEmoji : (String -> msg) -> Sub msg
+port receivedEmoji : (Emoji -> msg) -> Sub msg
 
 
 main : Program Never Model Msg
@@ -30,10 +29,6 @@ main =
 -- MODEL
 
 
-type alias Flags =
-    { initialEmoji : String }
-
-
 type alias Emoji =
     { shortname : String
     , unicode : String
@@ -47,6 +42,7 @@ type alias Model =
     }
 
 
+initialModel : Model
 initialModel =
     { emoji =
         { shortname = ""
@@ -57,6 +53,7 @@ initialModel =
     }
 
 
+init : ( Model, Cmd Msg )
 init =
     initialModel ! [ requestEmoji () ]
 
@@ -66,27 +63,16 @@ init =
 
 
 type Msg
-    = GotEmoji String
+    = GotEmoji Emoji
     | Generate
     | ChangeDisplaySize Int
 
 
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GotEmoji json ->
-            let
-                result =
-                    decodeString emojiDecoder json
-
-                newModel =
-                    case result of
-                        Ok emoji ->
-                            { model | emoji = emoji }
-
-                        Err _ ->
-                            model
-            in
-                newModel ! []
+        GotEmoji emoji ->
+            { model | emoji = emoji } ! []
 
         Generate ->
             model ! [ requestEmoji () ]
@@ -95,17 +81,11 @@ update msg model =
             { model | displaySize = model.displaySize + delta } ! []
 
 
-emojiDecoder =
-    map3 Emoji
-        (field "shortname" string)
-        (field "unicode" string)
-        (field "url" string)
-
-
 
 -- SUBSCRIPTIONS
 
 
+subscriptions : Model -> Sub Msg
 subscriptions model =
     receivedEmoji GotEmoji
 
@@ -114,21 +94,24 @@ subscriptions model =
 -- VIEWS
 
 
+view : Model -> Html Msg
 view model =
     div []
-        [ emojiView model
-        , div []
+        [ div [ class "buttons" ]
             [ button [ class "btn btn-primary generate", onClick Generate ]
                 [ text "Generate" ]
+            , span [] [ text "Size: " ]
             , sizeBtn "-10" -10
             , sizeBtn "-1" -1
-            , span [] [ text <| toString model.displaySize ]
+            , span [ class "size" ] [ text <| toString model.displaySize ]
             , sizeBtn "+1" 1
             , sizeBtn "+10" 10
             ]
+        , emojiView model
         ]
 
 
+emojiView : Model -> Html Msg
 emojiView model =
     let
         emoji =
@@ -154,6 +137,7 @@ emojiView model =
             ]
 
 
+sizeBtn : String -> Int -> Html Msg
 sizeBtn label delta =
     button [ class "btn btn-default", onClick <| ChangeDisplaySize delta ]
         [ text label ]
