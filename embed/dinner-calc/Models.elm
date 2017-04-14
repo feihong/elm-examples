@@ -38,3 +38,10 @@ type alias Calculation =
     , total : Int
     , breakdown : Breakdown
     }
+
+
+type Msg
+    = Temp String
+    | ChangeTaxPercent String
+    | ChangeTipPercent String
+    | ChangeGroupSize String
