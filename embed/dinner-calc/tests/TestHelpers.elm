@@ -60,6 +60,20 @@ tests =
                     centsToString 1136
                         |> Expect.equal "11.36"
             ]
+        , describe "stringToCents"
+            [ test "45.23" <|
+                \() ->
+                    stringToCents "45.23"
+                        |> Expect.equal (Ok 4523)
+            , test "102" <|
+                \() ->
+                    stringToCents "102"
+                        |> Expect.equal (Ok 10200)
+            , test "34.12a" <|
+                \() ->
+                    stringToCents "34.12a"
+                        |> Expect.equal (Err "Not a valid value for currency")
+            ]
         , describe "calculate*"
             [ test "calculateBasics" <|
                 \() ->

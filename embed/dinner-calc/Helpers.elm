@@ -1,11 +1,28 @@
 module Helpers exposing (..)
 
 import Dict exposing (Dict)
+import Json.Decode exposing (..)
 import Models exposing (..)
 
 
 type alias Money =
     Int
+
+
+{-| Convert string to money (int)
+-}
+stringToCents : String -> Result String Int
+stringToCents text =
+    let
+        convert f =
+            round (f * 100)
+    in
+        case decodeString (map convert float) text of
+            Err _ ->
+                Err "Not a valid value for currency"
+
+            result ->
+                result
 
 
 centsToString : Money -> String
