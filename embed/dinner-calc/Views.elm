@@ -14,7 +14,7 @@ view ({ errors } as model) =
         , numInput "tip" "Tip %" model.tipPercent ChangeTipPercent errors
         , numInput "groupSize" "Group size" model.groupSize ChangeGroupSize errors
         , h2 [] [ text "Items" ]
-        , itemsView model.items
+        , itemsView model
         ]
 
 
@@ -42,20 +42,31 @@ numInput id_ label_ defaultValue_ msg errors =
             ]
 
 
-itemsView items =
+itemsView model =
     div [ class "items" ]
-        [ emptyItemView
+        [ emptyItemView model.newItemForm
         ]
 
 
-emptyItemView =
+emptyItemView { payer, name, amount } =
     div [ class "item" ]
         [ select []
-            [ option [ defaultValue "Group" ] [ text "Group" ]
+            [ option [ value payer ] [ text "Group" ]
             , option [] [ text "Add attendee" ]
             ]
-        , input [ class "name", placeholder "Name" ] []
-        , input [ type_ "number", placeholder "Amount" ] []
+        , input
+            [ class "name"
+            , placeholder "Name"
+            , value name
+            , onInput ChangeNewItemName
+            ]
+            []
+        , input
+            [ type_ "number"
+            , placeholder "Amount"
+            , value amount
+            ]
+            []
         ]
 
 

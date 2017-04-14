@@ -36,6 +36,7 @@ init =
     , groupSize = 6
     , items = sampleItems
     , errors = Dict.empty
+    , newItemForm = ItemForm "" "" ""
     }
         ! []
 
@@ -70,6 +71,19 @@ update msg model =
 
                 Err err ->
                     model |> addError "groupSize" err |> noCmd
+
+        ChangeNewItemName str ->
+            let
+                itemForm =
+                    model.newItemForm
+
+                newItemForm =
+                    { itemForm | name = str }
+            in
+                { model | newItemForm = newItemForm } ! []
+
+        NewItem ->
+            model ! []
 
         _ ->
             model ! []
