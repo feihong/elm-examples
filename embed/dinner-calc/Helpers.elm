@@ -9,6 +9,25 @@ type alias Money =
     Int
 
 
+stringToPercent : String -> Result String Float
+stringToPercent text =
+    let
+        result =
+            decodeString float text
+    in
+        case result of
+            Ok value ->
+                if value <= 0 then
+                    Err "Zero or negative not allowed"
+                else if value > 100 then
+                    Err "Greater than 100 not allowed"
+                else
+                    Ok value
+
+            Err err ->
+                Err "Not a valid percent value"
+
+
 {-| Convert string to money (int)
 -}
 stringToCents : String -> Result String Int

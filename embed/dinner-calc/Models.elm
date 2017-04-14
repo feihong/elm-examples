@@ -1,5 +1,7 @@
 module Models exposing (..)
 
+import Dict exposing (Dict)
+
 
 type Payer
     = Group
@@ -20,6 +22,7 @@ type alias Model =
     , tipPercent : Float
     , groupSize : Int
     , items : List Item
+    , errors : Dict String String
     }
 
 

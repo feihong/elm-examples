@@ -3,6 +3,7 @@ module Main exposing (..)
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
 import Models exposing (..)
 import Helpers exposing (..)
 
@@ -35,6 +36,7 @@ init =
     , tipPercent = 20.0
     , groupSize = 6
     , items = sampleItems
+    , errors = Dict.empty
     }
         ! []
 
@@ -44,39 +46,76 @@ init =
 
 
 type Msg
-    = ChangeTaxPercent String
+    = Temp String
+    | ChangeTaxPercent String
+    | ChangeTipPercent String
+    | ChangeGroupSize String
 
 
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    case msg of
+        ChangeTaxPercent str ->
+            case stringToPercent str of
+                Ok value ->
+                    { model | taxPercent = value } |> removeError "tax" |> noCmd
+
+                Err err ->
+                    model |> addError "tax" err |> noCmd
+
+        _ ->
+            model ! []
+
+
+addError key value model =
+    { model | errors = Dict.insert key value model.errors }
+
+
+removeError key model =
+    { model | errors = Dict.remove key model.errors }
+
+
+noCmd model =
     model ! []
 
 
 
+-- removeError key model =
 -- VIEW
 
 
-view model =
+view ({ errors } as model) =
     div []
-        [ numInput "tax" "Tax %" model.taxPercent
-        , numInput "tip" "Tip %" model.tipPercent
-        , numInput "group-size" "Group size" model.groupSize
+        [ numInput "tax" "Tax %" model.taxPercent ChangeTaxPercent errors
+        , numInput "tip" "Tip %" model.tipPercent Temp errors
+        , numInput "group-size" "Group size" model.groupSize Temp errors
         , h2 [] [ text "Items" ]
         , itemsView model.items
         ]
 
 
-numInput id_ label_ value_ =
-    div [ class "form-group has-error" ]
-        [ label [ for id_, class "control-label" ] [ text label_ ]
-        , input
-            [ id id_
-            , type_ "number"
-            , class "form-control"
-            , value <| toString value_
+numInput id_ label_ defaultValue_ msg errors =
+    let
+        errMsg =
+            Dict.get id_ errors
+    in
+        div
+            [ classList
+                [ ( "form-group", True )
+                , ( "has-error", errMsg /= Nothing )
+                ]
             ]
-            []
-        , div [ class "help-block" ] [ text "There was an error" ]
-        ]
+            [ label [ for id_, class "control-label" ] [ text label_ ]
+            , input
+                [ id id_
+                , type_ "number"
+                , class "form-control"
+                , defaultValue <| toString defaultValue_
+                , onInput msg
+                ]
+                []
+            , div [ class "help-block" ] [ text <| Maybe.withDefault "" errMsg ]
+            ]
 
 
 itemsView items =
