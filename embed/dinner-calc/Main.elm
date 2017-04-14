@@ -146,7 +146,7 @@ emptyItemView =
             [ option [ defaultValue "Group" ] [ text "Group" ]
             , option [] [ text "Add attendee" ]
             ]
-        , input [ placeholder "Name" ] []
+        , input [ class "name", placeholder "Name" ] []
         , input [ type_ "number", placeholder "Amount" ] []
         ]
 

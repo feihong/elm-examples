@@ -3,6 +3,16 @@ extends /bootstrap.pug
 block title 
   | Dinner Calculator
 
+block extrahead 
+  style.
+    .item { 
+      display: flex;
+      flex-direction: row;  
+    }
+    .item .name {
+      flex: 1;
+    }
+
 block extrascript
   script(src='Main.elm')
   script.
