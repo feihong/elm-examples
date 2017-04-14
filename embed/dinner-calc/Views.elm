@@ -3,7 +3,8 @@ module Views exposing (..)
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onInput, on, keyCode)
+import Json.Decode as Decode
 import Models exposing (..)
 
 
@@ -63,3 +64,19 @@ pairDiv label amount =
         [ text <| label ++ ": "
         , text <| toString amount
         ]
+
+
+onKeyEnter : msg -> Html.Attribute msg
+onKeyEnter msg =
+    let
+        decoder =
+            keyCode
+                |> Decode.andThen
+                    (\code ->
+                        if code == 13 then
+                            Decode.succeed msg
+                        else
+                            Decode.fail "not enter key"
+                    )
+    in
+        on "keypress" decoder
