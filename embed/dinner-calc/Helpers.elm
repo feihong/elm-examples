@@ -28,6 +28,23 @@ stringToPercent text =
                 Err "Not a valid percent value"
 
 
+stringToInt : String -> Result String Int
+stringToInt text =
+    let
+        result =
+            decodeString int text
+    in
+        case result of
+            Ok value ->
+                if value <= 1 then
+                    Err "Must be greater than 1"
+                else
+                    Ok value
+
+            Err err ->
+                Err "Not a valid integer"
+
+
 {-| Convert string to money (int)
 -}
 stringToCents : String -> Result String Int

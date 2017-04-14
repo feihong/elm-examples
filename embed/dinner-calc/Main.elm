@@ -63,6 +63,22 @@ update msg model =
                 Err err ->
                     model |> addError "tax" err |> noCmd
 
+        ChangeTipPercent str ->
+            case stringToPercent str of
+                Ok value ->
+                    { model | tipPercent = value } |> removeError "tip" |> noCmd
+
+                Err err ->
+                    model |> addError "tip" err |> noCmd
+
+        ChangeGroupSize str ->
+            case stringToInt str of
+                Ok value ->
+                    { model | groupSize = value } |> removeError "groupSize" |> noCmd
+
+                Err err ->
+                    model |> addError "groupSize" err |> noCmd
+
         _ ->
             model ! []
 
@@ -87,8 +103,8 @@ noCmd model =
 view ({ errors } as model) =
     div []
         [ numInput "tax" "Tax %" model.taxPercent ChangeTaxPercent errors
-        , numInput "tip" "Tip %" model.tipPercent Temp errors
-        , numInput "group-size" "Group size" model.groupSize Temp errors
+        , numInput "tip" "Tip %" model.tipPercent ChangeTipPercent errors
+        , numInput "groupSize" "Group size" model.groupSize ChangeGroupSize errors
         , h2 [] [ text "Items" ]
         , itemsView model.items
         ]
