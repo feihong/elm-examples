@@ -43,6 +43,10 @@ init =
 -- UPDATE
 
 
+type Msg
+    = ChangeTaxPercent String
+
+
 update msg model =
     model ! []
 
@@ -53,18 +57,25 @@ update msg model =
 
 view model =
     div []
-        [ numInput "Tax %" model.taxPercent
-        , numInput "Tip %" model.tipPercent
-        , numInput "Group size" model.groupSize
+        [ numInput "tax" "Tax %" model.taxPercent
+        , numInput "tip" "Tip %" model.tipPercent
+        , numInput "group-size" "Group size" model.groupSize
         , h2 [] [ text "Items" ]
         , itemsView model.items
         ]
 
 
-numInput label_ value_ =
-    div [ class "form-group" ]
-        [ label [] [ text label_ ]
-        , input [ type_ "number", class "form-control", value <| toString value_ ] []
+numInput id_ label_ value_ =
+    div [ class "form-group has-error" ]
+        [ label [ for id_, class "control-label" ] [ text label_ ]
+        , input
+            [ id id_
+            , type_ "number"
+            , class "form-control"
+            , value <| toString value_
+            ]
+            []
+        , div [ class "help-block" ] [ text "There was an error" ]
         ]
 
 
