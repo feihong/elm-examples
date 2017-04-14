@@ -135,7 +135,20 @@ numInput id_ label_ defaultValue_ msg errors =
 
 
 itemsView items =
-    text ""
+    div [ class "items" ]
+        [ emptyItemView
+        ]
+
+
+emptyItemView =
+    div [ class "item" ]
+        [ select []
+            [ option [ defaultValue "Group" ] [ text "Group" ]
+            , option [] [ text "Add attendee" ]
+            ]
+        , input [ placeholder "Name" ] []
+        , input [ type_ "number", placeholder "Amount" ] []
+        ]
 
 
 pairDiv label amount =
