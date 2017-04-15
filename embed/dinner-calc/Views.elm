@@ -11,6 +11,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ topForm model
+        , h2 [] [ text "Individual Payers" ]
         , individualPayersView model
         , h2 [] [ text "Items" ]
         , itemsView model
@@ -27,7 +28,15 @@ topForm model =
 
 
 individualPayersView model =
-    text ""
+    let
+        view payer =
+            span [ class "payer", onClick <| RemovePayer payer ]
+                [ icon "remove", text payer ]
+    in
+        if List.isEmpty (model.individualPayers) then
+            div [] [ text "No individual payers" ]
+        else
+            div [ class "payers" ] (model.individualPayers |> List.map view)
 
 
 icon name =

@@ -87,15 +87,13 @@ update msg model =
                 Err err ->
                     { model | groupSizeErr = err } |> noCmd
 
-        ChangeNewItemName str ->
+        RemovePayer name ->
             let
-                itemForm =
-                    model.newItemForm
-
-                newItemForm =
-                    { itemForm | name = str }
+                newPayers =
+                    model.individualPayers
+                        |> List.filter (\payer -> payer /= name)
             in
-                { model | newItemForm = newItemForm } ! []
+                { model | individualPayers = newPayers } |> noCmd
 
         _ ->
             model ! []

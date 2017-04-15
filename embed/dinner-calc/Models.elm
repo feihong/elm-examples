@@ -51,6 +51,7 @@ type Msg
     | ChangeTaxPercent String
     | ChangeTipPercent String
     | ChangeGroupSize String
+    | RemovePayer String
     | ChangeNewItemPayer String
     | ChangeNewItemName String
     | ChangeNewItemAmount String
