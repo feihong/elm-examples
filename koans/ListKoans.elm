@@ -70,6 +70,14 @@ tests =
                     List.scanl cat "^" [ "a", "b", "c" ]
                         |> Expect.equal
                             [ "^", "^|a", "^|a|b", "^|a|b|c" ]
+        , test "zip" <|
+            \() ->
+                let
+                    zip list1 list2 =
+                        List.map2 (,) list1 list2
+                in
+                    zip [ 1, 2, 3, 4 ] [ "a", "b", "c", "d" ]
+                        |> Expect.equal [ ( 1, "a" ), ( 2, "b" ), ( 3, "c" ), ( 4, "d" ) ]
         ]
 
 
