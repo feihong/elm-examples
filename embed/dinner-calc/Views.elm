@@ -30,13 +30,13 @@ topForm model =
 individualPayersView model =
     let
         view payer =
-            span [ class "payer", onClick <| RemovePayer payer ]
+            div [ class "payer", onClick <| RemovePayer payer ]
                 [ icon "remove", text payer ]
     in
-        if List.isEmpty (model.individualPayers) then
-            div [] [ text "No individual payers" ]
-        else
-            div [ class "payers" ] (model.individualPayers |> List.map view)
+        div [ class "payers" ]
+            (button [ class "btn btn-default" ] [ icon "plus", text "Add" ]
+                :: (model.individualPayers |> List.map view)
+            )
 
 
 icon name =
