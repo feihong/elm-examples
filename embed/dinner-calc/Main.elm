@@ -29,6 +29,10 @@ sampleItems =
     ]
 
 
+samplePayers =
+    [ "Bob", "Hobo" ]
+
+
 init =
     { taxPercent = 9.75
     , tipPercent = 20.0
@@ -36,6 +40,7 @@ init =
     , taxPercentErr = ""
     , tipPercentErr = ""
     , groupSizeErr = ""
+    , individualPayers = samplePayers
     , items = sampleItems
     , newItemForm = ItemForm "" "" ""
     }

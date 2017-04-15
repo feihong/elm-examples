@@ -3,15 +3,6 @@ extends /bootstrap.pug
 block title 
   | Dinner Calculator
 
-block extrahead 
-  style.
-    .item { 
-      display: flex;
-      flex-direction: row;  
-    }
-    .item .name {
-      flex: 1;
-    }
 
 block extrascript
   script(src='Main.elm')
@@ -21,6 +12,8 @@ block extrascript
 block content
   h1 Dinner Calculator
 
-  p Use this program to help split the bill at a group dinner party. #[a(href='tests/') View tests]
+  p You can use this program to help split the bill at a group dinner party. #[a(href='tests/') View tests]
+
+  hr 
 
   #main

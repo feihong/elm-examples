@@ -12,9 +12,18 @@ view model =
         [ numInput "tax" "Tax %" model.taxPercent model.taxPercentErr ChangeTaxPercent
         , numInput "tip" "Tip %" model.tipPercent model.tipPercentErr ChangeTipPercent
         , numInput "groupSize" "Group size" model.groupSize model.groupSizeErr ChangeGroupSize
+        , individualPayersView model
         , h2 [] [ text "Items" ]
         , itemsView model
         ]
+
+
+individualPayersView model =
+    text ""
+
+
+icon name =
+    span [ class <| "glyphicon glyphicon-" ++ name ] []
 
 
 numInput id_ label_ defaultValue_ errMsg msg =
@@ -44,24 +53,34 @@ itemsView model =
 
 
 emptyItemView { payer, name, amount } =
-    div [ class "item" ]
-        [ select []
-            [ option [ value payer ] [ text "Group" ]
-            , option [] [ text "Add attendee" ]
+    div [ class "form-horizontal" ]
+        [ div [ class "form-group" ]
+            [ div [ class "col-xs-12 col-sm-3" ]
+                [ select [ class "form-control" ]
+                    [ option [ value "" ] [ text "Group" ]
+                    , option [ disabled True ] [ text "-----" ]
+                    , option [] [ text "New individual payer..." ]
+                    ]
+                ]
+            , div [ class "col-xs-12 col-sm-6" ]
+                [ input
+                    [ class "form-control"
+                    , placeholder "Name"
+                    , value name
+                    , onInput ChangeNewItemName
+                    ]
+                    []
+                ]
+            , div [ class "col-xs-12 col-sm-3" ]
+                [ input
+                    [ class "form-control"
+                    , type_ "number"
+                    , placeholder "Amount"
+                    , value amount
+                    ]
+                    []
+                ]
             ]
-        , input
-            [ class "name"
-            , placeholder "Name"
-            , value name
-            , onInput ChangeNewItemName
-            ]
-            []
-        , input
-            [ type_ "number"
-            , placeholder "Amount"
-            , value amount
-            ]
-            []
         ]
 
 

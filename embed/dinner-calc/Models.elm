@@ -28,6 +28,7 @@ type alias Model =
     , taxPercentErr : String
     , tipPercentErr : String
     , groupSizeErr : String
+    , individualPayers : List String
     , items : List Item
     , newItemForm : ItemForm
     }
