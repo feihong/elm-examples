@@ -1,7 +1,5 @@
 module Models exposing (..)
 
-import Dict exposing (Dict)
-
 
 type Payer
     = Group

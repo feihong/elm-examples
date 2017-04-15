@@ -1,3 +1,12 @@
+{- todo:
+   - horizontal number fields
+   - input group addon %
+   - individual payers view
+   - items view
+   - item form
+-}
+
+
 module Main exposing (..)
 
 import Html exposing (..)
@@ -87,9 +96,6 @@ update msg model =
                     { itemForm | name = str }
             in
                 { model | newItemForm = newItemForm } ! []
-
-        NewItem ->
-            model ! []
 
         _ ->
             model ! []

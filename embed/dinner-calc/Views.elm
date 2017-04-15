@@ -2,19 +2,27 @@ module Views exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, on, keyCode)
+import Html.Events exposing (onClick, onInput, on, keyCode)
 import Json.Decode as Decode
 import Models exposing (..)
 
 
+view : Model -> Html Msg
 view model =
     div []
-        [ numInput "tax" "Tax %" model.taxPercent model.taxPercentErr ChangeTaxPercent
-        , numInput "tip" "Tip %" model.tipPercent model.tipPercentErr ChangeTipPercent
-        , numInput "groupSize" "Group size" model.groupSize model.groupSizeErr ChangeGroupSize
+        [ topForm model
         , individualPayersView model
         , h2 [] [ text "Items" ]
         , itemsView model
+        ]
+
+
+topForm : Model -> Html Msg
+topForm model =
+    div []
+        [ numInput "tax" "Tax" "%" model.taxPercent model.taxPercentErr ChangeTaxPercent
+        , numInput "tip" "Tip" "%" model.tipPercent model.tipPercentErr ChangeTipPercent
+        , numInput "groupSize" "Group size" "people" model.groupSize model.groupSizeErr ChangeGroupSize
         ]
 
 
@@ -26,33 +34,39 @@ icon name =
     span [ class <| "glyphicon glyphicon-" ++ name ] []
 
 
-numInput id_ label_ defaultValue_ errMsg msg =
+numInput id_ label_ addon defaultValue_ errMsg msg =
     div
         [ classList
             [ ( "form-group", True )
             , ( "has-error", not <| String.isEmpty errMsg )
             ]
         ]
-        [ label [ for id_, class "control-label" ] [ text label_ ]
-        , input
-            [ id id_
-            , type_ "number"
-            , class "form-control"
-            , defaultValue <| toString defaultValue_
-            , onInput msg
+        [ label [ for id_, class "control-label" ]
+            [ text label_ ]
+        , div
+            [ class "input-group" ]
+            [ input
+                [ id id_
+                , type_ "number"
+                , class "form-control"
+                , defaultValue <| toString defaultValue_
+                , size 5
+                , onInput msg
+                ]
+                []
+            , span [ class "input-group-addon" ] [ text addon ]
             ]
-            []
         , div [ class "help-block" ] [ text errMsg ]
         ]
 
 
 itemsView model =
     div [ class "items" ]
-        [ emptyItemView model.newItemForm
+        [ addItemForm model
         ]
 
 
-emptyItemView { payer, name, amount } =
+addItemForm model =
     div [ class "form-horizontal" ]
         [ div [ class "form-group" ]
             [ div [ class "col-xs-12 col-sm-3" ]
@@ -66,7 +80,6 @@ emptyItemView { payer, name, amount } =
                 [ input
                     [ class "form-control"
                     , placeholder "Name"
-                    , value name
                     , onInput ChangeNewItemName
                     ]
                     []
@@ -76,7 +89,6 @@ emptyItemView { payer, name, amount } =
                     [ class "form-control"
                     , type_ "number"
                     , placeholder "Amount"
-                    , value amount
                     ]
                     []
                 ]
