@@ -27,6 +27,7 @@ type alias Model =
     , tipPercentErr : String
     , groupSizeErr : String
     , individualPayers : List String
+    , showDialog : Bool
     , items : List Item
     , newItemForm : ItemForm
     }
@@ -52,6 +53,7 @@ type Msg
     | ChangeTipPercent String
     | ChangeGroupSize String
     | RemovePayer String
+    | ToggleDialog
     | ChangeNewItemPayer String
     | ChangeNewItemName String
     | ChangeNewItemAmount String

@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, on, keyCode)
 import Json.Decode as Decode
+import Dialog
 import Models exposing (..)
 
 
@@ -15,6 +16,12 @@ view model =
         , individualPayersView model
         , h2 [] [ text "Items" ]
         , itemsView model
+        , Dialog.view
+            (if model.showDialog then
+                Just <| dialogConfig model
+             else
+                Nothing
+            )
         ]
 
 
@@ -34,7 +41,8 @@ individualPayersView model =
                 [ icon "remove", text payer ]
     in
         div [ class "payers" ]
-            (button [ class "btn btn-default" ] [ icon "plus", text "Add" ]
+            (button [ class "btn btn-default", onClick ToggleDialog ]
+                [ icon "plus", text "Add" ]
                 :: (model.individualPayers |> List.map view)
             )
 
@@ -126,3 +134,20 @@ onKeyEnter msg =
                     )
     in
         on "keypress" decoder
+
+
+dialogConfig : Model -> Dialog.Config Msg
+dialogConfig model =
+    { closeMessage = Just ToggleDialog
+    , containerClass = Nothing
+    , header = Just (h3 [] [ text "Add individual payer" ])
+    , body = Just (text "hey")
+    , footer =
+        Just
+            (button
+                [ class "btn btn-success"
+                , onClick ToggleDialog
+                ]
+                [ text "OK" ]
+            )
+    }

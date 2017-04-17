@@ -50,6 +50,7 @@ init =
     , tipPercentErr = ""
     , groupSizeErr = ""
     , individualPayers = samplePayers
+    , showDialog = False
     , items = sampleItems
     , newItemForm = ItemForm "" "" ""
     }
@@ -94,6 +95,9 @@ update msg model =
                         |> List.filter (\payer -> payer /= name)
             in
                 { model | individualPayers = newPayers } |> noCmd
+
+        ToggleDialog ->
+            { model | showDialog = not model.showDialog } |> noCmd
 
         _ ->
             model ! []
