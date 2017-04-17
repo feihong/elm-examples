@@ -11,6 +11,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Dom
+import Task
 import Models exposing (..)
 import Views
 import Helpers exposing (..)
@@ -106,7 +107,6 @@ update msg model =
                 { model
                     | individualPayers = newPayers
                     , showDialog = False
-                    , newPayer = ""
                 }
                     |> noCmd
 
@@ -114,7 +114,31 @@ update msg model =
             { model | newPayer = name } |> noCmd
 
         ToggleDialog ->
-            { model | showDialog = not model.showDialog } |> noCmd
+            let
+                cmd =
+                    if model.showDialog == False then
+                        [ Dom.focus "new-payer-input" |> Task.attempt FocusResult ]
+                    else
+                        []
+
+                newPayer =
+                    if model.showDialog == True then
+                        ""
+                    else
+                        model.newPayer
+            in
+                { model
+                    | showDialog = not model.showDialog
+                    , newPayer = newPayer
+                }
+                    ! cmd
+
+        FocusResult result ->
+            let
+                _ =
+                    Debug.log "focus result" result
+            in
+                model ! []
 
         _ ->
             model ! []
