@@ -106,7 +106,9 @@ update msg model =
                 newPayers () =
                     model.individualPayers ++ [ model.newPayer ]
             in
-                if String.isEmpty model.newPayerErr then
+                if String.isEmpty model.newPayer then
+                    { model | newPayerErr = "Name must not be blank" } |> noCmd
+                else if String.isEmpty model.newPayerErr then
                     { model
                         | individualPayers = newPayers ()
                         , showDialog = False

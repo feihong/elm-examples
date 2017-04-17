@@ -136,22 +136,6 @@ onKeyEnter msg =
         on "keypress" decoder
 
 
-onKeyEscape : msg -> Html.Attribute msg
-onKeyEscape msg =
-    let
-        decoder =
-            keyCode
-                |> Decode.andThen
-                    (\code ->
-                        if code == 27 then
-                            Decode.succeed msg
-                        else
-                            Decode.fail "not enter key"
-                    )
-    in
-        on "keypress" decoder
-
-
 dialogConfig : Model -> Dialog.Config Msg
 dialogConfig model =
     { closeMessage = Just ToggleDialog
@@ -172,7 +156,6 @@ dialogConfig model =
                     , value model.newPayer
                     , onInput UpdateNewPayer
                     , onKeyEnter AddPayer
-                    , onKeyEscape ToggleDialog
                     ]
                     []
                 , div [ class "help-block" ] [ text model.newPayerErr ]
