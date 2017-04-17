@@ -6,6 +6,7 @@ import Html.Events exposing (onClick, onInput, on, keyCode)
 import Json.Decode as Decode
 import Dialog
 import Models exposing (..)
+import ViewUtil
 import ItemsForm
 
 
@@ -16,7 +17,7 @@ view model =
         , h2 [] [ text "Individual Payers" ]
         , individualPayersView model
         , h2 [] [ text "Items" ]
-        , ItemsForm.view model
+          -- , ItemsForm.view model.itemsForm model.payers
         , Dialog.view
             (if model.showDialog then
                 Just <| dialogConfig model
@@ -120,22 +121,6 @@ pairDiv label amount =
         ]
 
 
-onKeyEnter : msg -> Html.Attribute msg
-onKeyEnter msg =
-    let
-        decoder =
-            keyCode
-                |> Decode.andThen
-                    (\code ->
-                        if code == 13 then
-                            Decode.succeed msg
-                        else
-                            Decode.fail "not enter key"
-                    )
-    in
-        on "keypress" decoder
-
-
 dialogConfig : Model -> Dialog.Config Msg
 dialogConfig model =
     { closeMessage = Just ToggleDialog
@@ -155,7 +140,7 @@ dialogConfig model =
                     , placeholder "Name"
                     , value model.newPayer
                     , onInput UpdateNewPayer
-                    , onKeyEnter AddPayer
+                    , ViewUtil.onKeyEnter AddPayer
                     ]
                     []
                 , div [ class "help-block" ] [ text model.newPayerErr ]

@@ -31,27 +31,6 @@ type alias Item =
     }
 
 
-type alias ItemsForm =
-    { newItem : ItemForm
-    , items : List ItemForm
-    }
-
-
-type alias ItemForm =
-    { payer : String
-    , name : String
-    , amount : String
-    , nameErr : String
-    , amountErr : String
-    }
-
-
-initialForm =
-    { newItem = ItemForm "" "" "" "" ""
-    , items = []
-    }
-
-
 initialModel =
     { taxPercent = 9.75
     , tipPercent = 20.0
@@ -64,7 +43,6 @@ initialModel =
     , newPayerErr = ""
     , showDialog = False
     , items = sampleItems
-    , itemsForm = initialForm
     }
 
 
@@ -85,7 +63,6 @@ type alias Model =
     , newPayerErr : String
     , showDialog : Bool
     , items : List Item
-    , itemsForm : ItemsForm
     }
 
 
