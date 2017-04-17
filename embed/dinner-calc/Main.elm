@@ -103,20 +103,17 @@ update msg model =
 
         AddPayer ->
             let
-                isErr =
-                    not <| String.isEmpty model.newPayerErr
-
                 newPayers () =
                     model.individualPayers ++ [ model.newPayer ]
             in
-                if isErr then
-                    model ! []
-                else
+                if String.isEmpty model.newPayerErr then
                     { model
                         | individualPayers = newPayers ()
                         , showDialog = False
                     }
                         |> noCmd
+                else
+                    model ! []
 
         UpdateNewPayer name ->
             let
@@ -129,20 +126,15 @@ update msg model =
                 { model | newPayer = name, newPayerErr = err } |> noCmd
 
         ToggleDialog ->
-            let
-                ( newPayer, cmd ) =
-                    if model.showDialog == False then
-                        ( ""
-                        , [ Dom.focus "new-payer-input" |> Task.attempt FocusResult ]
-                        )
-                    else
-                        ( model.newPayer, [] )
-            in
+            if model.showDialog == False then
                 { model
                     | showDialog = not model.showDialog
-                    , newPayer = newPayer
+                    , newPayer = ""
+                    , newPayerErr = ""
                 }
-                    ! cmd
+                    ! [ Dom.focus "new-payer-input" |> Task.attempt FocusResult ]
+            else
+                { model | showDialog = not model.showDialog } ! []
 
         FocusResult result ->
             let
