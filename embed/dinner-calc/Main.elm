@@ -1,7 +1,5 @@
 {- todo:
    - dismiss dialog with esc key
-   - set focus to new payer input
-   - add on key enter
    - items view
    - item form
 -}
@@ -26,40 +24,9 @@ main =
         }
 
 
-
--- MODEL
-
-
-sampleItems =
-    [ { payer = Group, name = "Chef Ping Platter", amount = 1235 }
-    , { payer = Group, name = "Green Bean Casserole", amount = 550 }
-    , { payer = Group, name = "Deep Dish Pizza", amount = 1600 }
-    , { payer = Attendee "Norman", name = "Maotai", amount = 1500 }
-    , { payer = Attendee "Cameron", name = "Mojito", amount = 500 }
-    , { payer = Attendee "Cameron", name = "Margarita", amount = 450 }
-    ]
-
-
-samplePayers =
-    [ "Bob", "Hobo" ]
-
-
 init : ( Model, Cmd Msg )
 init =
-    { taxPercent = 9.75
-    , tipPercent = 20.0
-    , groupSize = 6
-    , taxPercentErr = ""
-    , tipPercentErr = ""
-    , groupSizeErr = ""
-    , individualPayers = samplePayers
-    , newPayer = ""
-    , newPayerErr = ""
-    , showDialog = False
-    , items = sampleItems
-    , newItemForm = ItemForm "" "" ""
-    }
-        ! []
+    initialModel ! []
 
 
 

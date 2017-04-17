@@ -6,6 +6,7 @@ import Html.Events exposing (onClick, onInput, on, keyCode)
 import Json.Decode as Decode
 import Dialog
 import Models exposing (..)
+import ItemsForm
 
 
 view : Model -> Html Msg
@@ -15,7 +16,7 @@ view model =
         , h2 [] [ text "Individual Payers" ]
         , individualPayersView model
         , h2 [] [ text "Items" ]
-        , itemsView model
+        , ItemsForm.view model
         , Dialog.view
             (if model.showDialog then
                 Just <| dialogConfig model
@@ -77,40 +78,39 @@ numInput id_ label_ addon defaultValue_ errMsg msg =
         ]
 
 
-itemsView model =
-    div [ class "items" ]
-        [ addItemForm model
-        ]
 
-
-addItemForm model =
-    div [ class "form-horizontal" ]
-        [ div [ class "form-group" ]
-            [ div [ class "col-xs-12 col-sm-3" ]
-                [ select [ class "form-control" ]
-                    [ option [ value "" ] [ text "Group" ]
-                    , option [ disabled True ] [ text "-----" ]
-                    , option [] [ text "New individual payer..." ]
-                    ]
-                ]
-            , div [ class "col-xs-12 col-sm-6" ]
-                [ input
-                    [ class "form-control"
-                    , placeholder "Name"
-                    , onInput ChangeNewItemName
-                    ]
-                    []
-                ]
-            , div [ class "col-xs-12 col-sm-3" ]
-                [ input
-                    [ class "form-control"
-                    , type_ "number"
-                    , placeholder "Amount"
-                    ]
-                    []
-                ]
-            ]
-        ]
+-- itemsForm model =
+--     div [ class "items" ]
+--         [ addItemForm model
+--         ]
+-- addItemForm model =
+--     div [ class "form-horizontal" ]
+--         [ div [ class "form-group" ]
+--             [ div [ class "col-xs-12 col-sm-3" ]
+--                 [ select [ class "form-control" ]
+--                     [ option [ value "" ] [ text "Group" ]
+--                     , option [ disabled True ] [ text "-----" ]
+--                     , option [] [ text "New individual payer..." ]
+--                     ]
+--                 ]
+--             , div [ class "col-xs-12 col-sm-6" ]
+--                 [ input
+--                     [ class "form-control"
+--                     , placeholder "Name"
+--                     , onInput ChangeNewItemName
+--                     ]
+--                     []
+--                 ]
+--             , div [ class "col-xs-12 col-sm-3" ]
+--                 [ input
+--                     [ class "form-control"
+--                     , type_ "number"
+--                     , placeholder "Amount"
+--                     ]
+--                     []
+--                 ]
+--             ]
+--         ]
 
 
 pairDiv label amount =

@@ -3,6 +3,20 @@ module Models exposing (..)
 import Dom
 
 
+sampleItems =
+    [ { payer = Group, name = "Chef Ping Platter", amount = 1235 }
+    , { payer = Group, name = "Green Bean Casserole", amount = 550 }
+    , { payer = Group, name = "Deep Dish Pizza", amount = 1600 }
+    , { payer = Attendee "Norman", name = "Maotai", amount = 1500 }
+    , { payer = Attendee "Cameron", name = "Mojito", amount = 500 }
+    , { payer = Attendee "Cameron", name = "Margarita", amount = 450 }
+    ]
+
+
+samplePayers =
+    [ "Bob", "Hobo" ]
+
+
 type Payer
     = Group
     | Attendee String
@@ -17,8 +31,46 @@ type alias Item =
     }
 
 
+type alias ItemsForm =
+    { newItem : ItemForm
+    , items : List ItemForm
+    }
+
+
 type alias ItemForm =
-    { payer : String, name : String, amount : String }
+    { payer : String
+    , name : String
+    , amount : String
+    , nameErr : String
+    , amountErr : String
+    }
+
+
+initialForm =
+    { newItem = ItemForm "" "" "" "" ""
+    , items = []
+    }
+
+
+initialModel =
+    { taxPercent = 9.75
+    , tipPercent = 20.0
+    , groupSize = 6
+    , taxPercentErr = ""
+    , tipPercentErr = ""
+    , groupSizeErr = ""
+    , individualPayers = samplePayers
+    , newPayer = ""
+    , newPayerErr = ""
+    , showDialog = False
+    , items = sampleItems
+    , itemsForm = initialForm
+    }
+
+
+
+-- type alias ItemForm =
+--     { payer : String, name : String, amount : String }
 
 
 type alias Model =
@@ -33,7 +85,7 @@ type alias Model =
     , newPayerErr : String
     , showDialog : Bool
     , items : List Item
-    , newItemForm : ItemForm
+    , itemsForm : ItemsForm
     }
 
 
