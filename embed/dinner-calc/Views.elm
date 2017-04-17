@@ -144,7 +144,8 @@ dialogConfig model =
     , body =
         Just <|
             input
-                [ class "form-control"
+                [ id "new-payer-input"
+                , class "form-control"
                 , placeholder "Name"
                 , value model.newPayer
                 , onInput UpdateNewPayer

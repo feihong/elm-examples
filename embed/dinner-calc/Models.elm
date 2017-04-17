@@ -1,5 +1,7 @@
 module Models exposing (..)
 
+import Dom
+
 
 type Payer
     = Group
@@ -61,3 +63,5 @@ type Msg
     | ChangeNewItemName String
     | ChangeNewItemAmount String
     | NewItem
+    | FocusOn Dom.Id
+    | FocusResult (Result Dom.Error ())

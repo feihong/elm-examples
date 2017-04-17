@@ -1,7 +1,7 @@
 {- todo:
-   - horizontal number fields
-   - input group addon %
-   - individual payers view
+   - dismiss dialog with esc key
+   - set focus to new payer input
+   - add on key enter
    - items view
    - item form
 -}
@@ -10,6 +10,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Dom
 import Models exposing (..)
 import Views
 import Helpers exposing (..)
