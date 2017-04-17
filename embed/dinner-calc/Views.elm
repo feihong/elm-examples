@@ -140,14 +140,15 @@ dialogConfig : Model -> Dialog.Config Msg
 dialogConfig model =
     { closeMessage = Just ToggleDialog
     , containerClass = Nothing
-    , header = Just (h3 [] [ text "Add individual payer" ])
+    , header = Just (h4 [ class "modal-title" ] [ text "Add individual payer" ])
     , body = Just (text "hey")
     , footer =
         Just
-            (button
-                [ class "btn btn-success"
-                , onClick ToggleDialog
+            (div []
+                [ button [ class "btn btn-default", onClick ToggleDialog ]
+                    [ text "Cancel" ]
+                , button [ class "btn btn-primary", onClick ToggleDialog ]
+                    [ text "OK" ]
                 ]
-                [ text "OK" ]
             )
     }
