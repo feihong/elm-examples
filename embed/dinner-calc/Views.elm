@@ -149,6 +149,7 @@ dialogConfig model =
                 , placeholder "Name"
                 , value model.newPayer
                 , onInput UpdateNewPayer
+                , onKeyEnter AddPayer
                 ]
                 []
     , footer =

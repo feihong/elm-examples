@@ -115,17 +115,13 @@ update msg model =
 
         ToggleDialog ->
             let
-                cmd =
+                ( newPayer, cmd ) =
                     if model.showDialog == False then
-                        [ Dom.focus "new-payer-input" |> Task.attempt FocusResult ]
+                        ( ""
+                        , [ Dom.focus "new-payer-input" |> Task.attempt FocusResult ]
+                        )
                     else
-                        []
-
-                newPayer =
-                    if model.showDialog == True then
-                        ""
-                    else
-                        model.newPayer
+                        ( model.newPayer, [] )
             in
                 { model
                     | showDialog = not model.showDialog
