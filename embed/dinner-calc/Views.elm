@@ -143,15 +143,23 @@ dialogConfig model =
     , header = Just (h4 [ class "modal-title" ] [ text "Add individual payer" ])
     , body =
         Just <|
-            input
-                [ id "new-payer-input"
-                , class "form-control"
-                , placeholder "Name"
-                , value model.newPayer
-                , onInput UpdateNewPayer
-                , onKeyEnter AddPayer
+            div
+                [ classList
+                    [ ( "form-group", True )
+                    , ( "has-error", not <| String.isEmpty model.newPayerErr )
+                    ]
                 ]
-                []
+                [ input
+                    [ id "new-payer-input"
+                    , class "form-control"
+                    , placeholder "Name"
+                    , value model.newPayer
+                    , onInput UpdateNewPayer
+                    , onKeyEnter AddPayer
+                    ]
+                    []
+                , div [ class "help-block" ] [ text model.newPayerErr ]
+                ]
     , footer =
         Just
             (div []

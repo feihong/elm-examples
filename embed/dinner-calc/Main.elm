@@ -44,6 +44,7 @@ samplePayers =
     [ "Bob", "Hobo" ]
 
 
+init : ( Model, Cmd Msg )
 init =
     { taxPercent = 9.75
     , tipPercent = 20.0
@@ -53,6 +54,7 @@ init =
     , groupSizeErr = ""
     , individualPayers = samplePayers
     , newPayer = ""
+    , newPayerErr = ""
     , showDialog = False
     , items = sampleItems
     , newItemForm = ItemForm "" "" ""
@@ -111,7 +113,14 @@ update msg model =
                     |> noCmd
 
         UpdateNewPayer name ->
-            { model | newPayer = name } |> noCmd
+            let
+                err =
+                    if List.member name model.individualPayers then
+                        "That payer already exists"
+                    else
+                        ""
+            in
+                { model | newPayer = name, newPayerErr = err } |> noCmd
 
         ToggleDialog ->
             let

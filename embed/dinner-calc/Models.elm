@@ -30,6 +30,7 @@ type alias Model =
     , groupSizeErr : String
     , individualPayers : List String
     , newPayer : String
+    , newPayerErr : String
     , showDialog : Bool
     , items : List Item
     , newItemForm : ItemForm
