@@ -103,14 +103,20 @@ update msg model =
 
         AddPayer ->
             let
-                newPayers =
+                isErr =
+                    not <| String.isEmpty model.newPayerErr
+
+                newPayers () =
                     model.individualPayers ++ [ model.newPayer ]
             in
-                { model
-                    | individualPayers = newPayers
-                    , showDialog = False
-                }
-                    |> noCmd
+                if isErr then
+                    model ! []
+                else
+                    { model
+                        | individualPayers = newPayers ()
+                        , showDialog = False
+                    }
+                        |> noCmd
 
         UpdateNewPayer name ->
             let
