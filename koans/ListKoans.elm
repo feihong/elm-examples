@@ -78,6 +78,16 @@ tests =
                 in
                     zip [ 1, 2, 3, 4 ] [ "a", "b", "c", "d" ]
                         |> Expect.equal [ ( 1, "a" ), ( 2, "b" ), ( 3, "c" ), ( 4, "d" ) ]
+        , test "any" <|
+            \() ->
+                [ 1, 2, 3, 4, 5, 6 ]
+                    |> List.any (\n -> n == 4)
+                    |> Expect.equal True
+        , test "all" <|
+            \() ->
+                [ 1, 2, 3, 4, 5, 6 ]
+                    |> List.all (\n -> n % 2 == 0)
+                    |> Expect.equal False
         ]
 
 
