@@ -70,24 +70,27 @@ update msg model =
 
         AddPayer ->
             let
-                newPayers () =
-                    model.individualPayers ++ [ model.newPayer ]
+                trimmedName =
+                    String.trim model.newPayer
+
+                addPayer name =
+                    model.individualPayers ++ [ name ]
             in
-                if String.isEmpty model.newPayer then
+                if String.isEmpty trimmedName then
                     { model | newPayerErr = "Name must not be blank" } |> noCmd
                 else if String.isEmpty model.newPayerErr then
                     { model
-                        | individualPayers = newPayers ()
+                        | individualPayers = addPayer trimmedName
                         , showDialog = False
                     }
                         |> noCmd
                 else
-                    model ! []
+                    model |> noCmd
 
         UpdateNewPayer name ->
             let
                 err =
-                    if List.member name model.individualPayers then
+                    if List.member (String.trim name) model.individualPayers then
                         "That payer already exists"
                     else
                         ""
