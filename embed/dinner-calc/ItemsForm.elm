@@ -47,7 +47,7 @@ type Field
 
 
 initialState =
-    { newItem = ItemForm "" "" "" []
+    { newItem = ItemForm "Group" "" "" []
     , items = []
     }
 
@@ -197,4 +197,4 @@ payerOptions { payer } payers =
                         option [ value payer_ ] [ text payer_ ]
                     )
     in
-        option [ value "" ] [ text "Group" ] :: tail
+        option [ value "Group" ] [ text "Group" ] :: tail
