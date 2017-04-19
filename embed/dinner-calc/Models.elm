@@ -93,3 +93,6 @@ type Msg
     | FocusResult (Result Dom.Error ())
       -- Items
     | SetFormState ItemsForm.Msg
+    | AddItem String String Int
+    | UpdateItem Int String String Int
+    | RemoveItem Int

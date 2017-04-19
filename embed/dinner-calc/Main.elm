@@ -13,6 +13,7 @@ import Task
 import Models exposing (..)
 import Views
 import Helpers exposing (..)
+import ItemsForm
 
 
 main =
@@ -31,6 +32,14 @@ init =
 
 
 -- UPDATE
+
+
+formConfig : ItemsForm.Config Msg
+formConfig =
+    { addMsg = AddItem
+    , updateMsg = UpdateItem
+    , removeMsg = RemoveItem
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -109,9 +118,27 @@ update msg model =
                 { model | showDialog = not model.showDialog } ! []
 
         FocusResult result ->
+            model ! []
+
+        SetFormState formMsg ->
+            let
+                ( newState, maybeMsg ) =
+                    ItemsForm.update formConfig formMsg model.formState
+
+                newModel =
+                    { model | formState = newState }
+            in
+                case maybeMsg of
+                    Nothing ->
+                        newModel ! []
+
+                    Just updateMsg ->
+                        update updateMsg newModel
+
+        AddItem payer name amount ->
             let
                 _ =
-                    Debug.log "focus result" result
+                    Debug.log "add item" ( payer, name, amount )
             in
                 model ! []
 

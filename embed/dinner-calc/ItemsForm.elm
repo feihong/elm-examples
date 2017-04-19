@@ -30,12 +30,6 @@ type alias ItemForm =
     }
 
 
-initialState =
-    { newItem = ItemForm "" "" "" []
-    , items = []
-    }
-
-
 type Msg
     = UpdateNewPayer String
     | UpdateNewName String
@@ -50,6 +44,12 @@ type Field
     = Payer
     | Name
     | Amount
+
+
+initialState =
+    { newItem = ItemForm "" "" "" []
+    , items = []
+    }
 
 
 update : Config msg -> Msg -> State -> ( State, Maybe msg )
@@ -69,7 +69,7 @@ update config msg state =
                 errors =
                     validateForm state.newItem
 
-                parentMsg =
+                maybeParentMsg =
                     if List.isEmpty errors then
                         Just <|
                             (getFormValues state.newItem
@@ -84,7 +84,7 @@ update config msg state =
                 newItem2 =
                     { newItem | errors = errors }
             in
-                ( { state | newItem = newItem2 }, parentMsg )
+                ( { state | newItem = newItem2 }, maybeParentMsg )
 
         _ ->
             ( state, Nothing )
@@ -160,7 +160,7 @@ itemFormView itemForm payers =
                     , onInput UpdateNewPayer
                     , value itemForm.payer
                     ]
-                    (payerOptions payers)
+                    (payerOptions itemForm payers)
                 ]
             , div [ class "col-xs-12 col-sm-6" ]
                 [ input
@@ -187,11 +187,14 @@ itemFormView itemForm payers =
         ]
 
 
-payerOptions : List String -> List (Html msg)
-payerOptions payers =
+payerOptions : ItemForm -> List String -> List (Html msg)
+payerOptions { payer } payers =
     let
         tail =
             payers
-                |> List.map (\payer -> option [ value payer ] [ text payer ])
+                |> List.map
+                    (\payer_ ->
+                        option [ value payer_ ] [ text payer_ ]
+                    )
     in
         option [ value "" ] [ text "Group" ] :: tail
