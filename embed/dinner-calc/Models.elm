@@ -1,6 +1,7 @@
 module Models exposing (..)
 
 import Dom
+import ItemsForm
 
 
 sampleItems =
@@ -43,12 +44,8 @@ initialModel =
     , newPayerErr = ""
     , showDialog = False
     , items = sampleItems
+    , formState = ItemsForm.initialState
     }
-
-
-
--- type alias ItemForm =
---     { payer : String, name : String, amount : String }
 
 
 type alias Model =
@@ -63,6 +60,7 @@ type alias Model =
     , newPayerErr : String
     , showDialog : Bool
     , items : List Item
+    , formState : ItemsForm.State
     }
 
 
@@ -81,17 +79,17 @@ type alias Calculation =
 
 
 type Msg
-    = Temp String
+    = NoOp
+      -- Top form
     | ChangeTaxPercent String
     | ChangeTipPercent String
     | ChangeGroupSize String
+      -- Payer
     | RemovePayer String
     | AddPayer
     | UpdateNewPayer String
     | ToggleDialog
-    | ChangeNewItemPayer String
-    | ChangeNewItemName String
-    | ChangeNewItemAmount String
-    | NewItem
     | FocusOn Dom.Id
     | FocusResult (Result Dom.Error ())
+      -- Items
+    | SetFormState ItemsForm.Msg
