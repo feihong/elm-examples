@@ -10,6 +10,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Dom
 import Task
+import Validate exposing (Validator, ifBlank, ifInvalid)
 import Models exposing (..)
 import Views
 import Helpers exposing (..)
@@ -77,6 +78,28 @@ update msg model =
             in
                 { model | individualPayers = newPayers } |> noCmd
 
+        UpdateNewPayer name ->
+            let
+                trimmedName =
+                    String.trim name
+
+                alreadyExists =
+                    ifInvalid <| flip List.member model.individualPayers
+
+                error =
+                    trimmedName
+                        |> Validate.eager
+                            [ ifBlank "Please enter a name"
+                            , ifIsGroup "Name cannot be \"Group\""
+                            , alreadyExists "That payer already exists"
+                            ]
+            in
+                { model
+                    | newPayer = name
+                    , newPayerErr = Maybe.withDefault "" error
+                }
+                    |> noCmd
+
         AddPayer ->
             let
                 trimmedName =
@@ -85,9 +108,7 @@ update msg model =
                 addPayer name =
                     model.individualPayers ++ [ name ]
             in
-                if String.isEmpty trimmedName then
-                    { model | newPayerErr = "Name must not be blank" } |> noCmd
-                else if String.isEmpty model.newPayerErr then
+                if String.isEmpty model.newPayerErr then
                     { model
                         | individualPayers = addPayer trimmedName
                         , showDialog = False
@@ -95,16 +116,6 @@ update msg model =
                         |> noCmd
                 else
                     model |> noCmd
-
-        UpdateNewPayer name ->
-            let
-                err =
-                    if List.member (String.trim name) model.individualPayers then
-                        "That payer already exists"
-                    else
-                        ""
-            in
-                { model | newPayer = name, newPayerErr = err } |> noCmd
 
         ToggleDialog ->
             if model.showDialog == False then
@@ -148,3 +159,8 @@ update msg model =
 
 noCmd model =
     model ! []
+
+
+ifIsGroup : error -> Validator error String
+ifIsGroup =
+    ifInvalid <| (==) "Group"
