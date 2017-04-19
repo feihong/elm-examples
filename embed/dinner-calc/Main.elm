@@ -148,10 +148,16 @@ update msg model =
 
         AddItem payer name amount ->
             let
-                _ =
-                    Debug.log "add item" ( payer, name, amount )
+                payer_ =
+                    if payer == "Group" then
+                        Group
+                    else
+                        Attendee payer
+
+                newItems =
+                    model.items ++ [ Item payer_ name amount ]
             in
-                model ! []
+                { model | items = newItems } |> noCmd
 
         _ ->
             model ! []
