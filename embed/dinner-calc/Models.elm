@@ -32,10 +32,22 @@ type alias Item =
     }
 
 
+defaultTaxPercent =
+    9.75
+
+
+defaultTipPercent =
+    20.0
+
+
+defaultGroupSize =
+    6
+
+
 initialModel =
-    { taxPercent = 9.75
-    , tipPercent = 20.0
-    , groupSize = 6
+    { taxPercent = defaultTaxPercent
+    , tipPercent = defaultTipPercent
+    , groupSize = defaultGroupSize
     , taxPercentErr = ""
     , tipPercentErr = ""
     , groupSizeErr = ""
