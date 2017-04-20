@@ -1,3 +1,8 @@
+{- Try changing the type of the input to "number" and see how that causes the
+   value sent to the ChangeTaxPercent message to always be an empty string.
+-}
+
+
 module Main exposing (..)
 
 import Html exposing (..)
@@ -63,6 +68,9 @@ update msg model =
 
         ChangeTaxPercent str ->
             let
+                _ =
+                    Debug.log "change tax percent" str
+
                 newModel =
                     case decodePercent str of
                         Ok value ->
@@ -125,10 +133,10 @@ view model =
                 ]
             , div []
                 [ input
-                    [ type_ "text"
-                    , value model.taxPercentStr
+                    [ value model.taxPercentStr
                     , onInput ChangeTaxPercent
                     , autofocus True
+                      -- , type_ "number"
                     ]
                     []
                 , span [] [ text "%" ]
