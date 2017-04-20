@@ -14,6 +14,18 @@ sampleItems =
     ]
 
 
+sampleItemForms =
+    sampleItems
+        |> List.map
+            (\item ->
+                ItemsForm.ItemForm
+                    (toString item.payer)
+                    item.name
+                    (toString item.amount)
+                    []
+            )
+
+
 samplePayers =
     [ "Bob", "Hobo" ]
 
@@ -55,23 +67,25 @@ initialModel =
     , newPayer = ""
     , newPayerErr = ""
     , showDialog = False
-    , items = sampleItems
-    , formState = ItemsForm.initialState
+    , items =
+        sampleItems
+        -- , formState = ItemsForm.initialState
+    , formState = { newItem = ItemsForm.ItemForm "Group" "" "" [], items = sampleItemForms }
     }
 
 
 type alias Model =
-    { taxPercent : Float
+    { {- Top form -} taxPercent : Float
     , tipPercent : Float
     , groupSize : Int
     , taxPercentErr : String
     , tipPercentErr : String
     , groupSizeErr : String
-    , individualPayers : List String
+    , {- Individual payers -} individualPayers : List String
     , newPayer : String
     , newPayerErr : String
     , showDialog : Bool
-    , items : List Item
+    , {- Items form -} items : List Item
     , formState : ItemsForm.State
     }
 
