@@ -80,7 +80,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     let
-        choices_ =
+        choicesPairs =
             ( "", "Select name" )
                 :: ( "line", "-----" )
                 :: (List.map (\name -> ( name, name )) choices)
@@ -95,14 +95,20 @@ view model =
                     ]
                     []
                 ]
-            , div []
-                [ select
-                    [ value model.name
-                    , onInput ChangeName
-                    ]
-                    (List.map (nameOption model.name) choices_)
-                ]
+            , namesSelect model 1 choicesPairs
+            , namesSelect model 8 choicesPairs
             ]
+
+
+namesSelect model size_ choicesPairs =
+    div []
+        [ select
+            [ size size_
+            , value model.name
+            , onInput ChangeName
+            ]
+            (List.map (nameOption model.name) choicesPairs)
+        ]
 
 
 nameOption current ( value_, title ) =
