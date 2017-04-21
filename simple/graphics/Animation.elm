@@ -18,7 +18,7 @@ import AnimationFrame
 main : Program Never Model Msg
 main =
     Html.program
-        { init = ( Model 0 [], Cmd.none )
+        { init = ( { time = 0, showTime = False, animations = [] }, Cmd.none )
         , view = view
         , update = update
         , subscriptions = \_ -> AnimationFrame.times Tick
@@ -33,6 +33,7 @@ type Animation
 
 type alias Model =
     { time : Time
+    , showTime : Bool
     , animations : List Animation
     }
 
@@ -41,6 +42,7 @@ type Msg
     = Noop
     | Tick Time
     | ToggleAnimation Animation
+    | ToggleShowTime
 
 
 
@@ -52,6 +54,9 @@ update msg model =
     case msg of
         Tick time ->
             { model | time = time } ! []
+
+        ToggleShowTime ->
+            { model | showTime = not model.showTime } ! []
 
         ToggleAnimation animation ->
             let
@@ -77,16 +82,20 @@ update msg model =
 view : Model -> Html Msg
 view ({ time } as model) =
     div [ style [ ( "margin", "2rem" ) ] ]
-        [ div [] [ Html.text <| toString time ]
+        [ if model.showTime then
+            div [] [ Html.text <| toString time ]
+          else
+            Html.text ""
         , collageContainer 300
             300
             [ batman
                 |> applyAnimations model.animations time
             ]
         , div []
-            [ checkbox "Pulsing" Pulsing
-            , checkbox "Circling" Circling
-            , checkbox "Rotating" Rotating
+            [ checkbox "Show time" ToggleShowTime
+            , checkbox "Pulsing" <| ToggleAnimation Pulsing
+            , checkbox "Circling" <| ToggleAnimation Circling
+            , checkbox "Rotating" <| ToggleAnimation Rotating
             ]
         ]
 
@@ -104,9 +113,10 @@ collageContainer width height children =
         ]
 
 
-checkbox label_ animation =
+checkbox : String -> msg -> Html msg
+checkbox label_ msg =
     label []
-        [ input [ type_ "checkbox", onClick <| ToggleAnimation animation ] []
+        [ input [ type_ "checkbox", onClick msg ] []
         , Html.text label_
         ]
 
