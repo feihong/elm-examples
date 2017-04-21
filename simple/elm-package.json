@@ -5,7 +5,8 @@
     "license": "BSD3",
     "source-directories": [
         ".",
-        "./modules"
+        "./modules",
+        "./graphics"
     ],
     "exposed-modules": [],
     "dependencies": {
