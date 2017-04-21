@@ -78,13 +78,10 @@ view : Model -> Html Msg
 view ({ time } as model) =
     div [ style [ ( "margin", "2rem" ) ] ]
         [ div [] [ Html.text <| toString time ]
-        , canvasContainer
-            [ collage 300
-                300
-                [ batman
-                    |> applyAnimations model.animations time
-                ]
-                |> Element.toHtml
+        , collageContainer 300
+            300
+            [ batman
+                |> applyAnimations model.animations time
             ]
         , div []
             [ checkbox "Pulsing" Pulsing
@@ -94,14 +91,17 @@ view ({ time } as model) =
         ]
 
 
-canvasContainer children =
+collageContainer : Int -> Int -> List Form -> Html msg
+collageContainer width height children =
     div
         [ style
             [ ( "border", "1px dashed gray" )
             , ( "display", "inline-block" )
             ]
         ]
-        children
+        [ collage width height children
+            |> Element.toHtml
+        ]
 
 
 checkbox label_ animation =
