@@ -1,5 +1,5 @@
 {- Source:
-   http://outreach.mcmaster.ca/tutorials/shapes/shapes.html
+   http://outreach.mcmaster.ca/tutorials/animation/animation.html
 -}
 
 
@@ -24,7 +24,7 @@ main =
         }
 
 
-type Transform
+type Animation
     = Pulsing
     | Circling
     | Rotating
@@ -32,14 +32,14 @@ type Transform
 
 type alias Model =
     { counter : Int
-    , transforms : List Transform
+    , animations : List Animation
     }
 
 
 type Msg
     = Noop
     | Tick Time
-    | ToggleTransform Transform
+    | ToggleAnimation Animation
 
 
 
@@ -52,15 +52,18 @@ update msg model =
         Tick _ ->
             { model | counter = model.counter + 1 } ! []
 
-        ToggleTransform transform ->
+        ToggleAnimation animation ->
             let
-                newTransforms =
-                    if List.member transform model.transforms then
-                        List.filter ((==) transform) model.transforms
+                newAnimations =
+                    if List.member animation model.animations then
+                        List.filter ((/=) animation) model.animations
                     else
-                        transform :: model.transforms
+                        animation :: model.animations
+
+                _ =
+                    Debug.log "transforms" newAnimations
             in
-                { model | transforms = newTransforms } ! []
+                { model | animations = newAnimations } ! []
 
         Noop ->
             model ! []
@@ -82,7 +85,7 @@ view ({ counter } as model) =
                 [ collage 300
                     300
                     [ batman
-                        |> applyTranforms model.transforms t
+                        |> applyAnimations model.animations t
                     ]
                     |> Element.toHtml
                 ]
@@ -104,9 +107,9 @@ canvasContainer children =
         children
 
 
-checkbox label_ transform =
+checkbox label_ animation =
     label []
-        [ input [ type_ "checkbox", onClick <| ToggleTransform transform ] []
+        [ input [ type_ "checkbox", onClick <| ToggleAnimation animation ] []
         , Html.text label_
         ]
 
@@ -123,13 +126,13 @@ rotating t =
     rotate (5 * (sin (t / 300)))
 
 
-applyTranforms : List Transform -> Float -> Form -> Form
-applyTranforms transforms t form =
+applyAnimations : List Animation -> Float -> Form -> Form
+applyAnimations animations t form =
     let
-        applyTransform transform form =
+        applyAnimation animation form =
             let
                 fn =
-                    case transform of
+                    case animation of
                         Pulsing ->
                             pulsing
 
@@ -141,7 +144,7 @@ applyTranforms transforms t form =
             in
                 form |> fn t
     in
-        List.foldl applyTransform form transforms
+        List.foldl applyAnimation form animations
 
 
 batman : Form
