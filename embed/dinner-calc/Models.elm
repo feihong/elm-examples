@@ -1,5 +1,6 @@
 module Models exposing (..)
 
+import Set exposing (Set)
 import Dom
 import ItemsForm
 
@@ -19,7 +20,13 @@ sampleItemForms =
         |> List.map
             (\item ->
                 ItemsForm.ItemForm
-                    (toString item.payer)
+                    (case item.payer of
+                        Group ->
+                            "Group"
+
+                        Attendee name ->
+                            name
+                    )
                     item.name
                     (toString item.amount)
                     []
@@ -27,7 +34,19 @@ sampleItemForms =
 
 
 samplePayers =
-    [ "Bob", "Hobo" ]
+    sampleItems
+        |> List.filter (\item -> item.payer /= Group)
+        |> List.map
+            (\item ->
+                case item.payer of
+                    Group ->
+                        ""
+
+                    Attendee name ->
+                        name
+            )
+        |> Set.fromList
+        |> Set.toList
 
 
 type Payer

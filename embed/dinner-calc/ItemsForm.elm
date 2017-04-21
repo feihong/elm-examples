@@ -147,11 +147,14 @@ noMsg model =
 view : State -> List String -> Html Msg
 view state payers =
     div []
-        [ itemFormView state.newItem payers
+        [ div [ class "existing-items" ] (List.map (itemFormView payers) state.items)
+        , div []
+            [ itemFormView payers state.newItem
+            ]
         ]
 
 
-itemFormView itemForm payers =
+itemFormView payers itemForm =
     div [ class "form-horizontal" ]
         [ div [ class "form-group" ]
             [ div [ class "col-xs-12 col-sm-3" ]
