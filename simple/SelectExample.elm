@@ -1,5 +1,6 @@
-{- Try changing the type of the input to "number" and see how that causes the
-   value sent to the ChangeTaxPercent message to always be an empty string.
+{- Interestingly, the selected attribute is only needed for when the DOM
+   first displays. As soon as model values start being updated, the value
+   attribute will cause the correct option to be selected.
 -}
 
 
@@ -7,7 +8,8 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onInput, on, keyCode)
+import Json.Decode as Decode
 
 
 main : Program Never Model Msg
@@ -25,11 +27,15 @@ main =
 
 
 type alias Model =
-    { name : String }
+    { name : String
+    , inputValue : String
+    }
 
 
 initModel =
-    { name = "Logan" }
+    { name = "Coolio"
+    , inputValue = ""
+    }
 
 
 choices =
@@ -43,6 +49,8 @@ choices =
 type Msg
     = NoOp
     | ChangeName String
+    | ChangeNameViaInput
+    | ChangeInputValue String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -54,6 +62,12 @@ update msg model =
                     Debug.log "change name" str
             in
                 { model | name = str } ! []
+
+        ChangeNameViaInput ->
+            { model | name = model.inputValue } ! []
+
+        ChangeInputValue str ->
+            { model | inputValue = str } ! []
 
         NoOp ->
             model ! []
@@ -73,18 +87,44 @@ view model =
     in
         div [ style [ ( "padding", "1rem" ) ] ]
             [ div []
+                [ input
+                    [ autofocus True
+                    , value model.inputValue
+                    , onInput ChangeInputValue
+                    , onKeyEnter ChangeNameViaInput
+                    ]
+                    []
+                ]
+            , div []
                 [ select
                     [ value model.name
                     , onInput ChangeName
                     ]
-                    (List.map nameOption choices_)
+                    (List.map (nameOption model.name) choices_)
                 ]
             ]
 
 
-nameOption ( value_, title ) =
+nameOption current ( value_, title ) =
     option
         [ value value_
         , disabled <| value_ == "line"
+        , selected <| value_ == current
         ]
         [ text title ]
+
+
+onKeyEnter : msg -> Html.Attribute msg
+onKeyEnter msg =
+    let
+        decoder =
+            keyCode
+                |> Decode.andThen
+                    (\code ->
+                        if code == 13 then
+                            Decode.succeed msg
+                        else
+                            Decode.fail "not enter key"
+                    )
+    in
+        on "keypress" decoder
