@@ -7,8 +7,9 @@ module Main exposing (..)
 
 import Time exposing (Time)
 import Color exposing (..)
-import Html exposing (Html)
-import Html.Attributes exposing (style)
+import Html exposing (Html, div, text, input, label)
+import Html.Attributes exposing (style, type_)
+import Html.Events exposing (onClick)
 import Collage exposing (..)
 import Element exposing (Element)
 
@@ -16,20 +17,29 @@ import Element exposing (Element)
 main : Program Never Model Msg
 main =
     Html.program
-        { init = ( { counter = 0 }, Cmd.none )
+        { init = ( Model 0 [], Cmd.none )
         , view = view
         , update = update
-        , subscriptions = \_ -> Time.every Time.millisecond Tick
+        , subscriptions = \_ -> Time.every 10 Tick
         }
 
 
+type Transform
+    = Pulsing
+    | Circling
+    | Rotating
+
+
 type alias Model =
-    { counter : Int }
+    { counter : Int
+    , transforms : List Transform
+    }
 
 
 type Msg
     = Noop
     | Tick Time
+    | ToggleTransform Transform
 
 
 
@@ -42,6 +52,16 @@ update msg model =
         Tick _ ->
             { model | counter = model.counter + 1 } ! []
 
+        ToggleTransform transform ->
+            let
+                newTransforms =
+                    if List.member transform model.transforms then
+                        List.filter ((==) transform) model.transforms
+                    else
+                        transform :: model.transforms
+            in
+                { model | transforms = newTransforms } ! []
+
         Noop ->
             model ! []
 
@@ -50,23 +70,45 @@ update msg model =
 -- VIEW
 
 
-view : Model -> Html msg
+view : Model -> Html Msg
 view ({ counter } as model) =
     let
         t =
             toFloat counter
     in
-        Html.div
-            [ style
-                [ ( "margin", "2rem" )
-                , ( "border", "1px dashed gray" )
-                , ( "display", "inline-block" )
+        div [ style [ ( "margin", "2rem" ) ] ]
+            [ div [] [ Html.text <| toString model.counter ]
+            , canvasContainer
+                [ collage 300
+                    300
+                    [ batman
+                        |> applyTranforms model.transforms t
+                    ]
+                    |> Element.toHtml
+                ]
+            , div []
+                [ checkbox "Pulsing" Pulsing
+                , checkbox "Circling" Circling
+                , checkbox "Rotating" Rotating
                 ]
             ]
-            [ Html.div [] [ Html.text <| toString model.counter ]
-            , collage 300 300 [ batman |> rotating t ]
-                |> Element.toHtml
+
+
+canvasContainer children =
+    div
+        [ style
+            [ ( "border", "1px dashed gray" )
+            , ( "display", "inline-block" )
             ]
+        ]
+        children
+
+
+checkbox label_ transform =
+    label []
+        [ input [ type_ "checkbox", onClick <| ToggleTransform transform ] []
+        , Html.text label_
+        ]
 
 
 pulsing t =
@@ -81,6 +123,28 @@ rotating t =
     rotate (5 * (sin (t / 300)))
 
 
+applyTranforms : List Transform -> Float -> Form -> Form
+applyTranforms transforms t form =
+    let
+        applyTransform transform form =
+            let
+                fn =
+                    case transform of
+                        Pulsing ->
+                            pulsing
+
+                        Rotating ->
+                            rotating
+
+                        Circling ->
+                            circling
+            in
+                form |> fn t
+    in
+        List.foldl applyTransform form transforms
+
+
+batman : Form
 batman =
     group
         [ circle 50
