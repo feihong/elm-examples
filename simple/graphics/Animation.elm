@@ -12,6 +12,7 @@ import Html.Attributes exposing (style, type_)
 import Html.Events exposing (onClick)
 import Collage exposing (..)
 import Element exposing (Element)
+import AnimationFrame
 
 
 main : Program Never Model Msg
@@ -20,7 +21,7 @@ main =
         { init = ( Model 0 [], Cmd.none )
         , view = view
         , update = update
-        , subscriptions = \_ -> Time.every 10 Tick
+        , subscriptions = \_ -> AnimationFrame.times Tick
         }
 
 
@@ -31,7 +32,7 @@ type Animation
 
 
 type alias Model =
-    { counter : Int
+    { time : Time
     , animations : List Animation
     }
 
@@ -49,8 +50,8 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Tick _ ->
-            { model | counter = model.counter + 1 } ! []
+        Tick time ->
+            { model | time = time } ! []
 
         ToggleAnimation animation ->
             let
@@ -74,27 +75,23 @@ update msg model =
 
 
 view : Model -> Html Msg
-view ({ counter } as model) =
-    let
-        t =
-            toFloat counter
-    in
-        div [ style [ ( "margin", "2rem" ) ] ]
-            [ div [] [ Html.text <| toString model.counter ]
-            , canvasContainer
-                [ collage 300
-                    300
-                    [ batman
-                        |> applyAnimations model.animations t
-                    ]
-                    |> Element.toHtml
+view ({ time } as model) =
+    div [ style [ ( "margin", "2rem" ) ] ]
+        [ div [] [ Html.text <| toString time ]
+        , canvasContainer
+            [ collage 300
+                300
+                [ batman
+                    |> applyAnimations model.animations time
                 ]
-            , div []
-                [ checkbox "Pulsing" Pulsing
-                , checkbox "Circling" Circling
-                , checkbox "Rotating" Rotating
-                ]
+                |> Element.toHtml
             ]
+        , div []
+            [ checkbox "Pulsing" Pulsing
+            , checkbox "Circling" Circling
+            , checkbox "Rotating" Rotating
+            ]
+        ]
 
 
 canvasContainer children =
@@ -115,15 +112,15 @@ checkbox label_ animation =
 
 
 pulsing t =
-    scale (abs (sin (t / 100)))
+    scale (abs (sin (t / 1000)))
 
 
 circling t =
-    move ( (50 * (sin (t / 100))), (50 * (cos (t / 100))) )
+    move ( (50 * (sin (t / 500))), (50 * (cos (t / 500))) )
 
 
 rotating t =
-    rotate (5 * (sin (t / 300)))
+    rotate (5 * (sin (t / 1000)))
 
 
 applyAnimations : List Animation -> Float -> Form -> Form
@@ -199,5 +196,6 @@ batman =
         ]
 
 
+skinColor : Color
 skinColor =
     hsl 0.17 1 0.74
