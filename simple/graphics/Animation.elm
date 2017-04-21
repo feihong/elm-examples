@@ -19,7 +19,7 @@ main =
         { init = ( { counter = 0 }, Cmd.none )
         , view = view
         , update = update
-        , subscriptions = \_ -> Time.every 500 Tick
+        , subscriptions = \_ -> Time.every Time.millisecond Tick
         }
 
 
@@ -51,25 +51,34 @@ update msg model =
 
 
 view : Model -> Html msg
-view model =
-    Html.div
-        [ style
-            [ ( "margin", "2rem" )
-            , ( "border", "1px dashed gray" )
-            , ( "display", "inline-block" )
+view ({ counter } as model) =
+    let
+        t =
+            toFloat counter
+    in
+        Html.div
+            [ style
+                [ ( "margin", "2rem" )
+                , ( "border", "1px dashed gray" )
+                , ( "display", "inline-block" )
+                ]
             ]
-        ]
-        [ Html.div [] [ Html.text <| toString model.counter ]
-        , canvas
-        ]
+            [ Html.div [] [ Html.text <| toString model.counter ]
+            , collage 300 300 [ batman |> rotating t ]
+                |> Element.toHtml
+            ]
 
 
-canvas : Html msg
-canvas =
-    collage 300
-        300
-        [ batman ]
-        |> Element.toHtml
+pulsing t =
+    scale (abs (sin (t / 100)))
+
+
+circling t =
+    move ( (50 * (sin (t / 100))), (50 * (cos (t / 100))) )
+
+
+rotating t =
+    rotate (5 * (sin (t / 300)))
 
 
 batman =
