@@ -27,9 +27,11 @@ playersList : List Player -> Html msg
 playersList players =
     table [ class "table table-striped table-hover players" ]
         [ thead []
-            ([ "ID", "Name", "Level", "Actions" ]
-                |> List.map (\name -> th [] [ text name ])
-            )
+            [ tr []
+                ([ "ID", "Name", "Level", "Actions" ]
+                    |> List.map (\name -> th [] [ text name ])
+                )
+            ]
         , tbody []
             (players
                 |> List.map
