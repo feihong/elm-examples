@@ -6,7 +6,8 @@
     "source-directories": [
         ".",
         "./modules",
-        "./graphics"
+        "./graphics",
+        "./restructuring"
     ],
     "exposed-modules": [],
     "dependencies": {
