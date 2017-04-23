@@ -5,7 +5,6 @@
 
 module Main exposing (..)
 
-import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
@@ -185,7 +184,7 @@ tableHead =
     in
         thead []
             [ tr []
-                ([ "Title", "Author", "Rating" ] |> List.map th_)
+                ([ "Title", "Author", "Rating", "Actions" ] |> List.map th_)
             ]
 
 
@@ -201,10 +200,19 @@ tableBody books =
             tr []
                 [ td_ book.title
                 , td_ book.author
-                , td [] (List.repeat book.rating star)
+                , td [] (List.repeat book.rating (icon "star"))
+                , td []
+                    [ icon "edit"
+                    , text " "
+                    , icon "trash"
+                    ]
                 ]
     in
         tbody [] (books |> List.map tr_)
+
+
+icon slug =
+    span [ class <| "glyphicon glyphicon-" ++ slug ] []
 
 
 bookForm { title, author, rating, errors } =
