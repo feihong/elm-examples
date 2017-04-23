@@ -82,6 +82,7 @@ type Msg
     = NoOp
     | AddFormMsg AddFormMsg
     | AddBook String String Int
+    | DeleteBook Int
 
 
 
@@ -116,6 +117,21 @@ update msg model =
             in
                 { model | books = newBooks } ! []
 
+        DeleteBook index ->
+            let
+                newBooks =
+                    model.books
+                        |> List.indexedMap (,)
+                        |> List.filterMap
+                            (\( i, val ) ->
+                                if index == i then
+                                    Nothing
+                                else
+                                    Just val
+                            )
+            in
+                { model | books = newBooks } ! []
+
 
 updateAddForm : AddFormMsg -> AddForm -> ( AddForm, Maybe Msg )
 updateAddForm msg form =
@@ -132,7 +148,7 @@ updateAddForm msg form =
         Submit ->
             let
                 errors =
-                    validateForm form |> Debug.log "errors"
+                    validateForm form
             in
                 if List.isEmpty errors then
                     ( AddForm "" "" "" []
@@ -196,19 +212,19 @@ tableBody books =
         star =
             span [ class "glyphicon glyphicon-star" ] []
 
-        tr_ book =
+        tr_ index book =
             tr []
                 [ td_ book.title
                 , td_ book.author
                 , td [] (List.repeat book.rating (icon "star"))
                 , td []
-                    [ icon "edit"
+                    [ a [] [ icon "edit" ]
                     , text " "
-                    , icon "trash"
+                    , a [ onClick <| DeleteBook index ] [ icon "trash" ]
                     ]
                 ]
     in
-        tbody [] (books |> List.map tr_)
+        tbody [] (books |> List.indexedMap tr_)
 
 
 icon slug =
