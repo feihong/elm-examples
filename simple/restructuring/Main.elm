@@ -9,6 +9,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
 import Json.Decode as Decode
+import Dom
+import Task
 import Validate exposing (ifBlank)
 import Util
 
@@ -117,7 +119,7 @@ update msg model =
                     | addForm = newForm
                     , books = model.books ++ newBook
                 }
-                    ! []
+                    ! [ Dom.focus "add-book-title-input" |> Task.attempt (\_ -> NoOp) ]
 
         DeleteBook index ->
             let
@@ -174,12 +176,12 @@ view : Model -> Html Msg
 view model =
     div [ class "container" ]
         [ Util.bootstrap
-        , h1 [] [ text "Books" ]
+        , h1 [] [ text "Reading List" ]
         , table [ class "table table-striped" ]
             [ tableHead
             , tableBody model.books
             ]
-        , bookForm model.addForm
+        , addFormView model.addForm
         ]
 
 
@@ -221,7 +223,7 @@ icon slug =
     span [ class <| "glyphicon glyphicon-" ++ slug ] []
 
 
-bookForm { title, author, rating, errors } =
+addFormView { title, author, rating, errors } =
     let
         hasError name =
             errors |> List.any (\( name_, _ ) -> name_ == name)
@@ -235,7 +237,8 @@ bookForm { title, author, rating, errors } =
                         ]
                     ]
                     [ input
-                        [ autofocus True
+                        [ id "add-book-title-input"
+                        , autofocus True
                         , class "form-control"
                         , placeholder "Title"
                         , value title
