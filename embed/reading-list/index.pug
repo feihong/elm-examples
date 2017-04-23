@@ -1,0 +1,22 @@
+extends /bootstrap.pug
+
+block title 
+  | Reading List
+
+block extrahead 
+  link(rel='stylesheet', href='style.styl')
+
+
+block extrascript
+  script(src='Main.elm')
+  script.
+    Elm.Main.embed(document.getElementById('main'))
+    
+block content
+  h1 Reading List
+
+  p An attempt to put in practice #[a(href='https://www.reddit.com/r/elm/comments/5jd2xn/how_to_structure_elm_with_multiple_models/dbuu0m4/') this advice about breaking up monolithic code].
+
+  hr 
+
+  #main

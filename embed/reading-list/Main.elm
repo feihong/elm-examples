@@ -12,7 +12,6 @@ import Json.Decode as Decode
 import Dom
 import Task
 import Validate exposing (ifBlank)
-import Util
 
 
 main : Program Never Model Msg
@@ -174,10 +173,8 @@ stringToRating str =
 
 view : Model -> Html Msg
 view model =
-    div [ class "container" ]
-        [ Util.bootstrap
-        , h1 [] [ text "Reading List" ]
-        , table [ class "table table-striped" ]
+    div []
+        [ table [ class "table table-striped" ]
             [ tableHead
             , tableBody model.books
             ]
