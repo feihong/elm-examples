@@ -65,7 +65,7 @@ init =
             ]
     in
         { books = books
-        , addForm = { title = "", author = "", rating = "", errors = [] }
+        , addForm = { title = "", author = "", rating = "3", errors = [] }
         , showDialog = False
         }
             ! []
@@ -112,7 +112,7 @@ update msg model =
 
                 ( newForm, newBook ) =
                     if List.isEmpty errors then
-                        ( AddForm "" "" "" []
+                        ( AddForm "" "" "3" []
                         , [ Book f.title f.author (stringToRating f.rating) ]
                         )
                     else
@@ -161,7 +161,6 @@ validateForm =
     Validate.all
         [ .title >> ifBlank ( "title", "Please enter a title" )
         , .author >> ifBlank ( "author", "Please enter an author" )
-        , .rating >> ifBlank ( "rating", "Please select a rating" )
         ]
 
 
@@ -300,31 +299,21 @@ addFormView { title, author, rating, errors } =
 
 
 ratingsSelect value_ =
-    let
-        blankOption =
-            option [ value "" ] [ text "Rating" ]
+    select
+        [ class "form-control"
+        , value value_
+        , onInput (AddFormMsg << ChangeRating)
+        ]
+        (ratingOptions value_)
 
-        dividerOption =
-            option [ value "", disabled True ] [ text "-----" ]
 
-        options =
-            List.range 1 5
-                |> List.map toString
-                |> List.map
-                    (\v ->
-                        option
-                            [ value v
-                            , selected <| v == value_
-                            ]
-                            [ text v ]
-                    )
-    in
-        select
-            [ class "form-control"
-            , value value_
-            , onInput (AddFormMsg << ChangeRating)
-            ]
-            (blankOption :: dividerOption :: options)
+ratingOptions value_ =
+    List.range 1 5
+        |> List.map toString
+        |> List.map
+            (\v ->
+                option [ value v, selected <| v == value_ ] [ text v ]
+            )
 
 
 dialogConfig : AddForm -> Dialog.Config Msg
