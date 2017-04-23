@@ -12,6 +12,7 @@ import Json.Decode as Decode
 import Dom
 import Task
 import Validate exposing (ifBlank)
+import Dialog
 
 
 main : Program Never Model Msg
@@ -46,6 +47,7 @@ type alias AddForm =
 type alias Model =
     { books : List Book
     , addForm : AddForm
+    , showDialog : Bool
     }
 
 
@@ -64,6 +66,7 @@ init =
     in
         { books = books
         , addForm = { title = "", author = "", rating = "", errors = [] }
+        , showDialog = False
         }
             ! []
 
@@ -83,6 +86,7 @@ type Msg
     | AddFormMsg AddFormMsg
     | SubmitAddForm
     | DeleteBook Int
+    | ToggleDialog
 
 
 
@@ -135,6 +139,9 @@ update msg model =
             in
                 { model | books = newBooks } ! []
 
+        ToggleDialog ->
+            { model | showDialog = not model.showDialog } ! []
+
 
 updateAddForm : AddFormMsg -> AddForm -> AddForm
 updateAddForm msg form =
@@ -179,6 +186,12 @@ view model =
             , tableBody model.books
             ]
         , addFormView model.addForm
+        , Dialog.view
+            (if model.showDialog then
+                Just <| dialogConfig model
+             else
+                Nothing
+            )
         ]
 
 
@@ -189,7 +202,7 @@ tableHead =
     in
         thead []
             [ tr []
-                ([ "Title", "Author", "Rating", "Actions" ] |> List.map th_)
+                ([ "Title", "Author", "Rating" ] |> List.map th_)
             ]
 
 
@@ -202,15 +215,10 @@ tableBody books =
             span [ class "glyphicon glyphicon-star" ] []
 
         tr_ index book =
-            tr []
+            tr [ onClick ToggleDialog ]
                 [ td_ book.title
                 , td_ book.author
                 , td [] (List.repeat book.rating (icon "star"))
-                , td []
-                    [ a [] [ icon "edit" ]
-                    , text " "
-                    , a [ onClick <| DeleteBook index ] [ icon "trash" ]
-                    ]
                 ]
     in
         tbody [] (books |> List.indexedMap tr_)
@@ -311,3 +319,38 @@ ratingsSelect value_ =
             , onInput (AddFormMsg << ChangeRating)
             ]
             (blankOption :: dividerOption :: options)
+
+
+dialogConfig : Model -> Dialog.Config Msg
+dialogConfig model =
+    { closeMessage = Just ToggleDialog
+    , containerClass = Nothing
+    , header = Just (h4 [ class "modal-title" ] [ text "Edit book" ])
+    , body =
+        Just <|
+            div
+                [ classList
+                    [ ( "form-group", True )
+                    , ( "has-error", True )
+                    ]
+                ]
+                [ input
+                    [ id "new-payer-input"
+                    , class "form-control"
+                    , placeholder "Title"
+                      -- , value model.newPayer
+                      -- , onInput UpdateNewPayer
+                    ]
+                    []
+                , div [ class "help-block" ] [ text "error" ]
+                ]
+    , footer =
+        Just
+            (div []
+                [ button [ class "btn btn-default", onClick ToggleDialog ]
+                    [ text "Cancel" ]
+                , button [ class "btn btn-primary", onClick ToggleDialog ]
+                    [ text "Add" ]
+                ]
+            )
+    }
