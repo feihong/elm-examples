@@ -188,7 +188,7 @@ view model =
         , addFormView model.addForm
         , Dialog.view
             (if model.showDialog then
-                Just <| dialogConfig model
+                Just <| dialogConfig model.addForm
              else
                 Nothing
             )
@@ -321,29 +321,12 @@ ratingsSelect value_ =
             (blankOption :: dividerOption :: options)
 
 
-dialogConfig : Model -> Dialog.Config Msg
-dialogConfig model =
+dialogConfig : AddForm -> Dialog.Config Msg
+dialogConfig form =
     { closeMessage = Just ToggleDialog
     , containerClass = Nothing
     , header = Just (h4 [ class "modal-title" ] [ text "Edit book" ])
-    , body =
-        Just <|
-            div
-                [ classList
-                    [ ( "form-group", True )
-                    , ( "has-error", True )
-                    ]
-                ]
-                [ input
-                    [ id "new-payer-input"
-                    , class "form-control"
-                    , placeholder "Title"
-                      -- , value model.newPayer
-                      -- , onInput UpdateNewPayer
-                    ]
-                    []
-                , div [ class "help-block" ] [ text "error" ]
-                ]
+    , body = Just <| dialogBody form
     , footer =
         Just
             (div []
@@ -354,3 +337,50 @@ dialogConfig model =
                 ]
             )
     }
+
+
+dialogBody form =
+    div [ class "form-horizontal" ]
+        [ dialogInput "Title" form.title "error"
+        , dialogInput "Author" form.author "error"
+        , dialogSelect form.rating "error"
+        ]
+
+
+dialogInput labelName value_ errMesg =
+    div
+        [ classList
+            [ ( "form-group", True )
+            , ( "has-error", not <| String.isEmpty errMesg )
+            ]
+        ]
+        [ label [ class "col-sm-2 control-label" ]
+            [ text labelName ]
+        , div [ class "col-sm-10" ]
+            [ input
+                [ class "form-control"
+                , value value_
+                ]
+                []
+            ]
+        , div [ class "col-sm-offset-2 col-sm-10 help-block" ] [ text errMesg ]
+        ]
+
+
+dialogSelect value_ errMesg =
+    div
+        [ classList
+            [ ( "form-group", True )
+            , ( "has-error", not <| String.isEmpty errMesg )
+            ]
+        ]
+        [ label [ class "col-sm-2 control-label" ] [ text "Rating" ]
+        , div [ class "col-sm-10" ]
+            [ select
+                [ class "form-control"
+                , value value_
+                ]
+                []
+            ]
+        , div [ class "col-sm-offset-2 col-sm-10 help-block" ] [ text errMesg ]
+        ]
