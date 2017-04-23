@@ -218,7 +218,7 @@ tableBody books =
             tr [ onClick ToggleDialog ]
                 [ td_ book.title
                 , td_ book.author
-                , td [] (List.repeat book.rating (icon "star"))
+                , td [] (stars book.rating)
                 ]
     in
         tbody [] (books |> List.indexedMap tr_)
@@ -226,6 +226,12 @@ tableBody books =
 
 icon slug =
     span [ class <| "glyphicon glyphicon-" ++ slug ] []
+
+
+stars rating =
+    List.append
+        (List.repeat rating (icon "star"))
+        (List.repeat (5 - rating) (icon "star-empty"))
 
 
 addFormView { title, author, rating, errors } =
