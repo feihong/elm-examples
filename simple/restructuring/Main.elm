@@ -75,13 +75,12 @@ type AddFormMsg
     = ChangeTitle String
     | ChangeAuthor String
     | ChangeRating String
-    | Submit
 
 
 type Msg
     = NoOp
     | AddFormMsg AddFormMsg
-    | AddBook String String Int
+    | SubmitAddForm
     | DeleteBook Int
 
 
@@ -96,26 +95,29 @@ update msg model =
             model ! []
 
         AddFormMsg msg ->
+            { model | addForm = updateAddForm msg model.addForm } ! []
+
+        SubmitAddForm ->
             let
-                ( newForm, maybeMsg ) =
-                    updateAddForm msg model.addForm
+                f =
+                    model.addForm
 
-                newModel =
-                    { model | addForm = newForm }
+                errors =
+                    validateForm f
+
+                ( newForm, newBook ) =
+                    if List.isEmpty errors then
+                        ( AddForm "" "" "" []
+                        , [ Book f.title f.author (stringToRating f.rating) ]
+                        )
+                    else
+                        ( { f | errors = errors }, [] )
             in
-                case maybeMsg of
-                    Nothing ->
-                        newModel ! []
-
-                    Just newMsg ->
-                        update newMsg newModel
-
-        AddBook title author rating ->
-            let
-                newBooks =
-                    model.books ++ [ Book title author rating ]
-            in
-                { model | books = newBooks } ! []
+                { model
+                    | addForm = newForm
+                    , books = model.books ++ newBook
+                }
+                    ! []
 
         DeleteBook index ->
             let
@@ -133,29 +135,17 @@ update msg model =
                 { model | books = newBooks } ! []
 
 
-updateAddForm : AddFormMsg -> AddForm -> ( AddForm, Maybe Msg )
+updateAddForm : AddFormMsg -> AddForm -> AddForm
 updateAddForm msg form =
     case msg of
         ChangeTitle str ->
-            ( { form | title = str }, Nothing )
+            { form | title = str }
 
         ChangeAuthor str ->
-            ( { form | author = str }, Nothing )
+            { form | author = str }
 
         ChangeRating str ->
-            ( { form | rating = str }, Nothing )
-
-        Submit ->
-            let
-                errors =
-                    validateForm form
-            in
-                if List.isEmpty errors then
-                    ( AddForm "" "" "" []
-                    , Just <| AddBook form.title form.author (stringToInt form.rating)
-                    )
-                else
-                    ( { form | errors = errors }, Nothing )
+            { form | rating = str }
 
 
 validateForm : AddForm -> List ( String, String )
@@ -167,7 +157,7 @@ validateForm =
         ]
 
 
-stringToInt str =
+stringToRating str =
     case Decode.decodeString Decode.int str of
         Ok value ->
             value
@@ -278,7 +268,7 @@ bookForm { title, author, rating, errors } =
                 , div [ class "col-sm-1" ]
                     [ button
                         [ class "btn btn-default"
-                        , onClick (AddFormMsg Submit)
+                        , onClick SubmitAddForm
                         ]
                         [ text "Add" ]
                     ]
