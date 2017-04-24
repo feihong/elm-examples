@@ -49,6 +49,7 @@ type alias Model =
     , addForm : AddForm
     , showDialog : Bool
     , editForm : AddForm
+    , selectedIndex : Int
     }
 
 
@@ -73,6 +74,7 @@ init =
         , addForm = defaultForm
         , showDialog = False
         , editForm = defaultForm
+        , selectedIndex = 0
         }
             ! []
 
@@ -154,7 +156,7 @@ update msg model =
                                     Just val
                             )
             in
-                { model | books = newBooks } ! []
+                { model | books = newBooks, showDialog = False } ! []
 
         SelectBook index ->
             let
@@ -169,7 +171,12 @@ update msg model =
                         Nothing ->
                             defaultForm
             in
-                { model | editForm = newForm, showDialog = True } ! [ focusCmd ]
+                { model
+                    | editForm = newForm
+                    , selectedIndex = index
+                    , showDialog = True
+                }
+                    ! [ focusCmd ]
 
         ToggleDialog ->
             { model | showDialog = not model.showDialog } ! []
@@ -232,7 +239,7 @@ view model =
         , addFormView model.addForm
         , Dialog.view
             (if model.showDialog then
-                Just <| dialogConfig model.editForm
+                Just <| dialogConfig model.editForm model.selectedIndex
              else
                 Nothing
             )
@@ -361,13 +368,13 @@ ratingOptions value_ =
             )
 
 
-dialogConfig : AddForm -> Dialog.Config Msg
-dialogConfig form =
+dialogConfig : AddForm -> Int -> Dialog.Config Msg
+dialogConfig form index =
     { closeMessage = Just ToggleDialog
     , containerClass = Nothing
     , header = Just (h4 [ class "modal-title" ] [ text "Edit book" ])
     , body = Just <| dialogBody form
-    , footer = Just dialogFooter
+    , footer = Just <| dialogFooter index
     }
 
 
@@ -421,9 +428,12 @@ dialogSelect value_ =
         ]
 
 
-dialogFooter =
+dialogFooter index =
     div []
-        [ button [ class "btn btn-danger pull-left", onClick ToggleDialog ]
+        [ button
+            [ class "btn btn-danger pull-left"
+            , onClick <| DeleteBook index
+            ]
             [ text "Delete" ]
         , button [ class "btn btn-default", onClick ToggleDialog ]
             [ text "Cancel" ]
