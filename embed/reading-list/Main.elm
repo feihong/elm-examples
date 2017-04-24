@@ -100,6 +100,7 @@ type Msg
     | AddFormMsg AddFormMsg
     | EditFormMsg EditFormMsg
     | SubmitAddForm
+    | SubmitEditForm
     | SelectBook Int
     | DeleteBook Int
     | ToggleDialog
@@ -131,7 +132,7 @@ update msg model =
 
                 ( newForm, newBook ) =
                     if List.isEmpty errors then
-                        ( AddForm "" "" "3" []
+                        ( defaultForm
                         , [ Book f.title f.author (stringToRating f.rating) ]
                         )
                     else
@@ -142,6 +143,20 @@ update msg model =
                     , books = model.books ++ newBook
                 }
                     ! [ Dom.focus "add-book-title-input" |> Task.attempt (\_ -> NoOp) ]
+
+        SubmitEditForm ->
+            let
+                f =
+                    model.editForm
+
+                newBooks =
+                    if List.isEmpty f.errors then
+                        model.books
+                            |> replaceAt model.selectedIndex (Book f.title f.author (stringToRating f.rating))
+                    else
+                        model.books
+            in
+                { model | books = newBooks, showDialog = False } ! []
 
         DeleteBook index ->
             let
@@ -465,7 +480,7 @@ dialogFooter index =
             [ text "Delete" ]
         , button [ class "btn btn-default", onClick ToggleDialog ]
             [ text "Cancel" ]
-        , button [ class "btn btn-primary", onClick ToggleDialog ]
+        , button [ class "btn btn-primary", onClick SubmitEditForm ]
             [ text "Save" ]
         ]
 
@@ -482,3 +497,16 @@ elementAt index list =
                     Nothing
             )
         |> List.head
+
+
+replaceAt : Int -> a -> List a -> List a
+replaceAt index value list =
+    list
+        |> List.indexedMap (,)
+        |> List.map
+            (\( i, v ) ->
+                if i == index then
+                    value
+                else
+                    v
+            )
