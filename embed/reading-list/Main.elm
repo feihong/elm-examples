@@ -140,7 +140,14 @@ update msg model =
                 { model | books = newBooks } ! []
 
         ToggleDialog ->
-            { model | showDialog = not model.showDialog } ! []
+            let
+                cmds =
+                    if not model.showDialog then
+                        [ Dom.focus "edit-book-title-input" |> Task.attempt (\_ -> NoOp) ]
+                    else
+                        []
+            in
+                { model | showDialog = not model.showDialog } ! cmds
 
 
 updateAddForm : AddFormMsg -> AddForm -> AddForm
@@ -335,23 +342,32 @@ dialogBody form =
 
 
 dialogInput labelName value_ errMesg =
-    div
-        [ classList
-            [ ( "form-group", True )
-            , ( "has-error", not <| String.isEmpty errMesg )
-            ]
-        ]
-        [ label [ class "col-sm-2 control-label" ]
-            [ text labelName ]
-        , div [ class "col-sm-10" ]
-            [ input
-                [ class "form-control"
-                , value value_
-                ]
+    let
+        inputId =
+            if labelName == "Title" then
+                [ id "edit-book-title-input" ]
+            else
                 []
+    in
+        div
+            [ classList
+                [ ( "form-group", True )
+                , ( "has-error", not <| String.isEmpty errMesg )
+                ]
             ]
-        , div [ class "col-sm-offset-2 col-sm-10 help-block" ] [ text errMesg ]
-        ]
+            [ label [ class "col-sm-2 control-label" ]
+                [ text labelName ]
+            , div [ class "col-sm-10" ]
+                [ input
+                    (inputId
+                        ++ [ class "form-control"
+                           , value value_
+                           ]
+                    )
+                    []
+                ]
+            , div [ class "col-sm-offset-2 col-sm-10 help-block" ] [ text errMesg ]
+            ]
 
 
 dialogSelect value_ =
