@@ -36,7 +36,7 @@ type alias Book =
     }
 
 
-type alias AddForm =
+type alias Form =
     { title : String
     , author : String
     , rating : String
@@ -46,37 +46,39 @@ type alias AddForm =
 
 type alias Model =
     { books : List Book
-    , addForm : AddForm
+    , addForm : Form
     , showDialog : Bool
-    , editForm : AddForm
+    , editForm : Form
     , selectedIndex : Int
     }
 
 
+defaultForm : Form
 defaultForm =
     { title = "", author = "", rating = "3", errors = [] }
 
 
+sampleBooks : List Book
+sampleBooks =
+    [ Book "Boxers" "Gene Luen Yang, Lark Pien" 4
+    , Book "Saints" "Gene Luen Yang, Lark Pien" 3
+    , Book "Aama" "Frederik Peeters" 4
+    , Book "The Initiates: A Comic Artist and a Wine Artisan Exchange Jobs"
+        "Étienne Davodeau"
+        5
+    , Book "Blacksad" "Juan Diaz Canales, Juanjo Guarnido" 4
+    ]
+
+
 init : ( Model, Cmd Msg )
 init =
-    let
-        books =
-            [ Book "Boxers" "Gene Luen Yang, Lark Pien" 4
-            , Book "Saints" "Gene Luen Yang, Lark Pien" 3
-            , Book "Aama" "Frederik Peeters" 4
-            , Book "The Initiates: A Comic Artist and a Wine Artisan Exchange Jobs"
-                "Étienne Davodeau"
-                5
-            , Book "Blacksad" "Juan Diaz Canales, Juanjo Guarnido" 4
-            ]
-    in
-        { books = books
-        , addForm = defaultForm
-        , showDialog = False
-        , editForm = defaultForm
-        , selectedIndex = 0
-        }
-            ! []
+    { books = sampleBooks
+    , addForm = defaultForm
+    , showDialog = False
+    , editForm = defaultForm
+    , selectedIndex = 0
+    }
+        ! []
 
 
 
@@ -103,7 +105,7 @@ type Msg
     | SubmitEditForm
     | SelectBook Int
     | DeleteBook Int
-    | ToggleDialog
+    | CloseDialog
 
 
 
@@ -161,15 +163,7 @@ update msg model =
         DeleteBook index ->
             let
                 newBooks =
-                    model.books
-                        |> List.indexedMap (,)
-                        |> List.filterMap
-                            (\( i, val ) ->
-                                if index == i then
-                                    Nothing
-                                else
-                                    Just val
-                            )
+                    model.books |> deleteAt index
             in
                 { model | books = newBooks, showDialog = False } ! []
 
@@ -181,7 +175,7 @@ update msg model =
                 newForm =
                     case elementAt index model.books of
                         Just book ->
-                            AddForm book.title book.author (toString book.rating) []
+                            Form book.title book.author (toString book.rating) []
 
                         Nothing ->
                             defaultForm
@@ -193,11 +187,11 @@ update msg model =
                 }
                     ! [ focusCmd ]
 
-        ToggleDialog ->
-            { model | showDialog = not model.showDialog } ! []
+        CloseDialog ->
+            { model | showDialog = False } ! []
 
 
-updateAddForm : AddFormMsg -> AddForm -> AddForm
+updateAddForm : AddFormMsg -> Form -> Form
 updateAddForm msg form =
     case msg of
         ChangeTitle str ->
@@ -210,7 +204,7 @@ updateAddForm msg form =
             { form | rating = str }
 
 
-updateEditForm : EditFormMsg -> AddForm -> AddForm
+updateEditForm : EditFormMsg -> Form -> Form
 updateEditForm msg form =
     case msg of
         ChangeEditTitle str ->
@@ -237,7 +231,7 @@ updateEditForm msg form =
             { form | rating = str }
 
 
-validateForm : AddForm -> List ( String, String )
+validateForm : Form -> List ( String, String )
 validateForm =
     Validate.all
         [ .title >> ifBlank ( "title", "Please enter a title" )
@@ -290,9 +284,6 @@ tableBody books =
     let
         td_ str =
             td [] [ text str ]
-
-        star =
-            span [ class "glyphicon glyphicon-star" ] []
 
         tr_ index book =
             tr [ onClick <| SelectBook index ]
@@ -397,9 +388,9 @@ ratingOptions value_ =
             )
 
 
-dialogConfig : AddForm -> Int -> Dialog.Config Msg
+dialogConfig : Form -> Int -> Dialog.Config Msg
 dialogConfig form index =
-    { closeMessage = Just ToggleDialog
+    { closeMessage = Just CloseDialog
     , containerClass = Nothing
     , header = Just (h4 [ class "modal-title" ] [ text "Edit book" ])
     , body = Just <| dialogBody form
@@ -479,11 +470,24 @@ dialogFooter index =
             , onClick <| DeleteBook index
             ]
             [ text "Delete" ]
-        , button [ class "btn btn-default", onClick ToggleDialog ]
+        , button [ class "btn btn-default", onClick CloseDialog ]
             [ text "Cancel" ]
         , button [ class "btn btn-primary", onClick SubmitEditForm ]
             [ text "Save" ]
         ]
+
+
+deleteAt : Int -> List a -> List a
+deleteAt index list =
+    list
+        |> List.indexedMap (,)
+        |> List.filterMap
+            (\( i, val ) ->
+                if index == i then
+                    Nothing
+                else
+                    Just val
+            )
 
 
 elementAt : Int -> List a -> Maybe a
