@@ -308,11 +308,11 @@ ratingsSelect value_ =
 
 
 ratingOptions value_ =
-    List.range 1 5
-        |> List.map toString
+    [ ( "1", "Trash" ), ( "2", "Meh" ), ( "3", "Acceptable" ), ( "4", "Good" ), ( "5", "Great" ) ]
         |> List.map
-            (\v ->
-                option [ value v, selected <| v == value_ ] [ text v ]
+            (\( v, str ) ->
+                option [ value v, selected <| v == value_ ]
+                    [ text <| v ++ " - " ++ str ]
             )
 
 
@@ -330,7 +330,7 @@ dialogBody form =
     div [ class "form-horizontal" ]
         [ dialogInput "Title" form.title "error"
         , dialogInput "Author" form.author "error"
-        , dialogSelect form.rating "error"
+        , dialogSelect form.rating
         ]
 
 
@@ -354,22 +354,16 @@ dialogInput labelName value_ errMesg =
         ]
 
 
-dialogSelect value_ errMesg =
-    div
-        [ classList
-            [ ( "form-group", True )
-            , ( "has-error", not <| String.isEmpty errMesg )
-            ]
-        ]
+dialogSelect value_ =
+    div [ class "form-group" ]
         [ label [ class "col-sm-2 control-label" ] [ text "Rating" ]
         , div [ class "col-sm-10" ]
             [ select
                 [ class "form-control"
                 , value value_
                 ]
-                []
+                (ratingOptions value_)
             ]
-        , div [ class "col-sm-offset-2 col-sm-10 help-block" ] [ text errMesg ]
         ]
 
 
