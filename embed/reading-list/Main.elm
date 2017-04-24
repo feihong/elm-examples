@@ -158,6 +158,9 @@ update msg model =
 
         SelectBook index ->
             let
+                focusCmd =
+                    Dom.focus "edit-book-title-input" |> Task.attempt (\_ -> NoOp)
+
                 newForm =
                     case elementAt index model.books of
                         Just book ->
@@ -166,17 +169,10 @@ update msg model =
                         Nothing ->
                             defaultForm
             in
-                { model | editForm = newForm, showDialog = True } ! []
+                { model | editForm = newForm, showDialog = True } ! [ focusCmd ]
 
         ToggleDialog ->
-            let
-                cmds =
-                    if not model.showDialog then
-                        [ Dom.focus "edit-book-title-input" |> Task.attempt (\_ -> NoOp) ]
-                    else
-                        []
-            in
-                { model | showDialog = not model.showDialog } ! cmds
+            { model | showDialog = not model.showDialog } ! []
 
 
 updateAddForm : AddFormMsg -> AddForm -> AddForm
@@ -196,10 +192,10 @@ updateEditForm : EditFormMsg -> AddForm -> AddForm
 updateEditForm msg form =
     case msg of
         ChangeEditTitle str ->
-            { form | title = str }
+            { form | title = str, errors = validateForm form }
 
         ChangeEditAuthor str ->
-            { form | author = str }
+            { form | author = str, errors = validateForm form }
 
         ChangeEditRating str ->
             { form | rating = str }
