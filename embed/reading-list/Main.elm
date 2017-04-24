@@ -48,7 +48,12 @@ type alias Model =
     { books : List Book
     , addForm : AddForm
     , showDialog : Bool
+    , editForm : AddForm
     }
+
+
+defaultForm =
+    { title = "", author = "", rating = "3", errors = [] }
 
 
 init : ( Model, Cmd Msg )
@@ -65,8 +70,9 @@ init =
             ]
     in
         { books = books
-        , addForm = { title = "", author = "", rating = "3", errors = [] }
+        , addForm = defaultForm
         , showDialog = False
+        , editForm = defaultForm
         }
             ! []
 
@@ -81,10 +87,18 @@ type AddFormMsg
     | ChangeRating String
 
 
+type EditFormMsg
+    = ChangeEditTitle String
+    | ChangeEditAuthor String
+    | ChangeEditRating String
+
+
 type Msg
     = NoOp
     | AddFormMsg AddFormMsg
+    | EditFormMsg EditFormMsg
     | SubmitAddForm
+    | SelectBook Int
     | DeleteBook Int
     | ToggleDialog
 
@@ -101,6 +115,9 @@ update msg model =
 
         AddFormMsg msg ->
             { model | addForm = updateAddForm msg model.addForm } ! []
+
+        EditFormMsg msg ->
+            { model | editForm = updateEditForm msg model.addForm } ! []
 
         SubmitAddForm ->
             let
@@ -139,6 +156,18 @@ update msg model =
             in
                 { model | books = newBooks } ! []
 
+        SelectBook index ->
+            let
+                newForm =
+                    case elementAt index model.books of
+                        Just book ->
+                            AddForm book.title book.author (toString book.rating) []
+
+                        Nothing ->
+                            defaultForm
+            in
+                { model | editForm = newForm, showDialog = True } ! []
+
         ToggleDialog ->
             let
                 cmds =
@@ -160,6 +189,19 @@ updateAddForm msg form =
             { form | author = str }
 
         ChangeRating str ->
+            { form | rating = str }
+
+
+updateEditForm : EditFormMsg -> AddForm -> AddForm
+updateEditForm msg form =
+    case msg of
+        ChangeEditTitle str ->
+            { form | title = str }
+
+        ChangeEditAuthor str ->
+            { form | author = str }
+
+        ChangeEditRating str ->
             { form | rating = str }
 
 
@@ -194,7 +236,7 @@ view model =
         , addFormView model.addForm
         , Dialog.view
             (if model.showDialog then
-                Just <| dialogConfig model.addForm
+                Just <| dialogConfig model.editForm
              else
                 Nothing
             )
@@ -221,7 +263,7 @@ tableBody books =
             span [ class "glyphicon glyphicon-star" ] []
 
         tr_ index book =
-            tr [ onClick ToggleDialog ]
+            tr [ onClick <| SelectBook index ]
                 [ td_ book.title
                 , td_ book.author
                 , td [] (stars book.rating)
@@ -392,3 +434,17 @@ dialogFooter =
         , button [ class "btn btn-primary", onClick ToggleDialog ]
             [ text "Save" ]
         ]
+
+
+elementAt : Int -> List a -> Maybe a
+elementAt index list =
+    list
+        |> List.indexedMap (,)
+        |> List.filterMap
+            (\( i, v ) ->
+                if i == index then
+                    Just v
+                else
+                    Nothing
+            )
+        |> List.head
