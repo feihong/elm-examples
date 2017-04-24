@@ -322,15 +322,7 @@ dialogConfig form =
     , containerClass = Nothing
     , header = Just (h4 [ class "modal-title" ] [ text "Edit book" ])
     , body = Just <| dialogBody form
-    , footer =
-        Just
-            (div []
-                [ button [ class "btn btn-default", onClick ToggleDialog ]
-                    [ text "Cancel" ]
-                , button [ class "btn btn-primary", onClick ToggleDialog ]
-                    [ text "Add" ]
-                ]
-            )
+    , footer = Just dialogFooter
     }
 
 
@@ -378,4 +370,15 @@ dialogSelect value_ errMesg =
                 []
             ]
         , div [ class "col-sm-offset-2 col-sm-10 help-block" ] [ text errMesg ]
+        ]
+
+
+dialogFooter =
+    div []
+        [ button [ class "btn btn-danger pull-left", onClick ToggleDialog ]
+            [ text "Delete" ]
+        , button [ class "btn btn-default", onClick ToggleDialog ]
+            [ text "Cancel" ]
+        , button [ class "btn btn-primary", onClick ToggleDialog ]
+            [ text "Save" ]
         ]
