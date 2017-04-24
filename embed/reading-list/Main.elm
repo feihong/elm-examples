@@ -465,6 +465,7 @@ dialogSelect value_ =
             [ select
                 [ class "form-control"
                 , value value_
+                , onInput <| EditFormMsg << ChangeEditRating
                 ]
                 (ratingOptions value_)
             ]
