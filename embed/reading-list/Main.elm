@@ -119,7 +119,7 @@ update msg model =
             { model | addForm = updateAddForm msg model.addForm } ! []
 
         EditFormMsg msg ->
-            { model | editForm = updateEditForm msg model.addForm } ! []
+            { model | editForm = updateEditForm msg model.editForm } ! []
 
         SubmitAddForm ->
             let
@@ -199,10 +199,24 @@ updateEditForm : EditFormMsg -> AddForm -> AddForm
 updateEditForm msg form =
     case msg of
         ChangeEditTitle str ->
-            { form | title = str, errors = validateForm form }
+            let
+                newForm =
+                    { form | title = str }
+
+                errors =
+                    validateForm newForm
+            in
+                { newForm | errors = errors }
 
         ChangeEditAuthor str ->
-            { form | author = str, errors = validateForm form }
+            let
+                newForm =
+                    { form | author = str }
+
+                errors =
+                    validateForm newForm
+            in
+                { newForm | errors = errors }
 
         ChangeEditRating str ->
             { form | rating = str }
@@ -379,14 +393,27 @@ dialogConfig form index =
 
 
 dialogBody form =
-    div [ class "form-horizontal" ]
-        [ dialogInput "Title" form.title "error"
-        , dialogInput "Author" form.author "error"
-        , dialogSelect form.rating
-        ]
+    let
+        getErrMesg name =
+            form.errors
+                |> List.filterMap
+                    (\( key, val ) ->
+                        if key == name then
+                            Just val
+                        else
+                            Nothing
+                    )
+                |> List.head
+                |> Maybe.withDefault ""
+    in
+        div [ class "form-horizontal" ]
+            [ dialogInput "Title" form.title ChangeEditTitle (getErrMesg "title")
+            , dialogInput "Author" form.author ChangeEditAuthor (getErrMesg "author")
+            , dialogSelect form.rating
+            ]
 
 
-dialogInput labelName value_ errMesg =
+dialogInput labelName value_ formMsg errMesg =
     let
         inputId =
             if labelName == "Title" then
@@ -407,6 +434,7 @@ dialogInput labelName value_ errMesg =
                     (inputId
                         ++ [ class "form-control"
                            , value value_
+                           , onInput <| EditFormMsg << formMsg
                            ]
                     )
                     []
