@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onClick, on, keyCode)
+import Html.Events as Events exposing (onInput, onClick)
 import Json.Decode as Decode
 import Task
 import Dom
@@ -41,7 +41,8 @@ init =
 
 type Msg
     = NoOp
-    | ToggleDialog
+    | OpenDialog
+    | CloseDialog
     | ChangeMessage String
     | SubmitMessage
 
@@ -52,15 +53,12 @@ update msg model =
         NoOp ->
             model ! []
 
-        ToggleDialog ->
-            let
-                cmds =
-                    if not model.showDialog then
-                        [ Dom.focus "message-input" |> Task.attempt (\_ -> NoOp) ]
-                    else
-                        []
-            in
-                { model | showDialog = not model.showDialog } ! cmds
+        OpenDialog ->
+            { model | showDialog = True }
+                ! [ Dom.focus "message-input" |> Task.attempt (\_ -> NoOp) ]
+
+        CloseDialog ->
+            { model | showDialog = False } ! []
 
         ChangeMessage str ->
             { model | message = str } ! []
@@ -83,7 +81,7 @@ view model =
         [ Util.bootstrap
         , button
             [ class "btn btn-primary"
-            , onClick ToggleDialog
+            , onClick OpenDialog
             ]
             [ text "Open dialog" ]
         , Dialog.view
@@ -96,16 +94,16 @@ view model =
 
 
 dialogConfig =
-    { closeMessage = Just ToggleDialog
+    { closeMessage = Just CloseDialog
     , containerClass = Nothing
-    , header = Just <| h4 [ class "modal-title" ] [ text "Edit book" ]
+    , header = Just <| h4 [ class "modal-title" ] [ text "A cool dialog" ]
     , body = Just <| dialogBody
     , footer = Just <| dialogFooter
     }
 
 
 dialogBody =
-    div []
+    div [ onKeyEsc CloseDialog ]
         [ div [ class "form-group" ]
             [ label [] [ text "Message" ] ]
         , input
@@ -123,30 +121,40 @@ dialogFooter =
     div []
         [ button
             [ class "btn btn-danger pull-left"
-            , onClick <| ToggleDialog
+            , onClick <| CloseDialog
             ]
             [ text "Delete" ]
-        , button [ class "btn btn-default", onClick ToggleDialog ]
+        , button [ class "btn btn-default", onClick CloseDialog ]
             [ text "Cancel" ]
         , button
             [ class "btn btn-primary"
-            , onClick ToggleDialog
+            , onClick CloseDialog
             ]
             [ text "Save" ]
         ]
 
 
 onKeyEnter : msg -> Html.Attribute msg
-onKeyEnter msg =
+onKeyEnter =
+    onKeyPressHandler <| (==) 13
+
+
+onKeyEsc : msg -> Html.Attribute msg
+onKeyEsc =
+    onKeyPressHandler <| (==) 27
+
+
+onKeyPressHandler : (Int -> Bool) -> msg -> Html.Attribute msg
+onKeyPressHandler keyCodePred msg =
     let
         decoder =
-            keyCode
+            Events.keyCode
                 |> Decode.andThen
                     (\code ->
-                        if code == 13 then
+                        if keyCodePred code then
                             Decode.succeed msg
                         else
                             Decode.fail "not enter key"
                     )
     in
-        on "keypress" decoder
+        Events.on "keypress" decoder
