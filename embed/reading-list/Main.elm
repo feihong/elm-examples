@@ -411,7 +411,7 @@ dialogConfig form =
     , containerClass = Nothing
     , header = Just <| h4 [ class "modal-title" ] [ text "Edit book" ]
     , body = Just <| dialogBody form
-    , footer = Just <| dialogFooter
+    , footer = Just <| dialogFooter form.errors
     }
 
 
@@ -484,7 +484,7 @@ dialogSelect value_ =
         ]
 
 
-dialogFooter =
+dialogFooter errors =
     div []
         [ button
             [ class "btn btn-danger pull-left"
@@ -493,7 +493,11 @@ dialogFooter =
             [ text "Delete" ]
         , button [ class "btn btn-default", onClick CloseDialog ]
             [ text "Cancel" ]
-        , button [ class "btn btn-primary", onClick SubmitEditForm ]
+        , button
+            [ class "btn btn-primary"
+            , onClick SubmitEditForm
+            , disabled <| not <| List.isEmpty errors
+            ]
             [ text "Save" ]
         ]
 
