@@ -91,6 +91,10 @@ type AddFormMsg
     | ChangeRating String
 
 
+{-| Elm won't let us use the same names for these message constructors, even
+    though they have the same meaning as the ones under AddFormMsg. In a larger
+    program, we would move them into a separate module.
+-}
 type EditFormMsg
     = ChangeEditTitle String
     | ChangeEditAuthor String
@@ -125,36 +129,17 @@ update msg model =
             { model | editForm = updateEditForm msg model.editForm } ! []
 
         SubmitAddForm ->
-            let
-                f =
-                    model.addForm
-
-                errors =
-                    validateForm f
-
-                ( newForm, newBook ) =
-                    if List.isEmpty errors then
-                        ( defaultForm
-                        , [ Book f.title f.author (stringToRating f.rating) ]
-                        )
-                    else
-                        ( { f | errors = errors }, [] )
-            in
-                { model
-                    | addForm = newForm
-                    , books = model.books ++ newBook
-                }
-                    ! [ Dom.focus "add-book-title-input" |> Task.attempt (\_ -> NoOp) ]
+            submitAddForm model
 
         SubmitEditForm ->
             let
-                f =
+                form =
                     model.editForm
 
                 newBooks =
-                    if List.isEmpty f.errors then
+                    if List.isEmpty form.errors then
                         model.books
-                            |> replaceAt model.selectedIndex (Book f.title f.author (stringToRating f.rating))
+                            |> replaceAt model.selectedIndex (formToBook form)
                     else
                         model.books
             in
@@ -169,9 +154,6 @@ update msg model =
 
         SelectBook index ->
             let
-                focusCmd =
-                    Dom.focus "edit-book-title-input" |> Task.attempt (\_ -> NoOp)
-
                 newForm =
                     case elementAt index model.books of
                         Just book ->
@@ -185,7 +167,7 @@ update msg model =
                     , selectedIndex = index
                     , showDialog = True
                 }
-                    ! [ focusCmd ]
+                    ! [ Dom.focus "edit-book-title-input" |> Task.attempt (\_ -> NoOp) ]
 
         CloseDialog ->
             { model | showDialog = False } ! []
@@ -231,6 +213,31 @@ updateEditForm msg form =
             { form | rating = str }
 
 
+submitAddForm : Model -> ( Model, Cmd Msg )
+submitAddForm model =
+    let
+        form =
+            model.addForm
+
+        errors =
+            validateForm form
+
+        ( newForm, newBooks, cmds ) =
+            if List.isEmpty errors then
+                ( defaultForm
+                , model.books ++ [ formToBook form ]
+                , [ Dom.focus "add-book-title-input" |> Task.attempt (\_ -> NoOp) ]
+                )
+            else
+                ( { form | errors = errors }, model.books, [] )
+    in
+        { model
+            | addForm = newForm
+            , books = newBooks
+        }
+            ! cmds
+
+
 validateForm : Form -> List ( String, String )
 validateForm =
     Validate.all
@@ -239,13 +246,17 @@ validateForm =
         ]
 
 
-stringToRating str =
-    case Decode.decodeString Decode.int str of
-        Ok value ->
-            value
+formToBook form =
+    let
+        stringToRating str =
+            case Decode.decodeString Decode.int str of
+                Ok value ->
+                    value
 
-        Err _ ->
-            0
+                Err _ ->
+                    0
+    in
+        Book form.title form.author (stringToRating form.rating)
 
 
 
@@ -305,10 +316,17 @@ stars rating =
         (List.repeat (5 - rating) (icon "star-empty"))
 
 
+addFormView : Form -> Html Msg
 addFormView { title, author, rating, errors } =
     let
         hasError name =
             errors |> List.any (\( name_, _ ) -> name_ == name)
+
+        errorText =
+            if List.isEmpty errors then
+                ""
+            else
+                (String.join ". " (List.map Tuple.second errors)) ++ "."
     in
         div [ class "form-horizontal" ]
             [ div [ class "form-group" ]
@@ -324,7 +342,7 @@ addFormView { title, author, rating, errors } =
                         , class "form-control"
                         , placeholder "Title"
                         , value title
-                        , onInput (AddFormMsg << ChangeTitle)
+                        , onInput <| AddFormMsg << ChangeTitle
                         ]
                         []
                     ]
@@ -338,7 +356,7 @@ addFormView { title, author, rating, errors } =
                         [ class "form-control"
                         , placeholder "Author"
                         , value author
-                        , onInput (AddFormMsg << ChangeAuthor)
+                        , onInput <| AddFormMsg << ChangeAuthor
                         ]
                         []
                     ]
@@ -358,15 +376,7 @@ addFormView { title, author, rating, errors } =
                         [ text "Add" ]
                     ]
                 ]
-            , div [ class "help-block" ]
-                [ text <|
-                    case List.head errors of
-                        Just ( _, value ) ->
-                            value
-
-                        Nothing ->
-                            ""
-                ]
+            , div [ class "help-block" ] [ text errorText ]
             ]
 
 
@@ -380,12 +390,13 @@ ratingsSelect value_ =
 
 
 ratingOptions value_ =
-    [ ( "1", "Trash" ), ( "2", "Meh" ), ( "3", "Acceptable" ), ( "4", "Good" ), ( "5", "Great" ) ]
-        |> List.map
-            (\( v, str ) ->
-                option [ value v, selected <| v == value_ ]
-                    [ text <| v ++ " - " ++ str ]
-            )
+    let
+        ratingOption ( v, text_ ) =
+            option [ value v, selected <| v == value_ ]
+                [ text <| v ++ " - " ++ text_ ]
+    in
+        [ ( "1", "Trash" ), ( "2", "Meh" ), ( "3", "Acceptable" ), ( "4", "Good" ), ( "5", "Great" ) ]
+            |> List.map ratingOption
 
 
 dialogConfig : Form -> Int -> Dialog.Config Msg
