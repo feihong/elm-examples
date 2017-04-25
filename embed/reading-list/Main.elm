@@ -13,6 +13,7 @@ import Dom
 import Task
 import Validate exposing (ifBlank)
 import Dialog
+import ListUtil
 
 
 main : Program Never Model Msg
@@ -140,7 +141,7 @@ update msg model =
                 newBooks =
                     if List.isEmpty form.errors then
                         model.books
-                            |> replaceAt model.selectedIndex (formToBook form)
+                            |> ListUtil.replaceAt model.selectedIndex (formToBook form)
                     else
                         model.books
             in
@@ -149,14 +150,14 @@ update msg model =
         DeleteBook ->
             let
                 newBooks =
-                    model.books |> deleteAt model.selectedIndex
+                    model.books |> ListUtil.deleteAt model.selectedIndex
             in
                 { model | books = newBooks, showDialog = False } ! []
 
         SelectBook index ->
             let
                 newForm =
-                    case elementAt index model.books of
+                    case ListUtil.elementAt index model.books of
                         Just book ->
                             bookToForm book
 
@@ -433,7 +434,7 @@ dialogBody { title, author, rating, errors } =
 
         getErrMesg name =
             errors
-                |> elementWith (\( key, val ) -> name == key)
+                |> ListUtil.elementWith (\( key, val ) -> name == key)
                 |> Maybe.map Tuple.second
                 |> Maybe.withDefault ""
     in
@@ -514,48 +515,3 @@ dialogFooter { errors, dirty } =
                 ]
                 [ text "Save" ]
             ]
-
-
-deleteAt : Int -> List a -> List a
-deleteAt index list =
-    list
-        |> List.indexedMap (,)
-        |> List.filterMap
-            (\( i, val ) ->
-                if index == i then
-                    Nothing
-                else
-                    Just val
-            )
-
-
-elementAt : Int -> List a -> Maybe a
-elementAt index list =
-    list
-        |> List.indexedMap (,)
-        |> List.filterMap
-            (\( i, v ) ->
-                if i == index then
-                    Just v
-                else
-                    Nothing
-            )
-        |> List.head
-
-
-replaceAt : Int -> a -> List a -> List a
-replaceAt index value list =
-    list
-        |> List.indexedMap (,)
-        |> List.map
-            (\( i, v ) ->
-                if i == index then
-                    value
-                else
-                    v
-            )
-
-
-elementWith : (a -> Bool) -> List a -> Maybe a
-elementWith pred list =
-    list |> List.filter pred |> List.head
