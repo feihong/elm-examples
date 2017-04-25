@@ -108,7 +108,7 @@ type Msg
     | SubmitAddForm
     | SubmitEditForm
     | SelectBook Int
-    | DeleteBook Int
+    | DeleteBook
     | CloseDialog
 
 
@@ -145,10 +145,10 @@ update msg model =
             in
                 { model | books = newBooks, showDialog = False } ! []
 
-        DeleteBook index ->
+        DeleteBook ->
             let
                 newBooks =
-                    model.books |> deleteAt index
+                    model.books |> deleteAt model.selectedIndex
             in
                 { model | books = newBooks, showDialog = False } ! []
 
@@ -274,7 +274,7 @@ view model =
         , addFormView model.addForm
         , Dialog.view
             (if model.showDialog then
-                Just <| dialogConfig model.editForm model.selectedIndex
+                Just <| dialogConfig model.editForm
              else
                 Nothing
             )
@@ -405,13 +405,13 @@ ratingOptions value_ =
             |> List.map ratingOption
 
 
-dialogConfig : Form -> Int -> Dialog.Config Msg
-dialogConfig form selectedIndex =
+dialogConfig : Form -> Dialog.Config Msg
+dialogConfig form =
     { closeMessage = Just CloseDialog
     , containerClass = Nothing
     , header = Just <| h4 [ class "modal-title" ] [ text "Edit book" ]
     , body = Just <| dialogBody form
-    , footer = Just <| dialogFooter selectedIndex
+    , footer = Just <| dialogFooter
     }
 
 
@@ -484,11 +484,11 @@ dialogSelect value_ =
         ]
 
 
-dialogFooter index =
+dialogFooter =
     div []
         [ button
             [ class "btn btn-danger pull-left"
-            , onClick <| DeleteBook index
+            , onClick <| DeleteBook
             ]
             [ text "Delete" ]
         , button [ class "btn btn-default", onClick CloseDialog ]
