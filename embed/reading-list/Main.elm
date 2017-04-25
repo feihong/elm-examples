@@ -246,6 +246,7 @@ validateForm =
         ]
 
 
+formToBook : Form -> Book
 formToBook form =
     let
         stringToRating str =
@@ -384,7 +385,7 @@ ratingsSelect value_ =
     select
         [ class "form-control"
         , value value_
-        , onInput (AddFormMsg << ChangeRating)
+        , onInput <| AddFormMsg << ChangeRating
         ]
         (ratingOptions value_)
 
@@ -395,24 +396,32 @@ ratingOptions value_ =
             option [ value v, selected <| v == value_ ]
                 [ text <| v ++ " - " ++ text_ ]
     in
-        [ ( "1", "Trash" ), ( "2", "Meh" ), ( "3", "Acceptable" ), ( "4", "Good" ), ( "5", "Great" ) ]
+        [ ( "1", "Trash" )
+        , ( "2", "Meh" )
+        , ( "3", "Acceptable" )
+        , ( "4", "Good" )
+        , ( "5", "Great" )
+        ]
             |> List.map ratingOption
 
 
 dialogConfig : Form -> Int -> Dialog.Config Msg
-dialogConfig form index =
+dialogConfig form selectedIndex =
     { closeMessage = Just CloseDialog
     , containerClass = Nothing
-    , header = Just (h4 [ class "modal-title" ] [ text "Edit book" ])
+    , header = Just <| h4 [ class "modal-title" ] [ text "Edit book" ]
     , body = Just <| dialogBody form
-    , footer = Just <| dialogFooter index
+    , footer = Just <| dialogFooter selectedIndex
     }
 
 
-dialogBody form =
+dialogBody { title, author, rating, errors } =
     let
+        hasError name =
+            errors |> List.any (\( key, val ) -> name == key)
+
         getErrMesg name =
-            form.errors
+            errors
                 |> List.filterMap
                     (\( key, val ) ->
                         if key == name then
@@ -424,39 +433,46 @@ dialogBody form =
                 |> Maybe.withDefault ""
     in
         div [ class "form-horizontal" ]
-            [ dialogInput "Title" form.title ChangeEditTitle (getErrMesg "title")
-            , dialogInput "Author" form.author ChangeEditAuthor (getErrMesg "author")
-            , dialogSelect form.rating
-            ]
-
-
-dialogInput labelName value_ formMsg errMesg =
-    let
-        inputId =
-            if labelName == "Title" then
-                [ id "edit-book-title-input" ]
-            else
-                []
-    in
-        div
-            [ classList
-                [ ( "form-group", True )
-                , ( "has-error", not <| String.isEmpty errMesg )
+            [ div
+                [ classList
+                    [ ( "form-group", True )
+                    , ( "has-error", hasError "title" )
+                    ]
                 ]
-            ]
-            [ label [ class "col-sm-2 control-label" ]
-                [ text labelName ]
-            , div [ class "col-sm-10" ]
-                [ input
-                    (inputId
-                        ++ [ class "form-control"
-                           , value value_
-                           , onInput <| EditFormMsg << formMsg
-                           ]
-                    )
-                    []
+                [ label [ class "col-sm-2 control-label" ]
+                    [ text "Title" ]
+                , div [ class "col-sm-10" ]
+                    [ input
+                        [ id "edit-form-title-input"
+                        , class "form-control"
+                        , value title
+                        , onInput <| EditFormMsg << ChangeEditTitle
+                        ]
+                        []
+                    ]
+                , div [ class "col-sm-offset-2 col-sm-10 help-block" ]
+                    [ text <| getErrMesg "title" ]
                 ]
-            , div [ class "col-sm-offset-2 col-sm-10 help-block" ] [ text errMesg ]
+            , div
+                [ classList
+                    [ ( "form-group", True )
+                    , ( "has-error", hasError "author" )
+                    ]
+                ]
+                [ label [ class "col-sm-2 control-label" ]
+                    [ text "Author" ]
+                , div [ class "col-sm-10" ]
+                    [ input
+                        [ class "form-control"
+                        , value author
+                        , onInput <| EditFormMsg << ChangeEditAuthor
+                        ]
+                        []
+                    ]
+                , div [ class "col-sm-offset-2 col-sm-10 help-block" ]
+                    [ text <| getErrMesg "author" ]
+                ]
+            , dialogSelect rating
             ]
 
 
