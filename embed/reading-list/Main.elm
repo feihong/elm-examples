@@ -41,6 +41,7 @@ type alias Form =
     , author : String
     , rating : String
     , errors : List ( String, String )
+    , dirty : Bool
     }
 
 
@@ -55,7 +56,7 @@ type alias Model =
 
 defaultForm : Form
 defaultForm =
-    { title = "", author = "", rating = "3", errors = [] }
+    { title = "", author = "", rating = "3", errors = [], dirty = False }
 
 
 sampleBooks : List Book
@@ -157,7 +158,7 @@ update msg model =
                 newForm =
                     case elementAt index model.books of
                         Just book ->
-                            Form book.title book.author (toString book.rating) []
+                            bookToForm book
 
                         Nothing ->
                             defaultForm
@@ -167,7 +168,7 @@ update msg model =
                     , selectedIndex = index
                     , showDialog = True
                 }
-                    ! [ Dom.focus "edit-book-title-input" |> Task.attempt (\_ -> NoOp) ]
+                    ! []
 
         CloseDialog ->
             { model | showDialog = False } ! []
@@ -197,7 +198,7 @@ updateEditForm msg form =
                 errors =
                     validateForm newForm
             in
-                { newForm | errors = errors }
+                { newForm | errors = errors, dirty = True }
 
         ChangeEditAuthor str ->
             let
@@ -207,10 +208,10 @@ updateEditForm msg form =
                 errors =
                     validateForm newForm
             in
-                { newForm | errors = errors }
+                { newForm | errors = errors, dirty = True }
 
         ChangeEditRating str ->
-            { form | rating = str }
+            { form | rating = str, dirty = True }
 
 
 submitAddForm : Model -> ( Model, Cmd Msg )
@@ -258,6 +259,16 @@ formToBook form =
                     0
     in
         Book form.title form.author (stringToRating form.rating)
+
+
+bookToForm : Book -> Form
+bookToForm { title, author, rating } =
+    { title = title
+    , author = author
+    , rating = (toString rating)
+    , errors = []
+    , dirty = False
+    }
 
 
 
@@ -411,7 +422,7 @@ dialogConfig form =
     , containerClass = Nothing
     , header = Just <| h4 [ class "modal-title" ] [ text "Edit book" ]
     , body = Just <| dialogBody form
-    , footer = Just <| dialogFooter form.errors
+    , footer = Just <| dialogFooter form
     }
 
 
@@ -437,8 +448,7 @@ dialogBody { title, author, rating, errors } =
                     [ text "Title" ]
                 , div [ class "col-sm-10" ]
                     [ input
-                        [ id "edit-form-title-input"
-                        , class "form-control"
+                        [ class "form-control"
                         , value title
                         , onInput <| EditFormMsg << ChangeEditTitle
                         ]
@@ -484,22 +494,26 @@ dialogSelect value_ =
         ]
 
 
-dialogFooter errors =
-    div []
-        [ button
-            [ class "btn btn-danger pull-left"
-            , onClick <| DeleteBook
+dialogFooter { errors, dirty } =
+    let
+        enabled =
+            List.isEmpty errors && dirty
+    in
+        div []
+            [ button
+                [ class "btn btn-danger pull-left"
+                , onClick <| DeleteBook
+                ]
+                [ text "Delete" ]
+            , button [ class "btn btn-default", onClick CloseDialog ]
+                [ text "Cancel" ]
+            , button
+                [ class "btn btn-primary"
+                , onClick SubmitEditForm
+                , disabled <| not enabled
+                ]
+                [ text "Save" ]
             ]
-            [ text "Delete" ]
-        , button [ class "btn btn-default", onClick CloseDialog ]
-            [ text "Cancel" ]
-        , button
-            [ class "btn btn-primary"
-            , onClick SubmitEditForm
-            , disabled <| not <| List.isEmpty errors
-            ]
-            [ text "Save" ]
-        ]
 
 
 deleteAt : Int -> List a -> List a
