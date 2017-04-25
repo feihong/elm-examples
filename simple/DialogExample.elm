@@ -4,6 +4,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
 import Json.Decode as Decode
+import Task
+import Dom
 import Dialog
 import Util
 
@@ -48,7 +50,14 @@ update msg model =
             model ! []
 
         ToggleDialog ->
-            { model | showDialog = not model.showDialog } ! []
+            let
+                cmds =
+                    if not model.showDialog then
+                        [ Dom.focus "message-input" |> Task.attempt (\_ -> NoOp) ]
+                    else
+                        []
+            in
+                { model | showDialog = not model.showDialog } ! cmds
 
 
 
@@ -84,7 +93,14 @@ dialogConfig =
 
 dialogBody =
     div []
-        [ text "body"
+        [ div [ class "form-group" ]
+            [ label [] [ text "Message" ] ]
+        , input
+            [ id "message-input"
+            , class "form-control"
+            , placeholder "Enter your message"
+            ]
+            []
         ]
 
 
