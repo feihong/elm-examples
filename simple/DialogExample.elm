@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onClick)
+import Html.Events exposing (onInput, onClick, on, keyCode)
 import Json.Decode as Decode
 import Task
 import Dom
@@ -26,12 +26,13 @@ main =
 
 type alias Model =
     { showDialog : Bool
+    , message : String
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    { showDialog = False } ! []
+    { showDialog = False, message = "" } ! []
 
 
 
@@ -41,6 +42,8 @@ init =
 type Msg
     = NoOp
     | ToggleDialog
+    | ChangeMessage String
+    | SubmitMessage
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -58,6 +61,16 @@ update msg model =
                         []
             in
                 { model | showDialog = not model.showDialog } ! cmds
+
+        ChangeMessage str ->
+            { model | message = str } ! []
+
+        SubmitMessage ->
+            let
+                _ =
+                    Debug.log "submit message" model.message
+            in
+                { model | showDialog = False } ! []
 
 
 
@@ -99,6 +112,8 @@ dialogBody =
             [ id "message-input"
             , class "form-control"
             , placeholder "Enter your message"
+            , onInput ChangeMessage
+            , onKeyEnter SubmitMessage
             ]
             []
         ]
@@ -119,3 +134,19 @@ dialogFooter =
             ]
             [ text "Save" ]
         ]
+
+
+onKeyEnter : msg -> Html.Attribute msg
+onKeyEnter msg =
+    let
+        decoder =
+            keyCode
+                |> Decode.andThen
+                    (\code ->
+                        if code == 13 then
+                            Decode.succeed msg
+                        else
+                            Decode.fail "not enter key"
+                    )
+    in
+        on "keypress" decoder
