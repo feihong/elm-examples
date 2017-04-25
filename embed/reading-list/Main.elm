@@ -422,14 +422,8 @@ dialogBody { title, author, rating, errors } =
 
         getErrMesg name =
             errors
-                |> List.filterMap
-                    (\( key, val ) ->
-                        if key == name then
-                            Just val
-                        else
-                            Nothing
-                    )
-                |> List.head
+                |> elementWith (\( key, val ) -> name == key)
+                |> Maybe.map Tuple.second
                 |> Maybe.withDefault ""
     in
         div [ class "form-horizontal" ]
@@ -542,3 +536,8 @@ replaceAt index value list =
                 else
                     v
             )
+
+
+elementWith : (a -> Bool) -> List a -> Maybe a
+elementWith pred list =
+    list |> List.filter pred |> List.head
