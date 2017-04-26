@@ -11,11 +11,10 @@ import Html.Events exposing (onInput, onClick)
 import Json.Decode as Decode
 import Dom
 import Task
-import Validate exposing (ifBlank)
-import Dialog
 import Model exposing (..)
 import Msg exposing (..)
 import AddForm
+import EditForm
 import ListUtil
 import ViewUtil exposing (..)
 
@@ -71,7 +70,7 @@ update msg model =
             { model | addForm = AddForm.update msg model.addForm } ! []
 
         EditFormMsg msg ->
-            { model | editForm = updateEditForm msg model.editForm } ! []
+            { model | editForm = EditForm.update msg model.editForm } ! []
 
         SubmitAddForm ->
             submitAddForm model
@@ -118,46 +117,6 @@ update msg model =
             { model | showDialog = False } ! []
 
 
-updateAddForm : AddFormMsg -> Form -> Form
-updateAddForm msg form =
-    case msg of
-        ChangeTitle str ->
-            { form | title = str }
-
-        ChangeAuthor str ->
-            { form | author = str }
-
-        ChangeRating str ->
-            { form | rating = str }
-
-
-updateEditForm : EditFormMsg -> Form -> Form
-updateEditForm msg form =
-    case msg of
-        ChangeEditTitle str ->
-            let
-                newForm =
-                    { form | title = str }
-
-                errors =
-                    validateForm newForm
-            in
-                { newForm | errors = errors, dirty = True }
-
-        ChangeEditAuthor str ->
-            let
-                newForm =
-                    { form | author = str }
-
-                errors =
-                    validateForm newForm
-            in
-                { newForm | errors = errors, dirty = True }
-
-        ChangeEditRating str ->
-            { form | rating = str, dirty = True }
-
-
 submitAddForm : Model -> ( Model, Cmd Msg )
 submitAddForm model =
     let
@@ -181,14 +140,6 @@ submitAddForm model =
             , books = newBooks
         }
             ! cmds
-
-
-validateForm : Form -> List ( String, String )
-validateForm =
-    Validate.all
-        [ .title >> ifBlank ( "title", "Please enter a title" )
-        , .author >> ifBlank ( "author", "Please enter an author" )
-        ]
 
 
 formToBook : Form -> Book
@@ -227,12 +178,7 @@ view model =
             , tableBody model.books
             ]
         , AddForm.view model.addForm
-        , Dialog.view
-            (if model.showDialog then
-                Just <| dialogConfig model.editForm
-             else
-                Nothing
-            )
+        , EditForm.view model.editForm model.showDialog
         ]
 
 
@@ -270,103 +216,3 @@ stars rating =
     List.append
         (List.repeat rating (icon "star"))
         (List.repeat (5 - rating) (icon "star-empty"))
-
-
-dialogConfig : Form -> Dialog.Config Msg
-dialogConfig form =
-    { closeMessage = Just CloseDialog
-    , containerClass = Nothing
-    , header = Just <| h4 [ class "modal-title" ] [ text "Edit book" ]
-    , body = Just <| dialogBody form
-    , footer = Just <| dialogFooter form
-    }
-
-
-dialogBody { title, author, rating, errors } =
-    let
-        hasError name =
-            errors |> List.any (\( key, val ) -> name == key)
-
-        getErrMesg name =
-            errors
-                |> ListUtil.elementWith (\( key, val ) -> name == key)
-                |> Maybe.map Tuple.second
-                |> Maybe.withDefault ""
-    in
-        div [ class "form-horizontal" ]
-            [ div
-                [ classList
-                    [ ( "form-group", True )
-                    , ( "has-error", hasError "title" )
-                    ]
-                ]
-                [ label [ class "col-sm-2 control-label" ]
-                    [ text "Title" ]
-                , div [ class "col-sm-10" ]
-                    [ input
-                        [ class "form-control"
-                        , value title
-                        , onInput <| EditFormMsg << ChangeEditTitle
-                        ]
-                        []
-                    ]
-                , div [ class "col-sm-offset-2 col-sm-10 help-block" ]
-                    [ text <| getErrMesg "title" ]
-                ]
-            , div
-                [ classList
-                    [ ( "form-group", True )
-                    , ( "has-error", hasError "author" )
-                    ]
-                ]
-                [ label [ class "col-sm-2 control-label" ]
-                    [ text "Author" ]
-                , div [ class "col-sm-10" ]
-                    [ input
-                        [ class "form-control"
-                        , value author
-                        , onInput <| EditFormMsg << ChangeEditAuthor
-                        ]
-                        []
-                    ]
-                , div [ class "col-sm-offset-2 col-sm-10 help-block" ]
-                    [ text <| getErrMesg "author" ]
-                ]
-            , dialogSelect rating
-            ]
-
-
-dialogSelect value_ =
-    div [ class "form-group" ]
-        [ label [ class "col-sm-2 control-label" ] [ text "Rating" ]
-        , div [ class "col-sm-10" ]
-            [ select
-                [ class "form-control"
-                , value value_
-                , onInput <| EditFormMsg << ChangeEditRating
-                ]
-                (ratingOptions value_)
-            ]
-        ]
-
-
-dialogFooter { errors, dirty } =
-    let
-        enabled =
-            List.isEmpty errors && dirty
-    in
-        div []
-            [ button
-                [ class "btn btn-danger pull-left"
-                , onClick <| DeleteBook
-                ]
-                [ text "Delete" ]
-            , button [ class "btn btn-default", onClick CloseDialog ]
-                [ text "Cancel" ]
-            , button
-                [ class "btn btn-primary"
-                , onClick SubmitEditForm
-                , disabled <| not enabled
-                ]
-                [ text "Save" ]
-            ]

@@ -3,7 +3,17 @@ module ViewUtil exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
+import Validate exposing (ifBlank)
+import Model exposing (..)
 import Msg exposing (..)
+
+
+validateForm : Form -> List ( String, String )
+validateForm =
+    Validate.all
+        [ .title >> ifBlank ( "title", "Please enter a title" )
+        , .author >> ifBlank ( "author", "Please enter an author" )
+        ]
 
 
 ratingsSelect value_ =
