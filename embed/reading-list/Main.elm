@@ -13,7 +13,11 @@ import Dom
 import Task
 import Validate exposing (ifBlank)
 import Dialog
+import Model exposing (..)
+import Msg exposing (..)
+import AddForm
 import ListUtil
+import ViewUtil exposing (..)
 
 
 main : Program Never Model Msg
@@ -28,36 +32,6 @@ main =
 
 
 -- MODEL
-
-
-type alias Book =
-    { title : String
-    , author : String
-    , rating : Int
-    }
-
-
-type alias Form =
-    { title : String
-    , author : String
-    , rating : String
-    , errors : List ( String, String )
-    , dirty : Bool
-    }
-
-
-type alias Model =
-    { books : List Book
-    , addForm : Form
-    , showDialog : Bool
-    , editForm : Form
-    , selectedIndex : Int
-    }
-
-
-defaultForm : Form
-defaultForm =
-    { title = "", author = "", rating = "3", errors = [], dirty = False }
 
 
 sampleBooks : List Book
@@ -87,37 +61,6 @@ init =
 -- UPDATE
 
 
-type AddFormMsg
-    = ChangeTitle String
-    | ChangeAuthor String
-    | ChangeRating String
-
-
-{-| Elm won't let us use the same names for these message constructors, even
-    though they have the same meaning as the ones under AddFormMsg. In a larger
-    program, we would move them into a separate module.
--}
-type EditFormMsg
-    = ChangeEditTitle String
-    | ChangeEditAuthor String
-    | ChangeEditRating String
-
-
-type Msg
-    = NoOp
-    | AddFormMsg AddFormMsg
-    | EditFormMsg EditFormMsg
-    | SubmitAddForm
-    | SubmitEditForm
-    | SelectBook Int
-    | DeleteBook
-    | CloseDialog
-
-
-
--- | SubmitBook
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -125,7 +68,7 @@ update msg model =
             model ! []
 
         AddFormMsg msg ->
-            { model | addForm = updateAddForm msg model.addForm } ! []
+            { model | addForm = AddForm.update msg model.addForm } ! []
 
         EditFormMsg msg ->
             { model | editForm = updateEditForm msg model.editForm } ! []
@@ -283,7 +226,7 @@ view model =
             [ tableHead
             , tableBody model.books
             ]
-        , addFormView model.addForm
+        , AddForm.view model.addForm
         , Dialog.view
             (if model.showDialog then
                 Just <| dialogConfig model.editForm
@@ -327,94 +270,6 @@ stars rating =
     List.append
         (List.repeat rating (icon "star"))
         (List.repeat (5 - rating) (icon "star-empty"))
-
-
-addFormView : Form -> Html Msg
-addFormView { title, author, rating, errors } =
-    let
-        hasError name =
-            errors |> List.any (\( name_, _ ) -> name_ == name)
-
-        errorText =
-            if List.isEmpty errors then
-                ""
-            else
-                (String.join ". " (List.map Tuple.second errors)) ++ "."
-    in
-        div [ class "form-horizontal" ]
-            [ div [ class "form-group" ]
-                [ div
-                    [ classList
-                        [ ( "col-sm-4", True )
-                        , ( "has-error", hasError "title" )
-                        ]
-                    ]
-                    [ input
-                        [ id "add-book-title-input"
-                        , autofocus True
-                        , class "form-control"
-                        , placeholder "Title"
-                        , value title
-                        , onInput <| AddFormMsg << ChangeTitle
-                        ]
-                        []
-                    ]
-                , div
-                    [ classList
-                        [ ( "col-sm-4", True )
-                        , ( "has-error", hasError "author" )
-                        ]
-                    ]
-                    [ input
-                        [ class "form-control"
-                        , placeholder "Author"
-                        , value author
-                        , onInput <| AddFormMsg << ChangeAuthor
-                        ]
-                        []
-                    ]
-                , div
-                    [ classList
-                        [ ( "col-sm-3", True )
-                        , ( "has-error", hasError "rating" )
-                        ]
-                    ]
-                    [ ratingsSelect rating
-                    ]
-                , div [ class "col-sm-1" ]
-                    [ button
-                        [ class "btn btn-default"
-                        , onClick SubmitAddForm
-                        ]
-                        [ text "Add" ]
-                    ]
-                ]
-            , div [ class "help-block" ] [ text errorText ]
-            ]
-
-
-ratingsSelect value_ =
-    select
-        [ class "form-control"
-        , value value_
-        , onInput <| AddFormMsg << ChangeRating
-        ]
-        (ratingOptions value_)
-
-
-ratingOptions value_ =
-    let
-        ratingOption ( v, text_ ) =
-            option [ value v, selected <| v == value_ ]
-                [ text <| v ++ " - " ++ text_ ]
-    in
-        [ ( "1", "Trash" )
-        , ( "2", "Meh" )
-        , ( "3", "Acceptable" )
-        , ( "4", "Good" )
-        , ( "5", "Great" )
-        ]
-            |> List.map ratingOption
 
 
 dialogConfig : Form -> Dialog.Config Msg
