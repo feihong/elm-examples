@@ -1,3 +1,9 @@
+{- Note that you can't completely handle the ESC key for closing the modal
+   unless you bind the key event to document. There's no decent way to do
+   something like that in Elm, as far as I know.
+-}
+
+
 module Main exposing (..)
 
 import Html exposing (..)
@@ -77,7 +83,7 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [ style [ ( "margin", "2rem" ) ] ]
+    div [ style [ ( "margin", "2rem" ) ], onKeyEsc CloseDialog ]
         [ Util.bootstrap
         , button
             [ class "btn btn-primary"
@@ -103,7 +109,7 @@ dialogConfig =
 
 
 dialogBody =
-    div [ onKeyEsc CloseDialog ]
+    div []
         [ div [ class "form-group" ]
             [ label [] [ text "Message" ] ]
         , input
@@ -128,7 +134,7 @@ dialogFooter =
             [ text "Cancel" ]
         , button
             [ class "btn btn-primary"
-            , onClick CloseDialog
+            , onClick SubmitMessage
             ]
             [ text "Save" ]
         ]
