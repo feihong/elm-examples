@@ -8,6 +8,31 @@ import Navigation
 import Util
 
 
+type alias Content =
+    { slug : String, title : String, color : Color }
+
+
+defaultContent =
+    Content "" "Navigation Example" white
+
+
+contents =
+    [ Content "bears" "熊" brown
+    , Content "cats" "猫" orange
+    , Content "dogs" "狗" yellow
+    , Content "elephants" "象" gray
+    , Content "fish" "鱼" blue
+    ]
+
+
+getContent : String -> Content
+getContent slug_ =
+    contents
+        |> List.filter (\{ slug } -> slug_ == "#" ++ slug)
+        |> List.head
+        |> Maybe.withDefault defaultContent
+
+
 main =
     Navigation.program UrlChange
         { init = init
@@ -57,7 +82,7 @@ update msg model =
         UrlChange location ->
             let
                 _ =
-                    Debug.log "url change" location
+                    Debug.log "url change location" location
             in
                 { model | history = location :: model.history } ! []
 
@@ -75,7 +100,7 @@ view model =
         [ Util.bootstrap
         , div [ class "row" ]
             [ sidebar model
-            , mainView (getHash model)
+            , mainView (model |> getHash |> getContent)
             ]
         ]
 
@@ -83,19 +108,23 @@ view model =
 sidebar model =
     div [ class "col-sm-4" ]
         [ h2 [] [ text "Pages" ]
-        , ul [] (List.map viewLink [ "bears", "cats", "dogs", "elephants", "fish" ])
+        , ul [] (List.map viewLink contents)
         , h2 [] [ text "History" ]
         , ul [] (List.map viewLocation model.history)
         ]
 
 
-mainView hash =
-    div [ class "col-sm-8" ] [ text "hash" ]
+mainView { title } =
+    div [ class "col-sm-8" ]
+        [ h1 [] [ text title ] ]
 
 
-viewLink : String -> Html msg
-viewLink name =
-    li [] [ a [ href ("#" ++ name) ] [ text name ] ]
+viewLink : Content -> Html msg
+viewLink { slug, title } =
+    li []
+        [ a [ href ("#" ++ slug) ]
+            [ text title ]
+        ]
 
 
 viewLocation : Navigation.Location -> Html msg
@@ -103,7 +132,6 @@ viewLocation location =
     li [] [ text (location.pathname ++ location.hash) ]
 
 
-getHash : Model -> String
 getHash model =
     List.head model.history
         |> Maybe.map (\location -> location.hash)
