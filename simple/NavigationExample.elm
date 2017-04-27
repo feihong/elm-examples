@@ -1,36 +1,9 @@
 module Main exposing (..)
 
-import Color exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Navigation
 import Util
-
-
-type alias Content =
-    { slug : String, title : String, color : Color }
-
-
-defaultContent =
-    Content "" "Navigation Example" white
-
-
-contents =
-    [ Content "bears" "熊" brown
-    , Content "cats" "猫" orange
-    , Content "dogs" "狗" yellow
-    , Content "elephants" "象" gray
-    , Content "fish" "鱼" blue
-    ]
-
-
-getContent : String -> Content
-getContent slug_ =
-    contents
-        |> List.filter (\{ slug } -> slug_ == "#" ++ slug)
-        |> List.head
-        |> Maybe.withDefault defaultContent
 
 
 main =
@@ -42,20 +15,50 @@ main =
         }
 
 
+type alias Content =
+    { slug : String
+    , title : String
+    , color : String
+    , message : String
+    }
+
+
+defaultContent =
+    Content "" "Navigation Example" "white" "This is the default page"
+
+
+contents =
+    [ Content "bears" "熊" "sandybrown" "熊喜欢吃鱼"
+    , Content "cats" "猫" "coral" "猫会说喵喵"
+    , Content "dogs" "狗" "tan" "狗会说汪汪"
+    , Content "elephants" "象" "gainsboro" "象喜欢吃草"
+    , Content "fish" "鱼" "paleturquoise" "鱼是沉默的"
+    ]
+
+
+getContent : String -> Content
+getContent slug_ =
+    contents
+        |> List.filter (\{ slug } -> slug_ == "#" ++ slug)
+        |> List.head
+        |> Maybe.withDefault defaultContent
+
+
 
 -- MODEL
 
 
 type alias Model =
     { history : List Navigation.Location
+    , hash : String
     }
 
 
+{-| Note that init takes a location argument
+-}
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
-    ( Model [ location ]
-    , Cmd.none
-    )
+    Model [ location ] "" ! []
 
 
 
@@ -84,7 +87,11 @@ update msg model =
                 _ =
                     Debug.log "url change location" location
             in
-                { model | history = location :: model.history } ! []
+                { model
+                    | history = location :: model.history
+                    , hash = location.hash
+                }
+                    ! []
 
 
 
@@ -100,7 +107,7 @@ view model =
         [ Util.bootstrap
         , div [ class "row" ]
             [ sidebar model
-            , mainView (model |> getHash |> getContent)
+            , mainView (getContent model.hash)
             ]
         ]
 
@@ -114,9 +121,11 @@ sidebar model =
         ]
 
 
-mainView { title } =
-    div [ class "col-sm-8" ]
-        [ h1 [] [ text title ] ]
+mainView { title, color, message } =
+    div [ class "col-sm-8", style [ ( "backgroundColor", color ) ] ]
+        [ h1 [] [ text title ]
+        , p [] [ text message ]
+        ]
 
 
 viewLink : Content -> Html msg
@@ -130,9 +139,3 @@ viewLink { slug, title } =
 viewLocation : Navigation.Location -> Html msg
 viewLocation location =
     li [] [ text (location.pathname ++ location.hash) ]
-
-
-getHash model =
-    List.head model.history
-        |> Maybe.map (\location -> location.hash)
-        |> Maybe.withDefault ""
