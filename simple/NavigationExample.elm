@@ -20,19 +20,20 @@ type alias Content =
     , title : String
     , color : String
     , message : String
+    , emoji : String
     }
 
 
 defaultContent =
-    Content "" "Navigation Example" "white" "This is the default page"
+    Content "" "Navigation Example" "white" "This is the default page" ""
 
 
 contents =
-    [ Content "bears" "熊" "sandybrown" "熊喜欢吃鱼"
-    , Content "cats" "猫" "coral" "猫会说喵喵"
-    , Content "dogs" "狗" "tan" "狗会说汪汪"
-    , Content "elephants" "象" "gainsboro" "象喜欢吃草"
-    , Content "fish" "鱼" "paleturquoise" "鱼是沉默的"
+    [ Content "bears" "熊" "sandybrown" "熊喜欢吃鱼" "🐻"
+    , Content "cats" "猫" "coral" "猫会说喵喵" "🐱"
+    , Content "dogs" "狗" "tan" "狗会说汪汪" "🐶"
+    , Content "elephants" "象" "gainsboro" "象喜欢吃草" "🐘"
+    , Content "fish" "鱼" "paleturquoise" "鱼是沉默的" "🐟"
     ]
 
 
@@ -58,7 +59,7 @@ type alias Model =
 -}
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
-    Model [ location ] "" ! []
+    { history = [ location ], hash = location.hash } ! []
 
 
 
@@ -121,10 +122,11 @@ sidebar model =
         ]
 
 
-mainView { title, color, message } =
+mainView { title, color, message, emoji } =
     div [ class "col-sm-8", style [ ( "backgroundColor", color ) ] ]
         [ h1 [] [ text title ]
-        , p [] [ text message ]
+        , h2 [] [ text message ]
+        , p [ style [ ( "fontSize", "12rem" ) ] ] [ text emoji ]
         ]
 
 
