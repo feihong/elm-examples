@@ -23,6 +23,12 @@ function getEmoji(shortname) {
     return result
 }
 
+function findEmojis(keyword) {
+    let keyword_ = keyword.toLowerCase()
+    let nameList = shortnames.filter(x => x.includes(keyword_))
+    return nameList.map(getEmoji)
+}
+
 let app = Elm.Main.embed(document.getElementById('main'))
 
 // Respond to emoji requests.

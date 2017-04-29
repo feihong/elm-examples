@@ -37,18 +37,14 @@ type alias Emoji =
 
 
 type alias Model =
-    { emoji : Emoji
+    { emojis : List Emoji
     , displaySize : Int
     }
 
 
 initialModel : Model
 initialModel =
-    { emoji =
-        { shortname = ""
-        , unicode = ""
-        , url = ""
-        }
+    { emojis = List.singleton (Emoji "" "" "")
     , displaySize = 128
     }
 
@@ -63,7 +59,7 @@ init =
 
 
 type Msg
-    = GotEmoji Emoji
+    = GotRandomEmoji Emoji
     | Generate
     | ChangeDisplaySize Int
 
@@ -71,8 +67,8 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GotEmoji emoji ->
-            { model | emoji = emoji } ! []
+        GotRandomEmoji emoji ->
+            { model | emojis = [ emoji ] } ! []
 
         Generate ->
             model ! [ requestEmoji () ]
@@ -87,7 +83,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    receivedEmoji GotEmoji
+    receivedEmoji GotRandomEmoji
 
 
 
@@ -123,26 +119,26 @@ buttons model =
 
 
 emojiView : Model -> Html Msg
-emojiView ({ emoji } as model) =
-    div [ class "emoji" ]
-        [ div []
-            [ text "Shortname: "
-            , span [ class "shortname" ] [ text emoji.shortname ]
-            ]
-        , div []
-            [ text "Unicode: "
-            , span
-                [ class "unicode"
-                , style [ ( "fontSize", (toString model.displaySize) ++ "px" ) ]
+emojiView ({ emojis } as model) =
+    let
+        th_ str =
+            th [] [ text str ]
+
+        tr_ { shortname, unicode, url } =
+            tr []
+                [ td [ class "shortname" ] [ text shortname ]
+                , td [ style [ ( "fontSize", (toString model.displaySize) ++ "px" ) ] ]
+                    [ text unicode ]
+                , td [] [ img [ src url, width model.displaySize ] [] ]
+                , td [] [ a [ href url ] [ text "Link" ] ]
                 ]
-                [ text emoji.unicode ]
+    in
+        table [ class "table table-bordered" ]
+            [ thead []
+                [ tr [] ([ "Shortname", "Unicode", "Image", "URL" ] |> List.map th_)
+                ]
+            , tbody [] (emojis |> List.map tr_)
             ]
-        , div []
-            [ text "Image: "
-            , img [ src emoji.url, width model.displaySize ] []
-            , a [ href emoji.url ] [ text "Link" ]
-            ]
-        ]
 
 
 sizeBtn : String -> Int -> Html Msg
