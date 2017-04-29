@@ -3,6 +3,7 @@ port module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events as Events exposing (onClick, onInput)
+import Json.Decode as Decode
 
 
 {-| Port for requesting random emojis.
@@ -68,9 +69,11 @@ init =
 
 type Msg
     = GotRandomEmoji Emoji
+    | GotEmojis (List Emoji)
     | Generate
     | ChangeDisplaySize Int
     | ChangeKeyword String
+    | SubmitKeyword
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,6 +81,9 @@ update msg model =
     case msg of
         GotRandomEmoji emoji ->
             { model | emojis = [ emoji ] } ! []
+
+        GotEmojis emojis ->
+            { model | emojis = emojis } ! []
 
         Generate ->
             model ! [ requestRandomEmoji () ]
@@ -88,6 +94,13 @@ update msg model =
         ChangeKeyword str ->
             { model | keyword = str } ! []
 
+        SubmitKeyword ->
+            let
+                _ =
+                    Debug.log "submit" model.keyword
+            in
+                model ! [ requestEmojisWithKeyword model.keyword ]
+
 
 
 -- SUBSCRIPTIONS
@@ -95,7 +108,10 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    receivedRandomEmoji GotRandomEmoji
+    Sub.batch
+        [ receivedRandomEmoji GotRandomEmoji
+        , receivedEmojis GotEmojis
+        ]
 
 
 
@@ -111,6 +127,7 @@ view model =
                 , placeholder "Enter keyword here"
                 , value model.keyword
                 , onInput <| ChangeKeyword
+                , onKeyEnter SubmitKeyword
                 ]
                 []
             ]
@@ -159,3 +176,19 @@ sizeBtn : String -> Int -> Html Msg
 sizeBtn label delta =
     button [ class "btn btn-default", onClick <| ChangeDisplaySize delta ]
         [ text label ]
+
+
+onKeyEnter : msg -> Html.Attribute msg
+onKeyEnter msg =
+    let
+        decoder =
+            Events.keyCode
+                |> Decode.andThen
+                    (\code ->
+                        if code == 13 then
+                            Decode.succeed msg
+                        else
+                            Decode.fail "not enter key"
+                    )
+    in
+        Events.on "keypress" decoder
