@@ -32,7 +32,12 @@ function findEmojis(keyword) {
 let app = Elm.Main.embed(document.getElementById('main'))
 
 // Respond to emoji requests.
-app.ports.requestEmoji.subscribe(shortname => {
+app.ports.requestRandomEmoji.subscribe(shortname => {
     let result = getRandomEmoji()
-    app.ports.receivedEmoji.send(result)
+    app.ports.receivedRandomEmoji.send(result)
+})
+
+app.ports.requestEmojisWithKeyword.subscribe(keyword => {
+    let result = findEmojis(keyword)
+    app.ports.receivedEmojis.send(result)
 })

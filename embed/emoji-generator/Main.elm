@@ -2,17 +2,23 @@ port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events as Events exposing (onClick, onInput)
 
 
 {-| Port for requesting random emojis.
 -}
-port requestEmoji : () -> Cmd msg
+port requestRandomEmoji : () -> Cmd msg
 
 
 {-| Port for receiving random emojis.
 -}
-port receivedEmoji : (Emoji -> msg) -> Sub msg
+port receivedRandomEmoji : (Emoji -> msg) -> Sub msg
+
+
+port requestEmojisWithKeyword : String -> Cmd msg
+
+
+port receivedEmojis : (List Emoji -> msg) -> Sub msg
 
 
 main : Program Never Model Msg
@@ -37,21 +43,23 @@ type alias Emoji =
 
 
 type alias Model =
-    { emojis : List Emoji
+    { keyword : String
+    , emojis : List Emoji
     , displaySize : Int
     }
 
 
 initialModel : Model
 initialModel =
-    { emojis = List.singleton (Emoji "" "" "")
+    { keyword = ""
+    , emojis = List.singleton (Emoji "" "" "")
     , displaySize = 128
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    initialModel ! [ requestEmoji () ]
+    initialModel ! [ requestRandomEmoji () ]
 
 
 
@@ -62,6 +70,7 @@ type Msg
     = GotRandomEmoji Emoji
     | Generate
     | ChangeDisplaySize Int
+    | ChangeKeyword String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -71,10 +80,13 @@ update msg model =
             { model | emojis = [ emoji ] } ! []
 
         Generate ->
-            model ! [ requestEmoji () ]
+            model ! [ requestRandomEmoji () ]
 
         ChangeDisplaySize delta ->
             { model | displaySize = model.displaySize + delta } ! []
+
+        ChangeKeyword str ->
+            { model | keyword = str } ! []
 
 
 
@@ -83,7 +95,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    receivedEmoji GotRandomEmoji
+    receivedRandomEmoji GotRandomEmoji
 
 
 
@@ -97,6 +109,8 @@ view model =
             [ input
                 [ class "form-control"
                 , placeholder "Enter keyword here"
+                , value model.keyword
+                , onInput <| ChangeKeyword
                 ]
                 []
             ]
