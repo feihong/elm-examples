@@ -49,7 +49,7 @@ initialModel =
         , unicode = ""
         , url = ""
         }
-    , displaySize = 100
+    , displaySize = 128
     }
 
 
