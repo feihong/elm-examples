@@ -8,6 +8,10 @@ function getRandomEmoji() {
     let len = shortnames.length 
     let index = Math.floor(Math.random() * len)
     let shortname = shortnames[index]
+    return getEmoji(shortname)
+}
+
+function getEmoji(shortname) {
     let div = document.createElement('div')
     div.innerHTML = emojione.shortnameToImage(shortname)
     let img = div.firstChild

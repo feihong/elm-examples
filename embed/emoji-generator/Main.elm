@@ -97,44 +97,52 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ div [ class "buttons" ]
-            [ button [ class "btn btn-primary generate", onClick Generate ]
-                [ text "Generate" ]
-            , span [] [ text "Size: " ]
-            , sizeBtn "-10" -10
-            , sizeBtn "-1" -1
-            , span [ class "size" ] [ text <| toString model.displaySize ]
-            , sizeBtn "+1" 1
-            , sizeBtn "+10" 10
+        [ div [ class "form-group" ]
+            [ input
+                [ class "form-control"
+                , placeholder "Enter keyword here"
+                ]
+                []
             ]
+        , buttons model
         , emojiView model
         ]
 
 
+buttons model =
+    div [ class "buttons" ]
+        [ button [ class "btn btn-primary generate", onClick Generate ]
+            [ text "Random emoji" ]
+        , span [] [ text "Size: " ]
+        , sizeBtn "-10" -10
+        , sizeBtn "-1" -1
+        , span [ class "size" ] [ text <| toString model.displaySize ]
+        , sizeBtn "+1" 1
+        , sizeBtn "+10" 10
+        ]
+
+
 emojiView : Model -> Html Msg
-emojiView model =
-    let
-        emoji =
-            model.emoji
-    in
-        div [ class "emoji" ]
-            [ div []
-                [ text "Shortname: "
-                , span [ class "shortname" ] [ text emoji.shortname ]
-                ]
-            , div []
-                [ text "Unicode: "
-                , span
-                    [ class "unicode"
-                    , style [ ( "fontSize", (toString model.displaySize) ++ "px" ) ]
-                    ]
-                    [ text emoji.unicode ]
-                ]
-            , div []
-                [ text "Image: "
-                , img [ src emoji.url, width model.displaySize ] []
-                ]
+emojiView ({ emoji } as model) =
+    div [ class "emoji" ]
+        [ div []
+            [ text "Shortname: "
+            , span [ class "shortname" ] [ text emoji.shortname ]
             ]
+        , div []
+            [ text "Unicode: "
+            , span
+                [ class "unicode"
+                , style [ ( "fontSize", (toString model.displaySize) ++ "px" ) ]
+                ]
+                [ text emoji.unicode ]
+            ]
+        , div []
+            [ text "Image: "
+            , img [ src emoji.url, width model.displaySize ] []
+            , a [ href emoji.url ] [ text "Link" ]
+            ]
+        ]
 
 
 sizeBtn : String -> Int -> Html Msg
