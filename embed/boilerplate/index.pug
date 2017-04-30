@@ -1,0 +1,14 @@
+extends /bootstrap.pug
+
+block title 
+  | Elm Embed Boilerplate
+
+block extrascript
+  script(src='Main.elm')
+  script.
+    Elm.Main.embed(document.getElementById('main'))
+    
+block content
+  h1 Elm Embed Boilerplate
+
+  #main
