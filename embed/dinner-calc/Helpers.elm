@@ -5,10 +5,6 @@ import Json.Decode exposing (..)
 import Models exposing (..)
 
 
-type alias Money =
-    Int
-
-
 stringToPercent : String -> Result String Float
 stringToPercent text =
     let
@@ -83,55 +79,50 @@ centsToString value =
 calculate : Model -> Calculation
 calculate model =
     let
-        isComplex =
-            model.items
-                |> List.any (\item -> item.payer /= Group)
+        isSimple =
+            List.isEmpty model.items
     in
-        if isComplex then
-            calculateComplex model
-        else
+        if isSimple then
             calculateSimple model
+        else
+            calculateComplex model
 
 
-calculateBasics : Model -> ( Money, Money, Money, Money )
-calculateBasics model =
+calculateBasics : Model -> ( Money, Money, Money, Int )
+calculateBasics { tipPercent, taxPercent, subtotal, attendees } =
     let
-        subtotal =
-            model.items
-                |> List.map .amount
-                |> List.sum
-
         tip =
             subtotal
                 |> toFloat
-                |> (*) (model.tipPercent / 100)
+                |> (*) (tipPercent / 100)
                 |> round
 
         tax =
             subtotal
                 |> toFloat
-                |> (*) (model.taxPercent / 100)
+                |> (*) (taxPercent / 100)
                 |> round
 
         total =
             subtotal + tip + tax
+
+        groupSize =
+            attendees |> List.length
     in
-        ( subtotal, tip, tax, total )
+        ( tip, tax, total, groupSize )
 
 
 calculateSimple : Model -> Calculation
 calculateSimple model =
     let
-        ( subtotal, tip, tax, total ) =
+        ( tip, tax, total, groupSize ) =
             calculateBasics model
 
         amount =
-            (toFloat total)
-                / (toFloat model.groupSize)
+            ((toFloat total) / (toFloat groupSize))
                 |> ceiling
     in
-        { subtotal = subtotal
-        , tax = tax
+        { tax = tax
         , tip = tip
         , total = total
         , breakdown = EveryonePays amount
@@ -141,41 +132,40 @@ calculateSimple model =
 calculateComplex : Model -> Calculation
 calculateComplex model =
     let
-        ( subtotal, tax, tip, total ) =
+        ( tip, tax, total, groupSize ) =
             calculateBasics model
     in
-        { subtotal = subtotal
-        , tax = tax
+        { tax = tax
         , tip = tip
         , total = total
-        , breakdown = calculateComplexBreakdown model subtotal total
+        , breakdown = calculateComplexBreakdown model groupSize total
         }
 
 
-calculateComplexBreakdown : Model -> Money -> Money -> Breakdown
-calculateComplexBreakdown model subtotal total =
+calculateComplexBreakdown : Model -> Int -> Money -> Breakdown
+calculateComplexBreakdown model groupSize total =
     let
         scalingFactor =
-            (toFloat total) / (toFloat subtotal)
+            (toFloat total) / (toFloat model.subtotal)
 
-        sharedAmount =
+        -- Sum of individual item amounts
+        itemsSum =
             model.items
-                |> List.filter (\item -> item.payer == Group)
                 |> List.map .amount
                 |> List.sum
+
+        -- Cost of group items, split up among all attendees
+        sharedAmount =
+            (model.subtotal - itemsSum)
                 |> toFloat
-                |> flip (/) (toFloat model.groupSize)
+                |> flip (/) (toFloat groupSize)
                 |> (*) scalingFactor
 
-        -- Incrementally add up amounts for each individual payer
+        -- Add individual item price to attendee's total
         updateDict item dict =
-            case item.payer of
-                Attendee name ->
-                    updateAdd name item.amount dict
+            updateAdd item.attendee item.amount dict
 
-                Group ->
-                    dict
-
+        -- Scale the computed amount and add the shared amount
         updateAmount amt =
             amt
                 |> toFloat

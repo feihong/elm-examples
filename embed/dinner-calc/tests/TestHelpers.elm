@@ -6,37 +6,34 @@ import Helpers exposing (..)
 import Models exposing (..)
 
 
-groupItems : List Item
-groupItems =
-    [ { payer = Group, name = "Chef Ping Platter", amount = 1250 }
-    , { payer = Group, name = "Green Bean Casserole", amount = 550 }
-    , { payer = Group, name = "Deep Dish Pizza", amount = 1600 }
-    ]
+attendees : List Attendee
+attendees =
+    [ "Evan", "Murphy", "Tessa", "Jessica", "Luke", "Gutedama" ]
 
 
-mixedItems : List Item
-mixedItems =
-    groupItems
-        ++ [ { payer = Attendee "Evan", name = "Maotai", amount = 930 }
-           , { payer = Attendee "Murphy", name = "Mojito", amount = 500 }
-           , { payer = Attendee "Murphy", name = "Margarita", amount = 605 }
-           ]
-
-
+simpleModel : Model
 simpleModel =
     { taxPercent = 9.75
     , tipPercent = 20.0
-    , groupSize = 7
-    , items = groupItems
+    , subtotal = 8823
+    , attendees = attendees
+    , items = []
+    , numbersForm = NumbersForm "" "" ""
+    , attendeesForm = AttendeesForm "" "" False
     }
 
 
+items : List Item
+items =
+    [ { attendee = "Evan", name = "Maotai", amount = 930 }
+    , { attendee = "Murphy", name = "Mojito", amount = 500 }
+    , { attendee = "Murphy", name = "Margarita", amount = 605 }
+    ]
+
+
+model : Model
 model =
-    { taxPercent = 9.75
-    , tipPercent = 20.0
-    , groupSize = 7
-    , items = mixedItems
-    }
+    { simpleModel | items = items }
 
 
 tests : Test
@@ -78,29 +75,27 @@ tests =
             [ test "calculateBasics" <|
                 \() ->
                     calculateBasics model
-                        |> Expect.equal ( 5435, 1087, 530, 7052 )
+                        |> Expect.equal ( 1765, 860, 11448, 6 )
             , test "calculate, simple" <|
                 \() ->
                     calculate simpleModel
                         |> Expect.equal
-                            { subtotal = 3400
-                            , tax = 332
-                            , tip = 680
-                            , total = 4412
-                            , breakdown = EveryonePays 631
+                            { tax = 860
+                            , tip = 1765
+                            , total = 11448
+                            , breakdown = EveryonePays 1908
                             }
             , test "calculate, complex" <|
                 \() ->
                     calculate model
                         |> Expect.equal
-                            { subtotal = 5435
-                            , tax = 1087
-                            , tip = 530
-                            , total = 7052
+                            { tax = 860
+                            , tip = 1765
+                            , total = 11448
                             , breakdown =
                                 ComplexBreakdown
-                                    [ ( "Evan", 1837 ), ( "Murphy", 2064 ) ]
-                                    631
+                                    [ ( "Evan", 2675 ), ( "Murphy", 2902 ) ]
+                                    1468
                             }
             ]
         ]
