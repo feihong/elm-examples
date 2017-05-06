@@ -20,6 +20,24 @@ update msg ({ numbersForm } as model) =
                 Err err ->
                     model |> updateForm { numbersForm | taxPercentErr = err }
 
+        ChangeTipPercent str ->
+            case stringToPercent str of
+                Ok value ->
+                    { model | tipPercent = value }
+                        |> updateForm { numbersForm | tipPercentErr = "" }
+
+                Err err ->
+                    model |> updateForm { numbersForm | tipPercentErr = err }
+
+        ChangeSubtotal str ->
+            case stringToCents str of
+                Ok value ->
+                    { model | subtotal = value }
+                        |> updateForm { numbersForm | subtotalErr = "" }
+
+                Err err ->
+                    model |> updateForm { numbersForm | subtotalErr = err }
+
 
 updateForm form model =
     { model | numbersForm = form }
@@ -47,5 +65,45 @@ view { taxPercent, tipPercent, subtotal, numbersForm } =
                 , span [ class "input-group-addon" ] [ text "%" ]
                 ]
             , div [ class "help-block" ] [ text numbersForm.taxPercentErr ]
+            ]
+        , div
+            [ class "form-group"
+            , classList
+                [ ( "has-error", stringIsNotEmpty numbersForm.tipPercentErr ) ]
+            ]
+            [ label [] [ text "Tip" ]
+            , div
+                [ class "input-group" ]
+                [ input
+                    [ type_ "number"
+                    , class "form-control"
+                    , defaultValue <| toString tipPercent
+                    , size 5
+                    , onInput (NumbersFormMsg << ChangeTipPercent)
+                    ]
+                    []
+                , span [ class "input-group-addon" ] [ text "%" ]
+                ]
+            , div [ class "help-block" ] [ text numbersForm.tipPercentErr ]
+            ]
+        , div
+            [ class "form-group"
+            , classList
+                [ ( "has-error", stringIsNotEmpty numbersForm.subtotalErr ) ]
+            ]
+            [ label [] [ text "Subtotal" ]
+            , div
+                [ class "input-group" ]
+                [ span [ class "input-group-addon" ] [ text "$" ]
+                , input
+                    [ type_ "number"
+                    , class "form-control"
+                    , defaultValue <| centsToString subtotal
+                    , size 5
+                    , onInput (NumbersFormMsg << ChangeSubtotal)
+                    ]
+                    []
+                ]
+            , div [ class "help-block" ] [ text numbersForm.subtotalErr ]
             ]
         ]

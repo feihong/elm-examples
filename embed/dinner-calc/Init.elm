@@ -28,7 +28,7 @@ defaultTipPercent =
 
 
 defaultSubtotal =
-    2000
+    3000
 
 
 initialModel : Model

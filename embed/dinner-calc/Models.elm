@@ -68,6 +68,8 @@ type alias Calculation =
 
 type NumbersFormMsg
     = ChangeTaxPercent String
+    | ChangeTipPercent String
+    | ChangeSubtotal String
 
 
 
