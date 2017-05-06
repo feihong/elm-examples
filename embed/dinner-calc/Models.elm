@@ -1,71 +1,9 @@
 module Models exposing (..)
 
--- sampleItems =
---     [ { payer = Group, name = "Chef Ping Platter", amount = 1235 }
---     , { payer = Group, name = "Green Bean Casserole", amount = 550 }
---     , { payer = Group, name = "Deep Dish Pizza", amount = 1600 }
---     , { payer = Attendee "Norman", name = "Maotai", amount = 1500 }
---     , { payer = Attendee "Cameron", name = "Mojito", amount = 500 }
---     , { payer = Attendee "Cameron", name = "Margarita", amount = 450 }
---     ]
--- sampleItemForms =
---     sampleItems
---         |> List.map
---             (\item ->
---                 ItemsForm.ItemForm
---                     (case item.payer of
---                         Group ->
---                             "Group"
---                         Attendee name ->
---                             name
---                     )
---                     item.name
---                     (toString item.amount)
---                     []
---             )
--- samplePayers =
---     sampleItems
---         |> List.filter (\item -> item.payer /= Group)
---         |> List.map
---             (\item ->
---                 case item.payer of
---                     Group ->
---                         ""
---                     Attendee name ->
---                         name
---             )
---         |> Set.fromList
---         |> Set.toList
-
-
-defaultTaxPercent =
-    9.75
-
-
-defaultTipPercent =
-    20.0
-
-
-
--- initialModel =
---     { taxPercent = defaultTaxPercent
---     , tipPercent = defaultTipPercent
---     , taxPercentErr = ""
---     , tipPercentErr = ""
---     , groupSizeErr = ""
---     , individualPayers = samplePayers
---     , newPayer = ""
---     , newPayerErr = ""
---     , showDialog = False
---     , items =
---         sampleItems
---         -- , formState = ItemsForm.initialState
---     , formState = { newItem = ItemsForm.ItemForm "Group" "" "" [], items = sampleItemForms }
---     }
-
-
 {-| Money, in cents
 -}
+
+
 type alias Money =
     Int
 
@@ -111,9 +49,9 @@ type alias AttendeesForm =
 
 
 {-| Complex breakdown contains list of (name, amount) tuples describing
-    attendees who ordered individual items and how much they need to pay. The
-    second argument to ComplexBreakdown is the amount that everyone else needs
-    to pay.
+attendees who ordered individual items and how much they need to pay. The
+second argument to ComplexBreakdown is the amount that everyone else needs
+to pay.
 -}
 type Breakdown
     = EveryonePays Money
@@ -128,13 +66,23 @@ type alias Calculation =
     }
 
 
+type NumbersFormMsg
+    = ChangeTaxPercent String
 
--- type Msg
---     = NoOp
---       -- Top form
---     | ChangeTaxPercent String
+
+
 --     | ChangeTipPercent String
---     | ChangeGroupSize String
+--     | ChangeSubtotal String
+
+
+type Msg
+    = NoOp
+    | NumbersFormMsg NumbersFormMsg
+
+
+
+--       -- Top form
+--     |
 --       -- Payer
 --     | RemovePayer String
 --     | AddPayer

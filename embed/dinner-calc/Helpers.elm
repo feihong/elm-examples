@@ -181,7 +181,7 @@ calculateComplexBreakdown model groupSize total =
 
 
 {-| Update the value at the given key. If there is already a value there, add
-    the new value to the old value.
+the new value to the old value.
 -}
 updateAdd : String -> number -> Dict String number -> Dict String number
 updateAdd key newValue dict =
