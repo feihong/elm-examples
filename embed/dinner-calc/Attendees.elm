@@ -3,18 +3,29 @@ module Attendees exposing (update, view)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
+import Dom
+import Task
 import Dialog
 import Models exposing (..)
 import ViewUtil exposing (..)
-import Util
+import Util exposing (..)
 
 
-update : AttendeesMsg -> Model -> Model
+textareaId =
+    "add-attendees-textarea"
+
+
+update : AttendeesMsg -> Model -> ( Model, Cmd Msg )
 update msg ({ attendeesForm, attendees } as model) =
     case msg of
         ToggleAttendeesDialog ->
-            model
-                |> updateForm { attendeesForm | showDialog = not attendeesForm.showDialog }
+            let
+                newModel =
+                    model
+                        |> updateForm { attendeesForm | showDialog = not attendeesForm.showDialog }
+            in
+                newModel
+                    ! [ Dom.focus textareaId |> Task.attempt (always NoOp) ]
 
         RemoveAttendee name ->
             let
@@ -22,6 +33,7 @@ update msg ({ attendeesForm, attendees } as model) =
                     attendees |> List.filter (\n -> n /= name)
             in
                 { model | attendees = newAttendees }
+                    |> noCmd
 
 
 updateForm form model =
@@ -74,7 +86,7 @@ dialogBody form =
             ]
         ]
         [ textarea
-            [ id "add-attendees-textarea"
+            [ id textareaId
             , class "form-control"
             , placeholder "Names of attendees, separated by commas"
             , value form.attendeesStr

@@ -16,6 +16,7 @@ import Views
 import NumbersForm exposing (..)
 import Attendees exposing (..)
 import Helpers exposing (..)
+import Util exposing (..)
 
 
 -- import ItemsForm
@@ -44,7 +45,11 @@ update msg model =
             NumbersForm.update formMsg model |> noCmd
 
         AttendeesMsg attMsg ->
-            Attendees.update attMsg model |> noCmd
+            let
+                ( newModel, cmd ) =
+                    Attendees.update attMsg model
+            in
+                ( newModel, cmd )
 
 
 
@@ -148,7 +153,3 @@ update msg model =
 --                 { model | items = newItems } |> noCmd
 --         _ ->
 --             model ! []
-
-
-noCmd model =
-    model ! []
