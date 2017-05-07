@@ -72,14 +72,20 @@ type NumbersFormMsg
     | ChangeSubtotal String
 
 
+type AttendeesMsg
+    = ToggleAttendeesDialog
+    | RemoveAttendee String
 
---     | ChangeTipPercent String
---     | ChangeSubtotal String
+
+
+-- | ChangeAttendees String
+-- | SubmitAttendees
 
 
 type Msg
     = NoOp
     | NumbersFormMsg NumbersFormMsg
+    | AttendeesMsg AttendeesMsg
 
 
 

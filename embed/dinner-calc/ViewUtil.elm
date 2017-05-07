@@ -1,8 +1,13 @@
 module ViewUtil exposing (..)
 
-import Html
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (on, keyCode)
 import Json.Decode as Decode
+
+
+icon name =
+    span [ class <| "glyphicon glyphicon-" ++ name ] []
 
 
 onKeyEnter : msg -> Html.Attribute msg

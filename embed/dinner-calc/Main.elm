@@ -10,11 +10,11 @@ module Main exposing (..)
 import Html exposing (..)
 import Dom
 import Task
-import Validate exposing (Validator, ifBlank, ifInvalid)
 import Models exposing (..)
 import Init exposing (init)
 import Views
 import NumbersForm exposing (..)
+import Attendees exposing (..)
 import Helpers exposing (..)
 
 
@@ -42,6 +42,9 @@ update msg model =
 
         NumbersFormMsg formMsg ->
             NumbersForm.update formMsg model |> noCmd
+
+        AttendeesMsg attMsg ->
+            Attendees.update attMsg model |> noCmd
 
 
 

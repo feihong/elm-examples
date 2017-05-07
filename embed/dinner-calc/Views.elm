@@ -7,6 +7,7 @@ import Dialog
 import Models exposing (..)
 import ViewUtil
 import NumbersForm exposing (..)
+import Attendees exposing (..)
 
 
 -- import ItemsForm
@@ -16,6 +17,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ NumbersForm.view model
+        , Attendees.view model
         ]
 
 
@@ -39,43 +41,6 @@ view model =
 --         [ numInput "tax" "Tax" "%" model.taxPercent model.taxPercentErr ChangeTaxPercent
 --         , numInput "tip" "Tip" "%" model.tipPercent model.tipPercentErr ChangeTipPercent
 --         , numInput "groupSize" "Group size" "people" model.groupSize model.groupSizeErr ChangeGroupSize
---         ]
--- individualPayersView model =
---     let
---         view payer =
---             div [ class "payer", onClick <| RemovePayer payer ]
---                 [ icon "remove", text payer ]
---     in
---         div [ class "payers" ]
---             (button [ class "btn btn-default", onClick ToggleDialog ]
---                 [ icon "plus", text "Add" ]
---                 :: (model.individualPayers |> List.map view)
---             )
--- icon name =
---     span [ class <| "glyphicon glyphicon-" ++ name ] []
--- numInput id_ label_ addon defaultValue_ errMsg msg =
---     div
---         [ classList
---             [ ( "form-group", True )
---             , ( "has-error", not <| String.isEmpty errMsg )
---             ]
---         ]
---         [ label [ for id_, class "control-label" ]
---             [ text label_ ]
---         , div
---             [ class "input-group" ]
---             [ input
---                 [ id id_
---                 , type_ "number"
---                 , class "form-control"
---                 , defaultValue <| toString defaultValue_
---                 , size 5
---                 , onInput msg
---                 ]
---                 []
---             , span [ class "input-group-addon" ] [ text addon ]
---             ]
---         , div [ class "help-block" ] [ text errMsg ]
 --         ]
 -- pairDiv label amount =
 --     div []
