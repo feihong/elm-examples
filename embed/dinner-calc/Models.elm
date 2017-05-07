@@ -79,7 +79,7 @@ type AttendeesMsg
 
 
 -- | ChangeAttendees String
--- | SubmitAttendees
+-- | AddAttendees
 
 
 type Msg
