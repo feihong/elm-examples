@@ -73,12 +73,13 @@ type NumbersFormMsg
 
 
 type AttendeesMsg
-    = ToggleAttendeesDialog
+    = OpenAttendeesDialog
+    | CloseAttendeesDialog
     | RemoveAttendee String
+    | ChangeAttendees String
 
 
 
--- | ChangeAttendees String
 -- | AddAttendees
 
 

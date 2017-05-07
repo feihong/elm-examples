@@ -18,14 +18,24 @@ textareaId =
 update : AttendeesMsg -> Model -> ( Model, Cmd Msg )
 update msg ({ attendeesForm, attendees } as model) =
     case msg of
-        ToggleAttendeesDialog ->
+        OpenAttendeesDialog ->
             let
                 newModel =
                     model
-                        |> updateForm { attendeesForm | showDialog = not attendeesForm.showDialog }
+                        |> updateForm
+                            { attendeesForm
+                                | attendeesStr = ""
+                                , attendeesErr = ""
+                                , showDialog = not attendeesForm.showDialog
+                            }
             in
                 newModel
                     ! [ Dom.focus textareaId |> Task.attempt (always NoOp) ]
+
+        CloseAttendeesDialog ->
+            model
+                |> updateForm { attendeesForm | showDialog = False }
+                |> noCmd
 
         RemoveAttendee name ->
             let
@@ -34,6 +44,11 @@ update msg ({ attendeesForm, attendees } as model) =
             in
                 { model | attendees = newAttendees }
                     |> noCmd
+
+        ChangeAttendees str ->
+            model
+                |> updateForm { attendeesForm | attendeesStr = str }
+                |> noCmd
 
 
 updateForm form model =
@@ -46,7 +61,7 @@ view ({ attendeesForm } as model) =
         , div [ class "attendees" ]
             (button
                 [ class "btn btn-default"
-                , onClick <| AttendeesMsg ToggleAttendeesDialog
+                , onClick <| AttendeesMsg OpenAttendeesDialog
                 ]
                 [ icon "plus", text "Add" ]
                 :: (model.attendees |> List.map attendeePill)
@@ -70,11 +85,11 @@ attendeePill name =
 
 dialogConfig : Model -> Dialog.Config Msg
 dialogConfig { attendeesForm } =
-    { closeMessage = Just <| AttendeesMsg ToggleAttendeesDialog
+    { closeMessage = Just <| AttendeesMsg CloseAttendeesDialog
     , containerClass = Nothing
     , header = Just (h4 [ class "modal-title" ] [ text "Add attendees" ])
     , body = Just <| dialogBody attendeesForm
-    , footer = Just dialogFooter
+    , footer = Just <| dialogFooter attendeesForm
     }
 
 
@@ -82,32 +97,32 @@ dialogBody form =
     div
         [ class "form-group"
         , classList
-            [ ( "has-error", Util.stringIsNotEmpty form.attendeesStr )
+            [ ( "has-error", Util.stringIsNotEmpty form.attendeesErr )
             ]
         ]
         [ textarea
             [ id textareaId
+            , rows 4
             , class "form-control"
-            , placeholder "Names of attendees, separated by commas"
+            , placeholder "Names of attendees, separated by newlines"
             , value form.attendeesStr
-
-            -- , onInput UpdateNewPayer
-            -- , ViewUtil.onKeyEnter AddPayer
+            , onInput <| AttendeesMsg << ChangeAttendees
             ]
             []
         , div [ class "help-block" ] [ text form.attendeesErr ]
         ]
 
 
-dialogFooter =
+dialogFooter form =
     div []
         [ button
             [ class "btn btn-default"
-            , onClick <| AttendeesMsg ToggleAttendeesDialog
+            , onClick <| AttendeesMsg CloseAttendeesDialog
             ]
             [ text "Cancel" ]
         , button
             [ class "btn btn-primary"
+            , disabled <| String.isEmpty form.attendeesStr
             , onClick <| NoOp
             ]
             [ text "Add" ]
