@@ -50,6 +50,15 @@ update msg ({ attendeesForm, attendees } as model) =
                 |> updateForm { attendeesForm | attendeesStr = str }
                 |> noCmd
 
+        AddAttendees ->
+            let
+                newAttendees =
+                    model.attendees ++ stringToAttendees attendeesForm.attendeesStr
+            in
+                { model | attendees = newAttendees }
+                    |> updateForm { attendeesForm | showDialog = False }
+                    |> noCmd
+
 
 updateForm form model =
     { model | attendeesForm = form }
@@ -122,8 +131,15 @@ dialogFooter form =
             [ text "Cancel" ]
         , button
             [ class "btn btn-primary"
-            , disabled <| String.isEmpty form.attendeesStr
-            , onClick <| NoOp
+            , disabled <| (String.isEmpty << String.trim) form.attendeesStr
+            , onClick <| AttendeesMsg AddAttendees
             ]
             [ text "Add" ]
         ]
+
+
+stringToAttendees : String -> List Attendee
+stringToAttendees str =
+    String.split "\n" str
+        |> List.map String.trim
+        |> List.filter stringIsNotEmpty

@@ -77,10 +77,7 @@ type AttendeesMsg
     | CloseAttendeesDialog
     | RemoveAttendee String
     | ChangeAttendees String
-
-
-
--- | AddAttendees
+    | AddAttendees
 
 
 type Msg
