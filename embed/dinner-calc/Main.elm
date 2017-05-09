@@ -1,7 +1,7 @@
 {- todo:
    - dismiss dialog with esc key
-   - items view
-   - item form
+   - don't allow duplicates inside attendees textarea
+   - items form
 -}
 
 

@@ -63,13 +63,18 @@ addAttendees ({ attendeesForm, attendees } as model) =
 
         duplicates =
             duplicateNames attendees names
+
+        mesg names =
+            names
+                |> String.join ", "
+                |> (++) "These attendees have already been added: "
     in
-        if Set.isEmpty duplicates then
+        if List.isEmpty duplicates then
             { model | attendees = List.sort (names ++ attendees) }
                 |> updateForm { attendeesForm | showDialog = False }
         else
             model
-                |> updateForm { attendeesForm | attendeesErr = "Duplicates detected" }
+                |> updateForm { attendeesForm | attendeesErr = mesg duplicates }
 
 
 updateForm form model =
@@ -157,6 +162,17 @@ stringToNames str =
         |> List.filter stringIsNotEmpty
 
 
-duplicateNames : List String -> List String -> Set String
+duplicateNames : List String -> List String -> List String
 duplicateNames orig new =
-    Set.intersect (Set.fromList orig) (Set.fromList new)
+    let
+        origSet =
+            orig |> List.map String.toLower |> Set.fromList
+
+        update name list =
+            if Set.member (String.toLower name) origSet then
+                name :: list
+            else
+                list
+    in
+        new
+            |> List.foldl update []
