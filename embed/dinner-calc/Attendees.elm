@@ -1,5 +1,6 @@
 module Attendees exposing (update, view)
 
+import Set exposing (Set)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -51,13 +52,24 @@ update msg ({ attendeesForm, attendees } as model) =
                 |> noCmd
 
         AddAttendees ->
-            let
-                newAttendees =
-                    model.attendees ++ stringToAttendees attendeesForm.attendeesStr
-            in
-                { model | attendees = newAttendees }
-                    |> updateForm { attendeesForm | showDialog = False }
-                    |> noCmd
+            addAttendees model |> noCmd
+
+
+addAttendees : Model -> Model
+addAttendees ({ attendeesForm, attendees } as model) =
+    let
+        names =
+            stringToNames attendeesForm.attendeesStr
+
+        duplicates =
+            duplicateNames attendees names
+    in
+        if Set.isEmpty duplicates then
+            { model | attendees = List.sort (names ++ attendees) }
+                |> updateForm { attendeesForm | showDialog = False }
+        else
+            model
+                |> updateForm { attendeesForm | attendeesErr = "Duplicates detected" }
 
 
 updateForm form model =
@@ -106,7 +118,7 @@ dialogBody form =
     div
         [ class "form-group"
         , classList
-            [ ( "has-error", Util.stringIsNotEmpty form.attendeesErr )
+            [ ( "has-error", stringIsNotEmpty form.attendeesErr )
             ]
         ]
         [ textarea
@@ -138,8 +150,13 @@ dialogFooter form =
         ]
 
 
-stringToAttendees : String -> List Attendee
-stringToAttendees str =
+stringToNames : String -> List String
+stringToNames str =
     String.split "\n" str
         |> List.map String.trim
         |> List.filter stringIsNotEmpty
+
+
+duplicateNames : List String -> List String -> Set String
+duplicateNames orig new =
+    Set.intersect (Set.fromList orig) (Set.fromList new)
