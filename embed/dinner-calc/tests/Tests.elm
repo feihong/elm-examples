@@ -3,13 +3,16 @@ module Tests exposing (..)
 import Test exposing (..)
 import Expect
 import Test.Runner.Html as Runner
-import TestHelpers
+import TestCalculate
+import TestUtil
 
 
 tests : Test
 tests =
-    describe "Dinner Calculator tests"
-        [ TestHelpers.tests ]
+    describe "All tests"
+        [ TestCalculate.tests
+        , TestUtil.tests
+        ]
 
 
 main : Runner.TestProgram

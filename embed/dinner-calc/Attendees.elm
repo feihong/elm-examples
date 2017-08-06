@@ -176,3 +176,7 @@ duplicateNames orig new =
     in
         new
             |> List.foldl update []
+
+
+uniqueNames names =
+    names
